@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+/// users
+model User {
+  id                     Int                            @id @default(autoincrement())
+  name                   String
+  email                  String                         @unique
+  password               String
+  role                   Role
+  status                 Status                         @default(pending)
+  created_at             DateTime                       @default(now())
+  updated_at             DateTime                       @updatedAt
+  cancellation_requests  AgreementCancellationRequest[]
+  assistance_requests    FinancialAssistanceRequest[]
+  financial_reports      FinancialReport[]
+  franchise_applications FranchiseApplication[]         @relation("FranchiseeApplications")
+  franchises             Franchise[]                    @relation("FranchisorFranchises")
+
+  @@map("users")
+}
+
+/// franchises
+model Franchise {
+  id                    Int                            @id @default(autoincrement())
+  franchisor_id         Int
+  name                  String
+  description           String?
+  category              String?
+  created_at            DateTime                       @default(now())
+  updated_at            DateTime                       @updatedAt
+  cancellation_requests AgreementCancellationRequest[]
+  assistance_requests   FinancialAssistanceRequest[]
+  financial_reports     FinancialReport[]
+  applications          FranchiseApplication[]
+  franchisor            User                           @relation("FranchisorFranchises", fields: [franchisor_id], references: [id], onDelete: Cascade)
+  training_resources    TrainingResource[]
+
+  @@index([franchisor_id])
+  @@map("franchises")
+}
+
+/// franchise_applications
+model FranchiseApplication {
+  id            Int               @id @default(autoincrement())
+  franchise_id  Int
+  franchisee_id Int
+  status        ApplicationStatus @default(pending)
+  notes         String?
+  applied_at    DateTime          @default(now())
+  reviewed_at   DateTime?
+  franchise     Franchise         @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
+  franchisee    User              @relation("FranchiseeApplications", fields: [franchisee_id], references: [id], onDelete: Cascade)
+
+  @@index([franchise_id])
+  @@index([franchisee_id])
+  @@map("franchise_applications")
+}
+
+/// financial_reports
+model FinancialReport {
+  id            Int       @id @default(autoincrement())
+  franchisee_id Int
+  franchise_id  Int
+  report_date   DateTime  @db.Date
+  file_url      String
+  uploaded_at   DateTime  @default(now())
+  franchise     Franchise @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
+  franchisee    User      @relation(fields: [franchisee_id], references: [id], onDelete: Cascade)
+
+  @@index([franchise_id])
+  @@index([franchisee_id])
+  @@map("financial_reports")
+}
+
+/// training_resources
+model TrainingResource {
+  id           Int       @id @default(autoincrement())
+  id_franchise Int       @map("id_franchise")
+  title        String
+  content      String?
+  resource_url String?   @map("resource_url")
+  created_at   DateTime  @default(now())
+  franchise    Franchise @relation(fields: [id_franchise], references: [id], onDelete: Cascade)
+
+  @@index([id_franchise])
+  @@map("training_resources")
+}
+
+/// events (global)
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  event_date  DateTime @db.Date
+  created_at  DateTime @default(now())
+
+  @@map("events")
+}
+
+/// financial_assistance_requests
+model FinancialAssistanceRequest {
+  id            Int               @id @default(autoincrement())
+  franchisee_id Int
+  franchise_id  Int
+  amount        Decimal           @db.Decimal(15, 2)
+  status        ApplicationStatus @default(pending)
+  notes         String?
+  requested_at  DateTime          @default(now())
+  reviewed_at   DateTime?
+  franchise     Franchise         @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
+  franchisee    User              @relation(fields: [franchisee_id], references: [id], onDelete: Cascade)
+
+  @@index([franchise_id])
+  @@index([franchisee_id])
+  @@map("financial_assistance_requests")
+}
+
+/// agreement_cancellation_requests
+model AgreementCancellationRequest {
+  id            Int               @id @default(autoincrement())
+  franchisee_id Int
+  franchise_id  Int
+  reason        String
+  status        ApplicationStatus @default(pending)
+  requested_at  DateTime          @default(now())
+  reviewed_at   DateTime?
+  franchise     Franchise         @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
+  franchisee    User              @relation(fields: [franchisee_id], references: [id], onDelete: Cascade)
+
+  @@index([franchise_id])
+  @@index([franchisee_id])
+  @@map("agreement_cancellation_requests")
+}
+
+/// ───── ENUMS ───────────────────────────────────────────────
+enum Role {
+  franchisee
+  franchisor
+  admin
+}
+
+enum Status {
+  pending
+  active
+  rejected
+}
+
+enum ApplicationStatus {
+  pending
+  approved
+  rejected
+}
