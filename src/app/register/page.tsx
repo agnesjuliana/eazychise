@@ -1,11 +1,11 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function RegisterPage() {
@@ -14,13 +14,61 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "franchisee",
   })
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+  useEffect(() => {
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError("Semua field wajib diisi")
+    } else if (!isValidEmail(formData.email)) {
+      setError("Format email tidak valid")
+    } else if (formData.password.length < 6) {
+      setError("Password minimal 6 karakter")
+    } else if (formData.password !== formData.confirmPassword) {
+      setError("Password dan konfirmasi tidak cocok")
+    } else {
+      setError("")
+    }
+  }, [formData])
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (error) return
+
+    setIsLoading(true)
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      }),
+    })
+
+    const data = await res.json()
+    setIsLoading(false)
+
+    if (!res.ok) {
+      setError(data.error || "Registrasi gagal.")
+      return
+    }
+
+    window.location.href = "/login"
   }
 
   return (
@@ -38,14 +86,16 @@ export default function RegisterPage() {
 
         <h1 className="text-center text-2xl font-bold text-black">DAFTAR</h1>
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
           <div className="space-y-2">
             <Label htmlFor="fullName">Nama Lengkap</Label>
             <Input
               id="fullName"
-              placeholder="Masukkan Nama Lengkap"
               value={formData.fullName}
               onChange={(e) => updateField("fullName", e.target.value)}
+              placeholder="Masukkan Nama Lengkap"
             />
           </div>
 
@@ -53,10 +103,11 @@ export default function RegisterPage() {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              type="email"
-              placeholder="Masukkan Alamat Email"
+              type="text"
+              autoComplete="email"
               value={formData.email}
               onChange={(e) => updateField("email", e.target.value)}
+              placeholder="Masukkan Email"
             />
           </div>
 
@@ -65,9 +116,9 @@ export default function RegisterPage() {
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="••••••"
               value={formData.password}
               onChange={(e) => updateField("password", e.target.value)}
+              placeholder="••••••"
               className="pr-10"
             />
             <button
@@ -84,9 +135,9 @@ export default function RegisterPage() {
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
-              placeholder="••••••"
               value={formData.confirmPassword}
               onChange={(e) => updateField("confirmPassword", e.target.value)}
+              placeholder="••••••"
               className="pr-10"
             />
             <button
@@ -98,20 +149,38 @@ export default function RegisterPage() {
             </button>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="role">Daftar Sebagai</Label>
+            <select
+              id="role"
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              value={formData.role}
+              onChange={(e) => updateField("role", e.target.value)}
+            >
+              <option value="franchisee">Franchisee</option>
+              <option value="franchisor">Franchisor</option>
+            </select>
+          </div>
+
           <Button
             type="submit"
-            className="w-full rounded-md bg-[#EF5A5A] text-white hover:bg-[#e44d4d]"
+            disabled={!!error || isLoading}
+            className="w-full rounded-md bg-[#EF5A5A] text-white hover:bg-[#e44d4d] disabled:opacity-50"
           >
-            DAFTAR
+            {isLoading ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              "DAFTAR"
+            )}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Sudah punya akun?{' '}
+            Sudah punya akun?{" "}
             <Link href="/login" className="text-[#EF5A5A] font-medium hover:underline">
               Masuk
             </Link>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   )

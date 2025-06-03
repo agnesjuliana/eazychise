@@ -1,24 +1,64 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  })
-
-  const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const updateField = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setError("");
+  };
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError("Email dan password wajib diisi");
+      return;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setError("Format email tidak valid");
+      return;
+    }
+
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Login gagal");
+      return;
+    }
+
+    const role = data?.user?.role;
+    const status = data?.user?.status;
+
+    if (status === "pending") {
+      window.location.href = "/verifikasi";
+    } else if (role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/";
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-white">
@@ -32,18 +72,20 @@ export default function LoginPage() {
             priority
           />
         </div>
-
         <h1 className="text-center text-2xl font-bold text-black">MASUK</h1>
 
-        <div className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              type="email"
-              placeholder="Dwiyanto28@email.com"
+              type="text"
+              autoComplete="email"
               value={formData.email}
               onChange={(e) => updateField("email", e.target.value)}
+              placeholder="Masukkan Alamat Email"
             />
           </div>
 
@@ -52,9 +94,9 @@ export default function LoginPage() {
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="••••••"
               value={formData.password}
               onChange={(e) => updateField("password", e.target.value)}
+              placeholder="••••••"
               className="pr-10"
             />
             <button
@@ -62,25 +104,32 @@ export default function LoginPage() {
               className="absolute top-9 right-3 text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
 
           <Button
             type="submit"
-            className="w-full rounded-md bg-[#EF5A5A] text-white hover:bg-[#e44d4d]"
+            className="w-full bg-[#EF5A5A] text-white hover:bg-[#e44d4d]"
           >
             MASUK
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Belum punya akun?{' '}
-            <Link href="/register" className="text-[#EF5A5A] font-medium hover:underline">
+            Belum punya akun?{" "}
+            <Link
+              href="/register"
+              className="text-[#EF5A5A] font-medium hover:underline"
+            >
               Daftar
             </Link>
           </p>
-        </div>
+        </form>
       </div>
     </div>
-  )
+  );
 }
