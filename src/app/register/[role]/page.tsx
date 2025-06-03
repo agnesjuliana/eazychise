@@ -1,34 +1,44 @@
 "use client"
 
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { Card } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 export default function RegisterPage() {
+  const { role } = useParams() as { role: string }
+  const router = useRouter()
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "franchisee",
+    role: role === "franchisor" ? "franchisor" : "franchisee"
   })
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-
-  const isValidEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   useEffect(() => {
     if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
       setError("Semua field wajib diisi")
-    } else if (!isValidEmail(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError("Format email tidak valid")
     } else if (formData.password.length < 6) {
       setError("Password minimal 6 karakter")
@@ -45,7 +55,6 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (error) return
 
     setIsLoading(true)
@@ -68,13 +77,25 @@ export default function RegisterPage() {
       return
     }
 
-    window.location.href = "/login"
+    setDialogOpen(true)
+    setTimeout(() => router.push("/login"), 1500)
   }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-white">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="flex justify-center">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Registrasi Berhasil!</DialogTitle>
+            <DialogDescription>
+              Kamu akan diarahkan ke halaman login dalam beberapa detik.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <Card className="w-full max-w-sm p-6 shadow-xl rounded-2xl border border-gray-200">
+        <div className="flex justify-center mb-4">
           <Image
             src="/image/auth/register.png"
             alt="Register Illustration"
@@ -84,7 +105,9 @@ export default function RegisterPage() {
           />
         </div>
 
-        <h1 className="text-center text-2xl font-bold text-black">DAFTAR</h1>
+        <h1 className="text-center text-2xl font-bold text-black mb-2">
+          Daftar Sebagai {formData.role === "franchisee" ? "Franchisee" : "Franchisor"}
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="text-sm text-red-500">{error}</p>}
@@ -149,19 +172,6 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">Daftar Sebagai</Label>
-            <select
-              id="role"
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              value={formData.role}
-              onChange={(e) => updateField("role", e.target.value)}
-            >
-              <option value="franchisee">Franchisee</option>
-              <option value="franchisor">Franchisor</option>
-            </select>
-          </div>
-
           <Button
             type="submit"
             disabled={!!error || isLoading}
@@ -181,7 +191,7 @@ export default function RegisterPage() {
             </Link>
           </p>
         </form>
-      </div>
+      </Card>
     </div>
   )
 }
