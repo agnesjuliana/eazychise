@@ -1,18 +1,28 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
-
-First, run the development server:
-
+## Getting Started The Project
+1. Copy the .env-example to .env
+```bash
+copy .env-example .env
+```
+2. Fill in the environment
+3. Install the dependencies
+```bash
+npm install
+```
+4. Migrate schema database
+```bash
+npx prisma migrate dev
+```
+5. Check the prisma status
+```bash
+npx prisma studio
+```
+6. Run project to development
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
