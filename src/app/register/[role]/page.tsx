@@ -28,6 +28,7 @@ export default function RegisterPage() {
     confirmPassword: "",
     role: role === "franchisor" ? "franchisor" : "franchisee"
   })
+  console.log("formData:", formData);
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
