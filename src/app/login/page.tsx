@@ -67,7 +67,7 @@ export default function LoginPage() {
       } else if (data.user?.status === "pending") {
         router.push("/verifikasi")
       } else {
-        router.push("/")
+        router.push("/", )
       }
     }, 1200)
   }

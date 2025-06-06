@@ -4,8 +4,45 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function VerifikasiPage() {
+  const [isVerified, setIsVerified] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+      try {
+        const response = await fetch('/api/login', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        const data = await response.json();
+        
+        if (data.isLoggedIn && data.user.status === 'active') {
+          setIsVerified(true);
+          router.push('/start');
+        }
+      } catch (error) {
+        console.error('Error checking verification status:', error);
+      }
+    };
+
+    checkVerificationStatus();
+
+    // Recheck status every 30 seconds
+    const interval = setInterval(checkVerificationStatus, 30000);
+
+    return () => clearInterval(interval);
+  }, [router]);
+
+  if (isVerified) {
+    return <div>Redirecting...</div>;
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 py-10">
       <Card className="w-full max-w-sm text-center p-6 shadow-xl space-y-3 rounded-2xl border border-gray-200">
@@ -26,11 +63,19 @@ export default function VerifikasiPage() {
           Mohon tunggu hingga 1x24 jam untuk proses verifikasi dari admin. Jika
           sudah diverifikasi, Anda dapat login seperti biasa.
         </p>
-        <Link href="https://wa.link/uqnuy1">
-          <Button className="w-full bg-[#EF5A5A] hover:bg-[#e44d4d]">
-            Hubungi Admin
+        <div className="flex flex-col gap-3 mt-2">
+          <Link href="https://wa.link/uqnuy1">
+            <Button className="w-full bg-[#EF5A5A] hover:bg-[#e44d4d]">
+              Hubungi Admin
+            </Button>
+          </Link>
+          <Button
+            className="w-full bg-gray-200 hover:bg-gray-300 text-black"
+            onClick={() => router.refresh()}
+          >
+            Refresh Status
           </Button>
-        </Link>
+        </div>
       </Card>
     </div>
   );
