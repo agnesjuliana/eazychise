@@ -7,6 +7,6 @@ export default function FranchiseDetail(
   console.log("Franchise ID:", franchiseId);
 
   return (
-    <div>FranchiseDetail</div>
+    <div>{`Franchise ID: ${franchiseId}`}</div>
   )
 }

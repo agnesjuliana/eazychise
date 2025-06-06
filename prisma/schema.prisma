@@ -151,6 +151,7 @@ enum Status {
   pending
   active
   rejected
+  revisi
 }
 
 enum ApplicationStatus {

@@ -1,6 +1,5 @@
 "use client";
 
-import AppLayout from "@/components/app-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,18 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  User,
-  FileText,
-  HelpCircle,
-  Shield,
-  LogOut,
-  ChevronRight,
-} from "lucide-react";
+import { User, LogOut, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import AdminLayout from "@/components/admin-layout";
 
 export default function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -137,23 +130,9 @@ export default function ProfilePage() {
     {
       icon: User,
       label: "Akun",
-      href: "/profile/account",
+      href: "/admin/profile/account",
     },
-    {
-      icon: FileText,
-      label: "Kelengkapan dokumen",
-      href: "/profile/documents",
-    },
-    {
-      icon: HelpCircle,
-      label: "Bantuan",
-      href: "/profile/help",
-    },
-    {
-      icon: Shield,
-      label: "Kebijakan privasi",
-      href: "/profile/privacy",
-    },
+
     {
       icon: LogOut,
       label: "Keluar",
@@ -162,7 +141,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <AppLayout>
+    <AdminLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <HeaderPage title="PROFILE" />
@@ -230,7 +209,7 @@ export default function ProfilePage() {
             </div>
           </div>
           {/* Menu Items */}
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             {menuItems.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -282,6 +261,6 @@ export default function ProfilePage() {
           </DialogContent>
         </Dialog>
       </div>
-    </AppLayout>
+    </AdminLayout>
   );
 }

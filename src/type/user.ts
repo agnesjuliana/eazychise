@@ -3,7 +3,7 @@ export type User = {
     name: string;
     email:string;
     role: "franchisee" | "franchisor" | "admin";
-    status: "pending" | "active" | "rejected";
+    status: "pending" | "active" | "rejected" | "revisi";
     createdAt: Date;
     updatedAt: Date;
 }
