@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-
 export async function GET(request: Request) {
   try {
     // Mendapatkan URL dan parameter dari request
@@ -14,15 +13,14 @@ export async function GET(request: Request) {
     const whereCondition: {
       status?: Status;
       role?: Role;
-    } = {};
-
-    // Menambahkan filter berdasarkan parameter yang diberikan
+    } = {}; // Menambahkan filter berdasarkan parameter yang diberikan
     if (status) {
       // Validasi nilai status
       if (
         status === "pending" ||
         status === "active" ||
-        status === "rejected"
+        status === "rejected" ||
+        status === "revisi"
       ) {
         whereCondition.status = status as Status;
       }
@@ -46,7 +44,7 @@ export async function GET(request: Request) {
         role: role || null,
       },
       count: users.length,
-      users: users.map((user) => ({
+      data: users.map((user) => ({
         id: user.id,
         name: user.name,
         email: user.email,

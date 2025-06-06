@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Bookmark, Filter, MapPin, Search, Star } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 
 // Dummy franchise data
@@ -173,35 +174,58 @@ export default function HomePage() {
           >
             Lainnya
           </Button>
-        </div>        {/* Franchise Cards Grid */}
+        </div>{' '}
+        {/* Franchise Cards Grid */}
         <div className='grid grid-cols-2 gap-3'>
           {filteredFranchises.slice(0, 4).map((franchise) => (
             <Card
               key={franchise.id}
               className='p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200'
             >
-              <Link href={`/franchise/${franchise.id}`} className="block">
-                <div className='relative'>
-                  <div className='aspect-square bg-gray-200 relative overflow-hidden rounded-t-lg'>
+              <Link href={`/franchise/${franchise.id}`} className='block'>
+                <div className='relative'>                  
+                  <div className='bg-gray-200 relative overflow-hidden rounded-t-lg items-center flex justify-center h-36'>
                     {/* Real image or placeholder */}
-                    <div className='w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center'>
-                      <span className='text-orange-600 text-xs font-medium'>
-                        {franchise.name.slice(0, 2).toUpperCase()}
-                      </span>
-                    </div>
+                    <Image 
+                      src="/image/home/template-picture-franchise-food.png" 
+                      alt={franchise.name}
+                      width={138}
+                      height={138}
+                      className='object-cover rounded-2xl item'
+                    />
                   </div>
                   {franchise.isNew && (
                     <div className='absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded'>
                       Baru
                     </div>
                   )}
-                </div>
+                </div>{' '}
                 <CardContent className='p-3'>
-                  <CardTitle className='text-sm font-semibold text-gray-900 mb-1 line-clamp-2'>
-                    {franchise.name}
-                  </CardTitle>
+                  <div className='flex items-start justify-between mb-1'>
+                    <CardTitle className='text-sm font-semibold text-gray-900 line-clamp-2 flex-1 pr-2'>
+                      {franchise.name}
+                    </CardTitle>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0'
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleFavorite(franchise.id);
+                      }}
+                    >
+                      <Bookmark
+                        className={`w-4 h-4 ${
+                          franchise.isFavorite
+                            ? 'fill-orange-500 text-orange-500'
+                            : 'text-gray-400'
+                        }`}
+                      />
+                    </Button>
+                  </div>
                   <CardDescription className='text-xs text-gray-500 mb-2'>
-                    {franchise.description}
+                    Mulai dari
                   </CardDescription>
                   <div className='flex items-center gap-1 mb-2'>
                     <Star className='w-3 h-3 fill-yellow-400 text-yellow-400' />
@@ -214,25 +238,6 @@ export default function HomePage() {
                   </p>
                 </CardContent>
               </Link>
-              {/* Favorite button positioned absolutely to prevent link interference */}
-              <Button
-                variant='ghost'
-                size='icon'
-                className='absolute top-2 right-2 w-8 h-8 p-0 bg-white/90 hover:bg-white shadow-sm z-10'
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleFavorite(franchise.id);
-                }}
-              >
-                <Bookmark
-                  className={`w-4 h-4 ${
-                    franchise.isFavorite
-                      ? 'fill-orange-500 text-orange-500'
-                      : 'text-gray-500'
-                  }`}
-                />
-              </Button>
             </Card>
           ))}
         </div>
@@ -249,7 +254,7 @@ export default function HomePage() {
           </Button>
         </div>
         {/* Category Pills */}
-        <div className='flex gap-2 overflow-x-auto pb-2'>
+        <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth'>
           {categories.map((category) => (
             <Button
               key={category}
@@ -265,33 +270,57 @@ export default function HomePage() {
               {category}
             </Button>
           ))}
-        </div>        {/* All Franchises List */}
+        </div>
         <div className='grid grid-cols-1 gap-3'>
           {filteredFranchises.slice(4).map((franchise) => (
             <Card
               key={franchise.id}
               className='p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200'
             >
-              <Link href={`/franchise/${franchise.id}`} className="block">
-                <div className='flex'>
-                  <div className='w-20 h-20 bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center relative flex-shrink-0'>
-                    <span className='text-orange-600 text-xs font-medium'>
-                      {franchise.name.slice(0, 2).toUpperCase()}
-                    </span>
+              <Link href={`/franchise/${franchise.id}`} className='block'>
+                <div className='flex'>                  
+                  <div className='w-20 h-28 bg-gray-200 relative flex-shrink-0 overflow-hidden'>
+                    <Image 
+                      src="/image/home/template-picture-franchise-food.png" 
+                      alt={franchise.name}
+                      width={138}
+                      height={138}
+                      className='object-cover rounded-2xl'
+                    />
                     {franchise.isNew && (
-                      <div className='absolute top-1 left-1 bg-orange-500 text-white text-xs px-1 rounded'>
+                      <div className='absolute top-1 left-1 bg-orange-500 text-white text-xs px-1 rounded z-10'>
                         Baru
                       </div>
                     )}
-                  </div>
+                  </div>{' '}
                   <CardContent className='flex-1 p-3'>
                     <div className='flex justify-between items-start'>
                       <div className='flex-1 pr-2'>
-                        <CardTitle className='text-sm font-semibold text-gray-900 mb-1'>
-                          {franchise.name}
-                        </CardTitle>
+                        <div className='flex items-start justify-between mb-1'>
+                          <CardTitle className='text-sm font-semibold text-gray-900 flex-1 pr-2'>
+                            {franchise.name}
+                          </CardTitle>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0'
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleFavorite(franchise.id);
+                            }}
+                          >
+                            <Bookmark
+                              className={`w-4 h-4 ${
+                                franchise.isFavorite
+                                  ? 'fill-orange-500 text-orange-500'
+                                  : 'text-gray-400'
+                              }`}
+                            />
+                          </Button>
+                        </div>
                         <CardDescription className='text-xs text-gray-500 mb-1'>
-                          {franchise.description}
+                          Mulai dari
                         </CardDescription>
                         <div className='flex items-center gap-2 mb-1'>
                           <div className='flex items-center gap-1'>
@@ -315,25 +344,6 @@ export default function HomePage() {
                   </CardContent>
                 </div>
               </Link>
-              {/* Favorite button positioned absolutely */}
-              <Button
-                variant='ghost'
-                size='icon'
-                className='absolute top-2 right-2 w-8 h-8 p-0 bg-white/90 hover:bg-white shadow-sm z-10'
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleFavorite(franchise.id);
-                }}
-              >
-                <Bookmark
-                  className={`w-4 h-4 ${
-                    franchise.isFavorite
-                      ? 'fill-orange-500 text-orange-500'
-                      : 'text-gray-500'
-                  }`}
-                />
-              </Button>
             </Card>
           ))}
         </div>
