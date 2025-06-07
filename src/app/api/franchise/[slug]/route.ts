@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { NextResponse } from 'next/server';
+import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -9,16 +9,16 @@ export async function GET(
 ) {
   try {
     const { slug } = params;
-    const franchiseId = parseInt(slug);
+    const franchiseId = slug;
 
     // If slug is a franchiseId, fetch franchise details
-    const franchise = await prisma.franchise.findUnique({
+    const franchise = await prisma.franchise_listings.findUnique({
       where: { id: franchiseId },
     });
 
     if (!franchise) {
       return NextResponse.json(
-        { error: 'Franchise not found' },
+        { error: "Franchise not found" },
         { status: 404 }
       );
     }
@@ -28,9 +28,9 @@ export async function GET(
       franchise: franchise,
     });
   } catch (error: unknown) {
-    console.error('Error fetching franchise:', error);
+    console.error("Error fetching franchise:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

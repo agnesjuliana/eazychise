@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Status } from "@prisma/client";
+import { PrismaClient, Roles, Status } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
@@ -12,15 +12,14 @@ export async function GET(request: Request) {
 
     const whereCondition: {
       status?: Status;
-      role?: Role;
+      role?: Roles;
     } = {}; // Menambahkan filter berdasarkan parameter yang diberikan
     if (status) {
       // Validasi nilai status
       if (
-        status === "pending" ||
-        status === "active" ||
-        status === "rejected" ||
-        status === "revisi"
+        status === "WAITING" ||
+        status === "REJECTED" ||
+        status === "ACCEPTED"
       ) {
         whereCondition.status = status as Status;
       }
@@ -28,12 +27,12 @@ export async function GET(request: Request) {
 
     if (role) {
       // Validasi nilai role
-      if (role === "franchisee" || role === "franchisor" || role === "admin") {
-        whereCondition.role = role as Role;
+      if (role === "FRANCHISEE" || role === "FRANCHISOR" || role === "ADMIN") {
+        whereCondition.role = role as Roles;
       }
     }
     // Mengambil data users dengan filter
-    const users = await prisma.user.findMany({
+    const users = await prisma.users.findMany({
       where: whereCondition,
     });
 
@@ -50,8 +49,6 @@ export async function GET(request: Request) {
         email: user.email,
         role: user.role,
         status: user.status,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
       })),
     });
     return res;

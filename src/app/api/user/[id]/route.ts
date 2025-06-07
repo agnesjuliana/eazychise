@@ -3,10 +3,12 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { pathname } = new URL(request.url);
-    const id = parseInt(pathname.split("/").pop() || "", 10);
+    const { id } = params;
     if (!id) {
       return NextResponse.json(
         { success: false, message: "User ID is required" },
@@ -14,7 +16,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: {
         id: id,
       },
@@ -28,8 +30,6 @@ export async function GET(request: Request) {
         email: user?.email,
         role: user?.role,
         status: user?.status,
-        createdAt: user?.created_at,
-        updatedAt: user?.updated_at,
       },
     });
     return res;
@@ -42,10 +42,12 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { pathname } = new URL(request.url);
-    const id = parseInt(pathname.split("/").pop() || "", 10);
+    const { id } = params;
     if (!id) {
       return NextResponse.json(
         { success: false, message: "User ID is not found" },
@@ -54,7 +56,7 @@ export async function PUT(request: Request) {
     }
     const data = await request.json();
 
-    const updateUser = await prisma.user.update({
+    const updateUser = await prisma.users.update({
       where: {
         id: id,
       },
@@ -63,7 +65,6 @@ export async function PUT(request: Request) {
         email: data.email,
         role: data.role,
         status: data.status,
-        updated_at: new Date(),
       },
     });
 
@@ -76,8 +77,6 @@ export async function PUT(request: Request) {
         email: updateUser.email,
         role: updateUser.role,
         status: updateUser.status,
-        createdAt: updateUser.created_at,
-        updatedAt: updateUser.updated_at,
       },
     });
   } catch (err: unknown) {

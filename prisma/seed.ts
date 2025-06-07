@@ -1,37 +1,39 @@
-import { PrismaClient } from '@prisma/client'
-import { hash } from 'bcrypt'
+import { PrismaClient } from "@prisma/client";
+import { hash } from "bcrypt";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = 'admin@eazychise.com'
+  const adminEmail = "admin@eazychise.com";
 
-  const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } })
+  const existingAdmin = await prisma.users.findUnique({
+    where: { email: adminEmail },
+  });
   if (existingAdmin) {
-    console.log('Admin already exists. Skipping...')
-    return
+    console.log("Admin already exists. Skipping...");
+    return;
   }
 
-  const hashedPassword = await hash('admin123', 10)
+  const hashedPassword = await hash("admin123", 10);
 
-  await prisma.user.create({
+  await prisma.users.create({
     data: {
-      name: 'Admin',
+      name: "Admin",
       email: adminEmail,
       password: hashedPassword,
-      role: 'admin',
-      status: 'active',
-    }
-  })
+      role: "ADMIN",
+      status: "ACCEPTED",
+    },
+  });
 
-  console.log('✅ Admin created: admin@eazychise.com / admin123')
+  console.log("✅ Admin created: admin@eazychise.com / admin123");
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(() => {
-    prisma.$disconnect()
-  })
+    prisma.$disconnect();
+  });

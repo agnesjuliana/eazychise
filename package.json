@@ -5,6 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prisma:build": "npx prisma generate && tsc -p .",
+    "prisma:migrate": "dotenv -e .env.development -- npx prisma migrate dev --schema ./prisma/schema.prisma",
+    "prisma:seed": "dotenv -e .env.development -- npx ts-node ./prisma/seed.ts",
+    "prisma:format": "dotenv -e .env.development -- npx prisma format --schema ./prisma/schema.prisma",
+    "prisma:reset": "dotenv -e .env.development -- npx prisma migrate reset --force --skip-seed --schema ./prisma/schema.prisma",
+    "prisma:diff": "dotenv -e .env.development -- npx prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma",
+    "prisma:studio": "dotenv -e .env.development -- npx prisma studio --schema ./prisma/schema.prisma",
     "start": "next start",
     "lint": "next lint"
   },
@@ -43,5 +50,6 @@
     "tsx": "^4.19.4",
     "tw-animate-css": "^1.3.3",
     "typescript": "^5"
-  }
+  },
+  "type": "module"
 }
