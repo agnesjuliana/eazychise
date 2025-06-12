@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  // directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 enum Status {
@@ -54,6 +54,7 @@ model users {
   franchise_purchases franchise_purchases[]
   franchisor_profiles franchisor_profiles?
   user_notifications  user_notifications[]
+  saved_franchises    saved_franchises[]
 }
 
 model franchise_purchases {
@@ -110,10 +111,12 @@ model franchise_listings {
   equipment           String
   materials           String
 
-  franchisor          users                 @relation(fields: [franchisor_id], references: [id])
-  purchases           franchise_purchases[]
-  listing_documents   listing_documents[]
-  listings_highlights listings_highlights[]
+  franchisor           users                 @relation(fields: [franchisor_id], references: [id])
+  purchases            franchise_purchases[]
+  listing_documents    listing_documents[]
+  listings_highlights  listings_highlights[]
+  franchise_categories category_franchise[]
+  saved_franchises     saved_franchises[]
 }
 
 model listing_documents {
@@ -153,4 +156,29 @@ model events {
   price    Decimal
   datetime DateTime
   image    String
+}
+
+model category {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+
+  category_franchises category_franchise[]
+}
+
+model category_franchise {
+  id           String @id @default(uuid()) @db.Uuid
+  franchise_id String @db.Uuid
+  category_id  String @db.Uuid
+
+  franchise_rel franchise_listings @relation(fields: [franchise_id], references: [id])
+  category_rel  category           @relation(fields: [category_id], references: [id])
+}
+
+model saved_franchises {
+  id           String @id @default(uuid()) @db.Uuid
+  user_id      String @db.Uuid
+  franchise_id String @db.Uuid
+
+  user      users              @relation(fields: [user_id], references: [id])
+  franchise franchise_listings @relation(fields: [franchise_id], references: [id])
 }
