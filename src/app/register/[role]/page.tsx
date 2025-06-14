@@ -1,64 +1,69 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { Card } from "@/components/ui/card"
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 export default function RegisterPage() {
-  const { role } = useParams() as { role: string }
-  const router = useRouter()
+  const { role } = useParams() as { role: string };
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: role === "franchisor" ? "franchisor" : "franchisee"
-  })
+    role: role === "franchisor" ? "FRANCHISOR" : "FRANCHISEE",
+  });
   console.log("formData:", formData);
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError("Semua field wajib diisi")
+    if (
+      !formData.fullName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("Semua field wajib diisi");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Format email tidak valid")
+      setError("Format email tidak valid");
     } else if (formData.password.length < 6) {
-      setError("Password minimal 6 karakter")
+      setError("Password minimal 6 karakter");
     } else if (formData.password !== formData.confirmPassword) {
-      setError("Password dan konfirmasi tidak cocok")
+      setError("Password dan konfirmasi tidak cocok");
     } else {
-      setError("")
+      setError("");
     }
-  }, [formData])
+  }, [formData]);
 
   const updateField = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (error) return
+    e.preventDefault();
+    if (error) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -68,19 +73,19 @@ export default function RegisterPage() {
         password: formData.password,
         role: formData.role,
       }),
-    })
+    });
 
-    const data = await res.json()
-    setIsLoading(false)
+    const data = await res.json();
+    setIsLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Registrasi gagal.")
-      return
+      setError(data.error || "Registrasi gagal.");
+      return;
     }
 
-    setDialogOpen(true)
-    setTimeout(() => router.push("/login"), 1500)
-  }
+    setDialogOpen(true);
+    setTimeout(() => router.push("/login"), 1500);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-white">
@@ -107,7 +112,8 @@ export default function RegisterPage() {
         </div>
 
         <h1 className="text-center text-2xl font-bold text-black mb-2">
-          Daftar Sebagai {formData.role === "franchisee" ? "Franchisee" : "Franchisor"}
+          Daftar Sebagai{" "}
+          {formData.role === "franchisee" ? "Franchisee" : "Franchisor"}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -150,7 +156,11 @@ export default function RegisterPage() {
               className="absolute top-9 right-3 text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
 
@@ -169,7 +179,11 @@ export default function RegisterPage() {
               className="absolute top-9 right-3 text-gray-500"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showConfirmPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
 
@@ -187,12 +201,15 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-muted-foreground">
             Sudah punya akun?{" "}
-            <Link href="/login" className="text-[#EF5A5A] font-medium hover:underline">
+            <Link
+              href="/login"
+              className="text-[#EF5A5A] font-medium hover:underline"
+            >
               Masuk
             </Link>
           </p>
         </form>
       </Card>
     </div>
-  )
+  );
 }

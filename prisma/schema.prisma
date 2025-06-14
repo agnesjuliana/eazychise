@@ -5,156 +5,180 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
-}
-
-/// users
-model User {
-  id                     Int                            @id @default(autoincrement())
-  name                   String
-  email                  String                         @unique
-  password               String
-  role                   Role
-  status                 Status                         @default(pending)
-  created_at             DateTime                       @default(now())
-  updated_at             DateTime                       @updatedAt
-  cancellation_requests  AgreementCancellationRequest[]
-  assistance_requests    FinancialAssistanceRequest[]
-  financial_reports      FinancialReport[]
-  franchise_applications FranchiseApplication[]         @relation("FranchiseeApplications")
-  franchises             Franchise[]                    @relation("FranchisorFranchises")
-
-  @@map("users")
-}
-
-/// franchises
-model Franchise {
-  id                    Int                            @id @default(autoincrement())
-  franchisor_id         Int
-  name                  String
-  description           String?
-  category              String?
-  created_at            DateTime                       @default(now())
-  updated_at            DateTime                       @updatedAt
-  cancellation_requests AgreementCancellationRequest[]
-  assistance_requests   FinancialAssistanceRequest[]
-  financial_reports     FinancialReport[]
-  applications          FranchiseApplication[]
-  franchisor            User                           @relation("FranchisorFranchises", fields: [franchisor_id], references: [id], onDelete: Cascade)
-  training_resources    TrainingResource[]
-
-  @@index([franchisor_id])
-  @@map("franchises")
-}
-
-/// franchise_applications
-model FranchiseApplication {
-  id            Int               @id @default(autoincrement())
-  franchise_id  Int
-  franchisee_id Int
-  status        ApplicationStatus @default(pending)
-  notes         String?
-  applied_at    DateTime          @default(now())
-  reviewed_at   DateTime?
-  franchise     Franchise         @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
-  franchisee    User              @relation("FranchiseeApplications", fields: [franchisee_id], references: [id], onDelete: Cascade)
-
-  @@index([franchise_id])
-  @@index([franchisee_id])
-  @@map("franchise_applications")
-}
-
-/// financial_reports
-model FinancialReport {
-  id            Int       @id @default(autoincrement())
-  franchisee_id Int
-  franchise_id  Int
-  report_date   DateTime  @db.Date
-  file_url      String
-  uploaded_at   DateTime  @default(now())
-  franchise     Franchise @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
-  franchisee    User      @relation(fields: [franchisee_id], references: [id], onDelete: Cascade)
-
-  @@index([franchise_id])
-  @@index([franchisee_id])
-  @@map("financial_reports")
-}
-
-/// training_resources
-model TrainingResource {
-  id           Int       @id @default(autoincrement())
-  id_franchise Int       @map("id_franchise")
-  title        String
-  content      String?
-  resource_url String?   @map("resource_url")
-  created_at   DateTime  @default(now())
-  franchise    Franchise @relation(fields: [id_franchise], references: [id], onDelete: Cascade)
-
-  @@index([id_franchise])
-  @@map("training_resources")
-}
-
-/// events (global)
-model Event {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  event_date  DateTime @db.Date
-  created_at  DateTime @default(now())
-
-  @@map("events")
-}
-
-/// financial_assistance_requests
-model FinancialAssistanceRequest {
-  id            Int               @id @default(autoincrement())
-  franchisee_id Int
-  franchise_id  Int
-  amount        Decimal           @db.Decimal(15, 2)
-  status        ApplicationStatus @default(pending)
-  notes         String?
-  requested_at  DateTime          @default(now())
-  reviewed_at   DateTime?
-  franchise     Franchise         @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
-  franchisee    User              @relation(fields: [franchisee_id], references: [id], onDelete: Cascade)
-
-  @@index([franchise_id])
-  @@index([franchisee_id])
-  @@map("financial_assistance_requests")
-}
-
-/// agreement_cancellation_requests
-model AgreementCancellationRequest {
-  id            Int               @id @default(autoincrement())
-  franchisee_id Int
-  franchise_id  Int
-  reason        String
-  status        ApplicationStatus @default(pending)
-  requested_at  DateTime          @default(now())
-  reviewed_at   DateTime?
-  franchise     Franchise         @relation(fields: [franchise_id], references: [id], onDelete: Cascade)
-  franchisee    User              @relation(fields: [franchisee_id], references: [id], onDelete: Cascade)
-
-  @@index([franchise_id])
-  @@index([franchisee_id])
-  @@map("agreement_cancellation_requests")
-}
-
-/// ───── ENUMS ───────────────────────────────────────────────
-enum Role {
-  franchisee
-  franchisor
-  admin
+  // directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 enum Status {
-  pending
-  active
-  rejected
+  WAITING
+  REJECTED
+  ACCEPTED
 }
 
-enum ApplicationStatus {
-  pending
-  approved
-  rejected
+enum PurchaseType {
+  FUNDED
+  PURCHASED
+}
+
+enum ConfirmationStatus {
+  REJECTED
+  WAITING
+  ACCEPTED
+}
+
+enum PaymentStatus {
+  PAID
+  PROCESSED
+}
+
+enum DocumentType {
+  PENDUKUNG
+  GUIDELINES
+}
+
+enum Roles {
+  FRANCHISEE
+  FRANCHISOR
+  ADMIN
+}
+
+model users {
+  id            String  @id @default(uuid()) @db.Uuid
+  status        Status
+  name          String
+  email         String  @unique
+  password      String
+  profile_image String?
+  role          Roles
+
+  franchises          franchise_listings[]
+  franchise_purchases franchise_purchases[]
+  franchisor_profiles franchisor_profiles?
+  user_notifications  user_notifications[]
+  saved_franchises    saved_franchises[]
+}
+
+model franchise_purchases {
+  id                  String             @id @default(uuid()) @db.Uuid
+  user_id             String             @db.Uuid
+  franchise_id        String             @db.Uuid
+  purchase_type       PurchaseType
+  confirmation_status ConfirmationStatus
+  payment_status      PaymentStatus
+  paid_at             DateTime?
+
+  user            users              @relation(fields: [user_id], references: [id])
+  franchise       franchise_listings @relation(fields: [franchise_id], references: [id])
+  funding_request funding_request?
+}
+
+model funding_request {
+  id                String @id @default(uuid()) @db.Uuid
+  purchase_id       String @unique @db.Uuid
+  address           String
+  phone_number      String
+  npwp              String
+  franchise_address String
+  ktp               String
+  foto_diri         String
+  foto_lokasi       String
+  mou_franchisor    String
+  mou_modal         String
+
+  purchase franchise_purchases @relation(fields: [purchase_id], references: [id])
+}
+
+model franchisor_profiles {
+  id        String @id @default(uuid()) @db.Uuid
+  user_id   String @unique @db.Uuid
+  ktp       String
+  foto_diri String
+
+  user users @relation(fields: [user_id], references: [id])
+}
+
+model franchise_listings {
+  id                  String  @id @default(uuid()) @db.Uuid
+  franchisor_id       String  @db.Uuid
+  name                String
+  price               Decimal
+  image               String
+  status              String
+  location            String
+  ownership_document  String
+  financial_statement String
+  proposal            String
+  sales_location      String
+  equipment           String
+  materials           String
+
+  franchisor           users                 @relation(fields: [franchisor_id], references: [id])
+  purchases            franchise_purchases[]
+  listing_documents    listing_documents[]
+  listings_highlights  listings_highlights[]
+  franchise_categories category_franchise[]
+  saved_franchises     saved_franchises[]
+}
+
+model listing_documents {
+  id           String       @id @default(uuid()) @db.Uuid
+  id_franchise String       @db.Uuid
+  type         DocumentType
+  name         String
+  path         String
+
+  franchise franchise_listings @relation(fields: [id_franchise], references: [id])
+}
+
+model user_notifications {
+  id      String   @id @default(uuid()) @db.Uuid
+  user_id String   @db.Uuid
+  title   String
+  message String
+  type    String
+  is_read Boolean
+  sent_at DateTime
+
+  user users @relation(fields: [user_id], references: [id])
+}
+
+model listings_highlights {
+  id           String @id @default(uuid()) @db.Uuid
+  id_franchise String @db.Uuid
+  title        String
+  content      String
+
+  franchise franchise_listings @relation(fields: [id_franchise], references: [id])
+}
+
+model events {
+  id       String   @id @default(uuid()) @db.Uuid
+  name     String
+  price    Decimal
+  datetime DateTime
+  image    String
+}
+
+model category {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+
+  category_franchises category_franchise[]
+}
+
+model category_franchise {
+  id           String @id @default(uuid()) @db.Uuid
+  franchise_id String @db.Uuid
+  category_id  String @db.Uuid
+
+  franchise_rel franchise_listings @relation(fields: [franchise_id], references: [id])
+  category_rel  category           @relation(fields: [category_id], references: [id])
+}
+
+model saved_franchises {
+  id           String @id @default(uuid()) @db.Uuid
+  user_id      String @db.Uuid
+  franchise_id String @db.Uuid
+
+  user      users              @relation(fields: [user_id], references: [id])
+  franchise franchise_listings @relation(fields: [franchise_id], references: [id])
 }

@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Bookmark, Filter, MapPin, Search, Star } from 'lucide-react';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 // Dummy franchise data
@@ -183,11 +183,11 @@ export default function HomePage() {
               className='p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200'
             >
               <Link href={`/franchise/${franchise.id}`} className='block'>
-                <div className='relative'>                  
+                <div className='relative'>
                   <div className='bg-gray-200 relative overflow-hidden rounded-t-lg items-center flex justify-center h-36'>
                     {/* Real image or placeholder */}
-                    <Image 
-                      src="/image/home/template-picture-franchise-food.png" 
+                    <Image
+                      src='/image/home/template-picture-franchise-food.png'
                       alt={franchise.name}
                       width={138}
                       height={138}
@@ -278,10 +278,10 @@ export default function HomePage() {
               className='p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200'
             >
               <Link href={`/franchise/${franchise.id}`} className='block'>
-                <div className='flex'>                  
+                <div className='flex'>
                   <div className='w-20 h-28 bg-gray-200 relative flex-shrink-0 overflow-hidden'>
-                    <Image 
-                      src="/image/home/template-picture-franchise-food.png" 
+                    <Image
+                      src='/image/home/template-picture-franchise-food.png'
                       alt={franchise.name}
                       width={138}
                       height={138}
