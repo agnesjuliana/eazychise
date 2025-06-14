@@ -19,3 +19,9 @@ export type User = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// @/types/user.ts
+export type UpdateUserStatusPayload = {
+  user_id: string;
+  status: Status;
+};
