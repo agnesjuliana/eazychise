@@ -1,0 +1,23 @@
+id,name,email,password,role,status
+e2f1c1f4-15a5-4a83-bb57-13534de3e050,Admin,admin@eazychise.com,admin123,ADMIN,ACCEPTED
+712e8324-7a46-4dbb-a2cc-b17d12c3c321,Franchisee One,franchisee1@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+4f041e33-e71f-4483-b007-7c33f421f9ed,Franchisor 1,franchisor1@eazychise.com,franchisor1123,FRANCHISOR,ACCEPTED
+feeacad2-eb69-4b22-adeb-63cd1160359a,Franchisor 2,franchisor2@eazychise.com,franchisor2123,FRANCHISOR,ACCEPTED
+2c7b835a-d963-43b4-9e13-ecb8e8024a35,Franchisor 3,franchisor3@eazychise.com,franchisor3123,FRANCHISOR,ACCEPTED
+291124b0-5b51-4c08-a066-a0da5735c7de,Franchisor 4,franchisor4@eazychise.com,franchisor4123,FRANCHISOR,ACCEPTED
+d54fb539-8f47-414a-868a-55d5e0ec2208,Franchisor 5,franchisor5@eazychise.com,franchisor5123,FRANCHISOR,ACCEPTED
+f4ccae60-13b0-48d3-b9b7-500830af2e07,Franchisor 6,franchisor6@eazychise.com,franchisor6123,FRANCHISOR,ACCEPTED
+b6259094-610c-4eff-a233-d37a2ae6c71a,Franchisor 7,franchisor7@eazychise.com,franchisor7123,FRANCHISOR,ACCEPTED
+66a2594c-98cc-467a-96ad-1d11ac012520,Franchisor 8,franchisor8@eazychise.com,franchisor8123,FRANCHISOR,ACCEPTED
+66fd3dd2-2eb5-4e8f-bf75-213d28710e0c,Franchisor 9,franchisor9@eazychise.com,franchisor9123,FRANCHISOR,ACCEPTED
+c0224453-3b52-4191-8ec5-a077b4d8cff0,Franchisor 10,franchisor10@eazychise.com,franchisor10123,FRANCHISOR,ACCEPTED
+ba1f184a-a451-4f4a-8988-6c1c385a9efe,Franchisor 11,franchisor11@eazychise.com,franchisor11123,FRANCHISOR,ACCEPTED
+8857dfa8-9995-491c-b3b0-9fc4a0583232,Franchisor 12,franchisor12@eazychise.com,franchisor12123,FRANCHISOR,ACCEPTED
+478f46f5-a131-458a-a93f-3b22ca1a0363,Franchisor 13,franchisor13@eazychise.com,franchisor13123,FRANCHISOR,ACCEPTED
+42c6971c-b163-44b9-9d23-867ec7084694,Franchisor 14,franchisor14@eazychise.com,franchisor14123,FRANCHISOR,ACCEPTED
+13f6f971-655d-447f-9d4c-d19e12c664fb,Franchisor 15,franchisor15@eazychise.com,franchisor15123,FRANCHISOR,ACCEPTED
+70745c05-abd5-44e8-a4f5-a20fee1dea29,Franchisor 16,franchisor16@eazychise.com,franchisor16123,FRANCHISOR,ACCEPTED
+7017b21b-a0e1-4372-8ed8-e67e2489e3cd,Franchisor 17,franchisor17@eazychise.com,franchisor17123,FRANCHISOR,ACCEPTED
+c77497fe-3de4-45e1-94ab-8a86028cffe5,Franchisor 18,franchisor18@eazychise.com,franchisor18123,FRANCHISOR,ACCEPTED
+c221ebce-25d6-44b3-99f2-67c7a68769e6,Franchisor 19,franchisor19@eazychise.com,franchisor19123,FRANCHISOR,ACCEPTED
+87bad0ab-32de-45dd-a237-9b331fc0b564,Franchisor 20,franchisor20@eazychise.com,franchisor20123,FRANCHISOR,ACCEPTED
