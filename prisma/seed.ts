@@ -18,7 +18,9 @@ async function seedUsers() {
   const users = parseCSV("prisma/seed/users.csv");
 
   for (const user of users) {
-    const exists = await prisma.users.findUnique({ where: { email: user.email } });
+    const exists = await prisma.users.findUnique({
+      where: { email: user.email },
+    });
     if (!exists) {
       const hashedPassword = await hash(user.password, 10);
       await prisma.users.create({
@@ -67,12 +69,14 @@ async function seedCategoryFranchise() {
 
 async function seedListingsHighlights() {
   try {
-    const highlights = parseCSV("prisma/seed/listings_highlights.csv").map((row: any) => ({
-      id: row.id,
-      id_franchise: row.id_franchise,
-      title: row.title,
-      content: row.content,
-    }));
+    const highlights = parseCSV("prisma/seed/listings_highlights.csv").map(
+      (row: any) => ({
+        id: row.id,
+        id_franchise: row.id_franchise,
+        title: row.title,
+        content: row.content,
+      })
+    );
 
     await prisma.listings_highlights.createMany({
       data: highlights,
@@ -87,13 +91,15 @@ async function seedListingsHighlights() {
 
 async function seedListingDocuments() {
   try {
-    const documents = parseCSV("prisma/seed/listing_documents.csv").map((row: any) => ({
-      id: row.id,
-      id_franchise: row.id_franchise,
-      type: row.type, // must match DocumentType enum: PENDUKUNG or GUIDELINES
-      name: row.name,
-      path: row.path,
-    }));
+    const documents = parseCSV("prisma/seed/listing_documents.csv").map(
+      (row: any) => ({
+        id: row.id,
+        id_franchise: row.id_franchise,
+        type: row.type, // must match DocumentType enum: PENDUKUNG or GUIDELINES
+        name: row.name,
+        path: row.path,
+      })
+    );
 
     await prisma.listing_documents.createMany({
       data: documents,
@@ -107,11 +113,11 @@ async function seedListingDocuments() {
 }
 
 async function main() {
-  // await seedUsers();
-  // await seedCategories();
-  // await seedFranchises();
-  // await seedCategoryFranchise();
-  // await seedListingsHighlights();
+  await seedUsers();
+  await seedCategories();
+  await seedFranchises();
+  await seedCategoryFranchise();
+  await seedListingsHighlights();
   await seedListingDocuments();
 }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getSessionUser, requireRole } from "@/lib/auth-api";
+import { getSessionUser } from "@/lib/auth-api";
 import { Role } from "@/type/user";
 import { formatResponse, formatError } from "@/utils/response";
 import { CreateFranchisePayload } from "@/type/franchise";
@@ -10,8 +10,10 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) {
-    return NextResponse.json(formatError({ message: "No franchisor account" }), 
-      { status: 401 });
+    return NextResponse.json(
+      formatError({ message: "No franchisor account" }),
+      { status: 401 }
+    );
   }
 
   if (user.role !== Role.FRANCHISOR) {
@@ -39,6 +41,7 @@ export async function POST(req: Request) {
     const newFranchise = await prisma.franchise_listings.create({
       data: {
         franchisor_id: user.id,
+        confirmation_status: "WAITING",
         name: data.name,
         price: data.price,
         image: data.image,
