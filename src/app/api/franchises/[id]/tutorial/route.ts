@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   const auth = await requireRole([
     Role.FRANCHISOR,
@@ -22,7 +22,7 @@ export async function GET(
   }
 
   // ✅ Extract params safely to avoid async warning
-  const franchiseId = context.params.id;
+  const franchiseId = params.id;
 
   // Get query ?type=GUIDELINES or PENDUKUNG
   const { searchParams } = new URL(req.url);

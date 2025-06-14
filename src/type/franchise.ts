@@ -1,18 +1,10 @@
 export type FranchiseStatus = "OPEN" | "CLOSED";
-export type DocumentType = "PENDUKUNG" | "GUIDELINES";
 
 // Separated Nested Types
 export type FranchisorInfo = {
   id: string;
   name: string;
   email: string;
-};
-
-export type ListingDocument = {
-  id: string;
-  type: DocumentType;
-  name: string;
-  path: string;
 };
 
 export type ListingHighlight = {
