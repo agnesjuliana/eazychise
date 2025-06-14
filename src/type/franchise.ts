@@ -1,4 +1,3 @@
-// Role and Status Enums (optional if you're already using them somewhere else)
 export type FranchiseStatus = "OPEN" | "CLOSED";
 export type DocumentType = "PENDUKUNG" | "GUIDELINES";
 
@@ -37,6 +36,4 @@ export type FranchiseUpdatePayload = {
   sales_location: string;
   equipment: string;
   materials: string;
-  listing_documents?: ListingDocument[];
-  listings_highlights?: ListingHighlight[];
 };

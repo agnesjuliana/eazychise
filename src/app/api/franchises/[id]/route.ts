@@ -104,33 +104,6 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       },
     });
 
-    // Optional update: listing_documents
-    if (Array.isArray(body.listing_documents)) {
-      await prisma.listing_documents.deleteMany({ where: { id_franchise: id } });
-      await prisma.listing_documents.createMany({
-        data: body.listing_documents.map((doc) => ({
-          id: doc.id,
-          id_franchise: id,
-          type: doc.type,
-          name: doc.name,
-          path: doc.path,
-        })),
-      });
-    }
-
-    // Optional update: listings_highlights
-    if (Array.isArray(body.listings_highlights)) {
-      await prisma.listings_highlights.deleteMany({ where: { id_franchise: id } });
-      await prisma.listings_highlights.createMany({
-        data: body.listings_highlights.map((hl) => ({
-          id: hl.id,
-          id_franchise: id,
-          title: hl.title,
-          content: hl.content,
-        })),
-      });
-    }
-
     return NextResponse.json(
       formatResponse({
         message: "Franchise updated successfully",
