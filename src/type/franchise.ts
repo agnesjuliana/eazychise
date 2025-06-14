@@ -29,3 +29,17 @@ export type FranchiseUpdatePayload = {
   equipment: string;
   materials: string;
 };
+
+export type CreateFranchisePayload = {
+  name: string;
+  price: number;
+  image: string;
+  status: string;
+  location: string;
+  ownership_document: string;
+  financial_statement: string;
+  proposal: string;
+  sales_location: string;
+  equipment: string;
+  materials: string;
+};
