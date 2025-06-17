@@ -1,5 +1,6 @@
 "use client";
 
+import AppLayout from "@/components/app-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  FileText,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import AdminLayout from "@/components/admin-layout";
 
 export default function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -33,7 +40,7 @@ export default function ProfilePage() {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/me", {
+        const response = await fetch("/api/user/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -75,11 +82,7 @@ export default function ProfilePage() {
     try {
       // Call logout API endpoint
       const response = await fetch("/api/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Include cookies in request
+        method: "GET",
       });
 
       if (!response.ok) {
@@ -130,9 +133,23 @@ export default function ProfilePage() {
     {
       icon: User,
       label: "Akun",
-      href: "/admin/profile/account",
+      href: "/profile/account",
     },
-
+    {
+      icon: FileText,
+      label: "Kelengkapan dokumen",
+      href: "/profile/documents",
+    },
+    {
+      icon: HelpCircle,
+      label: "Bantuan",
+      href: "/profile/help",
+    },
+    {
+      icon: Shield,
+      label: "Kebijakan privasi",
+      href: "/profile/privacy",
+    },
     {
       icon: LogOut,
       label: "Keluar",
@@ -141,7 +158,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <AdminLayout>
+    <AppLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <HeaderPage title="PROFILE" />
@@ -209,7 +226,7 @@ export default function ProfilePage() {
             </div>
           </div>
           {/* Menu Items */}
-          <div className="space-y-2 w-full">
+          <div className="space-y-2">
             {menuItems.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -261,6 +278,6 @@ export default function ProfilePage() {
           </DialogContent>
         </Dialog>
       </div>
-    </AdminLayout>
+    </AppLayout>
   );
 }

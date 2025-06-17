@@ -8,7 +8,7 @@ import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
 
 export default function AdminVerifyPage() {
-  const [role, setRole] = React.useState<string>("franchisee");
+  const [role, setRole] = React.useState<string>("FRANCHISEE");
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -26,8 +26,8 @@ export default function AdminVerifyPage() {
           throw new Error("Failed to fetch user data");
         }
         const data = await response.json();
-        if (data.success) {
-          setUser(data.data);
+        if (data.status) {
+          setUser(data.data as UserType[]);
         } else {
           console.error("Failed to fetch user data:", data);
         }
@@ -42,26 +42,28 @@ export default function AdminVerifyPage() {
   }, []);
 
   const userRender = React.useMemo(() => {
+    console.log("user", user);
     return user
       .filter((u) => u.role === role)
       .filter((u) => u.status === status || status === "all");
   }, [user, role, status]); // Menghitung tinggi header dan switch (162px header + padding bottom/top + tinggi tombol + gap + tinggi status filter)
+  console.log("userRender", userRender);
   const headerHeight = 162 + 20 + 44 + 16 + 44 + 16; // Perkiraan tinggi total elemen fixed
 
   return (
     <AdminLayout>
       {/* Fixed Header dan Button */}
-      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-[420px] mx-auto bg-gray-50">
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
         <HeaderPage title="Verifikasi Akun" />
         {/* Role Filter */}
         <div className="flex w-full items-center px-2 bg-gray-50 justify-around">
           <Button
-            onClick={() => setRole("franchisee")}
+            onClick={() => setRole("FRANCHISEE")}
             variant="ghost"
             size="lg"
-            disabled={role === "franchisee"}
+            disabled={role === "FRANCHISEE"}
             className={`relative px-3 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none ${
-              role === "franchisee"
+              role === "FRANCHISEE"
                 ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[3px] after:bg-[#EF5A5A]"
                 : "text-black hover:bg-transparent hover:text-[#EF5A5A]"
             }`}
@@ -69,12 +71,12 @@ export default function AdminVerifyPage() {
             Franchisee
           </Button>
           <Button
-            onClick={() => setRole("franchisor")}
+            onClick={() => setRole("FRANCHISOR")}
             variant="ghost"
             size="lg"
-            disabled={role === "franchisor"}
+            disabled={role === "FRANCHISOR"}
             className={`relative px-3 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none ${
-              role === "franchisor"
+              role === "FRANCHISOR"
                 ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[3px] after:bg-[#EF5A5A]"
                 : "text-black hover:bg-transparent hover:text-[#EF5A5A]"
             }`}
@@ -98,12 +100,12 @@ export default function AdminVerifyPage() {
             Semua
           </Button>
           <Button
-            onClick={() => setStatus("pending")}
+            onClick={() => setStatus("WAITING")}
             variant="ghost"
             size="sm"
-            disabled={status === "pending"}
+            disabled={status === "WAITING"}
             className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
-              status === "pending"
+              status === "WAITING"
                 ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
                 : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
             }`}
@@ -111,25 +113,12 @@ export default function AdminVerifyPage() {
             Pending
           </Button>
           <Button
-            onClick={() => setStatus("revisi")}
+            onClick={() => setStatus("ACCEPTED")}
             variant="ghost"
             size="sm"
-            disabled={status === "revisi"}
+            disabled={status === "ACCEPTED"}
             className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
-              status === "revisi"
-                ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
-                : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
-            }`}
-          >
-            Revisi
-          </Button>
-          <Button
-            onClick={() => setStatus("active")}
-            variant="ghost"
-            size="sm"
-            disabled={status === "active"}
-            className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
-              status === "active"
+              status === "ACCEPTED"
                 ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
                 : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
             }`}
@@ -137,12 +126,12 @@ export default function AdminVerifyPage() {
             Aktif
           </Button>
           <Button
-            onClick={() => setStatus("rejected")}
+            onClick={() => setStatus("REJECTED")}
             variant="ghost"
             size="sm"
-            disabled={status === "rejected"}
+            disabled={status === "REJECTED"}
             className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
-              status === "rejected"
+              status === "REJECTED"
                 ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
                 : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
             }`}
@@ -175,20 +164,16 @@ export default function AdminVerifyPage() {
                     <h3 className="text-lg font-semibold">{u.name}</h3>
                     <span
                       className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                        u.status === "pending"
+                        u.status === "WAITING"
                           ? "bg-yellow-100 text-yellow-800"
-                          : u.status === "revisi"
-                          ? "bg-orange-100 text-orange-800"
-                          : u.status === "active"
+                          : u.status === "ACCEPTED"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {u.status === "pending"
+                      {u.status === "WAITING"
                         ? "Pending"
-                        : u.status === "revisi"
-                        ? "Revisi"
-                        : u.status === "active"
+                        : u.status === "ACCEPTED"
                         ? "Aktif"
                         : "Ditolak"}
                     </span>
@@ -208,7 +193,7 @@ export default function AdminVerifyPage() {
             ))
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <p className="text-gray-500 mb-2">Tidak ada akun {role}</p>
+              <p className="text-gray-500 mb-2">Tidak ada akun { role === "FRANCHISOR" ? "Franchisor" : "Franchisee"}</p>
             </div>
           )}
         </div>

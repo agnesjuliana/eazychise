@@ -107,12 +107,12 @@ async function seedListingDocuments() {
 }
 
 async function main() {
-  // await seedUsers();
-  // await seedCategories();
-  // await seedFranchises();
-  // await seedCategoryFranchise();
-  // await seedListingsHighlights();
-  await seedListingDocuments();
+  await seedUsers();
+  await seedCategories();
+  await seedFranchises();
+  await seedCategoryFranchise();
+  await seedListingsHighlights();
+  // await seedListingDocuments();
 }
 
 main()
