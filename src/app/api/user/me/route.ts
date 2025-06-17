@@ -22,7 +22,7 @@ export async function GET() {
     const session = JSON.parse(sessionCookie.value);
 
     // Fetch current user data from database
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: session.id },
       select: {
         id: true,
@@ -30,8 +30,6 @@ export async function GET() {
         email: true,
         role: true,
         status: true,
-        created_at: true,
-        updated_at: true,
       },
     });
 
@@ -53,8 +51,6 @@ export async function GET() {
         email: user.email,
         role: user.role,
         status: user.status,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
       },
     });
 
@@ -121,7 +117,7 @@ export async function PUT(request: Request) {
     }
 
     // Check if email is already taken by another user
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: {
         email: email,
         id: { not: session.id },
@@ -139,12 +135,11 @@ export async function PUT(request: Request) {
     }
 
     // Update user data
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: session.id },
       data: {
         name: name.trim(),
         email: email.trim(),
-        updated_at: new Date(),
       },
       select: {
         id: true,
@@ -152,8 +147,6 @@ export async function PUT(request: Request) {
         email: true,
         role: true,
         status: true,
-        created_at: true,
-        updated_at: true,
       },
     });
 
@@ -166,8 +159,6 @@ export async function PUT(request: Request) {
         email: updatedUser.email,
         role: updatedUser.role,
         status: updatedUser.status,
-        createdAt: updatedUser.created_at,
-        updatedAt: updatedUser.updated_at,
       },
     });
 

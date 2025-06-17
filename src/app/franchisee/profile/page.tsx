@@ -82,11 +82,7 @@ export default function ProfilePage() {
     try {
       // Call logout API endpoint
       const response = await fetch("/api/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Include cookies in request
+        method: "GET",
       });
 
       if (!response.ok) {

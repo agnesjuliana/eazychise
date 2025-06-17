@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import BottomNavbar from "./bottom-navbar";
-import { Settings, Shield, User as UserIcon, UserRound } from "lucide-react";
+import { Shield, User as UserIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -97,18 +97,9 @@ export default function AdminLayout({
               {
                 href: "/admin",
                 label: "Manage Users",
-                icon: UserRound,
-              },
-              {
-                href: "/admin/franchisor-listing",
-                label: "Franchisor",
                 icon: Shield,
               },
-              {
-                href: "/admin/settings",
-                label: "Settings",
-                icon: Settings,
-              },
+
               {
                 href: "/admin/profile",
                 label: "Profile",

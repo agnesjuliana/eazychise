@@ -24,8 +24,8 @@ export async function PUT(request: Request) {
     }
 
     // Cek apakah user ada
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(id) },
+    const user = await prisma.users.findUnique({
+      where: { id: id },
     });
 
     if (!user) {
@@ -60,8 +60,8 @@ export async function PUT(request: Request) {
     }
 
     // Update user
-    await prisma.user.update({
-      where: { id: parseInt(id) },
+    await prisma.users.update({
+      where: { id: id },
       data: updateData,
     });
 

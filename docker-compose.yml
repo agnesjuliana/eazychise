@@ -1,0 +1,19 @@
+version: "3"
+services:
+  database:
+    container_name: database-eazychise
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
+    ports:
+      - ${DATABASE_PORT}:5432
+    expose:
+      - ${DATABASE_PORT}
+    volumes:
+      - ./docker/volumes/:/var/lib/postgresql/data
+
+volumes:
+  mysqldata:
