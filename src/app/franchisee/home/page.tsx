@@ -15,6 +15,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
+import withAuth from "@/lib/withAuth";
+
+
 // Dummy franchise data
 const franchiseData = [
   {
@@ -99,7 +102,8 @@ const franchiseData = [
 
 const categories = ["Semua", "Makanan", "Minuman", "Jasa", "Retail"];
 
-export default function HomePage() {
+
+function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [showFilter, setShowFilter] = useState(false);
@@ -374,8 +378,10 @@ export default function HomePage() {
             Menampilkan {filteredFranchises.length} hasil untuk &ldquo;
             {searchQuery}&rdquo;
           </div>
-        )}
+        )}{" "}
       </div>
     </AppLayout>
   );
 }
+
+export default withAuth(HomePage, "FRANCHISEE");

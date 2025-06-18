@@ -9,6 +9,9 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+
+import withAuth from "@/lib/withAuth";
+
 //import { Input } from "@/components/ui/input";
 //import { Bookmark, Filter, MapPin, Search, Star } from "lucide-react";
 //import Link from "next/link";
@@ -48,7 +51,9 @@ const registeredFranchise = franchiseData[0];
 
 //const categories = ["Semua", "Makanan", "Minuman", "Jasa", "Retail"];
 
-export default function HomeFranchisorPage() {
+
+function HomeFranchisorPage() {
+
   //const [searchQuery, setSearchQuery] = useState("");
   //const [selectedCategory, setSelectedCategory] = useState("Semua");
   //const [showFilter, setShowFilter] = useState(false);
@@ -150,3 +155,5 @@ export default function HomeFranchisorPage() {
     </FranchisorLayout>
   );
 }
+
+export default withAuth(HomeFranchisorPage, "FRANCHISOR");

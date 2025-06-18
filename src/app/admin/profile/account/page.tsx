@@ -10,8 +10,9 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import withAuth from "@/lib/withAuth";
 
-export default function AccountPage() {
+function AccountPage() {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -302,3 +303,5 @@ export default function AccountPage() {
     </AppLayout>
   );
 }
+
+export default withAuth(AccountPage, "ADMIN");

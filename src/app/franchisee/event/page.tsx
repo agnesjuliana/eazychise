@@ -1,6 +1,8 @@
 import AppLayout from '@/components/app-layout';
 
-export default function EventPage() {
+import withAuth from '@/lib/withAuth';
+
+function EventPage() {
   return (
     <AppLayout>
       <div className='p-6'>
@@ -18,3 +20,6 @@ export default function EventPage() {
     </AppLayout>
   );
 }
+
+export default withAuth(EventPage, 'FRANCHISEE');
+
