@@ -6,8 +6,9 @@ import React from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
+import withAuth from "@/lib/withAuth";
 
-export default function AdminVerifyPage() {
+function AdminVerifyPage() {
   const [role, setRole] = React.useState<string>("FRANCHISEE");
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
@@ -16,11 +17,12 @@ export default function AdminVerifyPage() {
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await fetch("api/user", {
+        const response = await fetch("/api/user", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include", // Include cookies in request
         });
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
@@ -193,11 +195,16 @@ export default function AdminVerifyPage() {
             ))
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <p className="text-gray-500 mb-2">Tidak ada akun { role === "FRANCHISOR" ? "Franchisor" : "Franchisee"}</p>
+              <p className="text-gray-500 mb-2">
+                Tidak ada akun{" "}
+                {role === "FRANCHISOR" ? "Franchisor" : "Franchisee"}
+              </p>
             </div>
           )}
-        </div>
+        </div>{" "}
       </div>
     </AdminLayout>
   );
 }
+
+export default withAuth(AdminVerifyPage, "ADMIN");

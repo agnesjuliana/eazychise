@@ -16,11 +16,12 @@ import { ArrowLeft, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
+import withAuth from "@/lib/withAuth";
 import FranchiseDetail, {
   FranchiseData,
 } from "@/app/admin/components/franchise-detail";
 
-export default function UserDetailPage() {
+function DetailPage() {
   const router = useRouter();
   const [user, setUser] = React.useState<UserType | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -275,3 +276,5 @@ export default function UserDetailPage() {
     </AdminLayout>
   );
 }
+
+export default withAuth(DetailPage, "ADMIN");

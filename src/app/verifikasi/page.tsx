@@ -6,29 +6,30 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import withAuth from "@/lib/withAuth";
 
-export default function VerifikasiPage() {
+function VerifikasiPage() {
   const [isVerified, setIsVerified] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const checkVerificationStatus = async () => {
       try {
-        const response = await fetch('/api/login', {
-          method: 'GET',
+        const response = await fetch("/api/login", {
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
         });
         const data = await response.json();
-        
-        if (data.isLoggedIn && data.user.status === 'active') {
+
+        if (data.isLoggedIn && data.user.status === "active") {
           setIsVerified(true);
-          router.push('/start');
+          router.push("/start");
         }
       } catch (error) {
-        console.error('Error checking verification status:', error);
+        console.error("Error checking verification status:", error);
       }
     };
 
@@ -80,3 +81,5 @@ export default function VerifikasiPage() {
     </div>
   );
 }
+
+export default withAuth(VerifikasiPage, "VERIFICATION");

@@ -19,12 +19,13 @@ import {
   LogOut,
   ChevronRight,
 } from "lucide-react";
+import withAuth from "@/lib/withAuth";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export default function ProfilePage() {
+function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -281,3 +282,5 @@ export default function ProfilePage() {
     </AppLayout>
   );
 }
+
+export default withAuth(ProfilePage, "FRANCHISEE");
