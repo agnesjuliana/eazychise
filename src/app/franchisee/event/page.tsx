@@ -1,4 +1,5 @@
 import AppLayout from '@/components/app-layout';
+
 import withAuth from '@/lib/withAuth';
 
 function EventPage() {
@@ -21,3 +22,4 @@ function EventPage() {
 }
 
 export default withAuth(EventPage, 'FRANCHISEE');
+

@@ -282,5 +282,5 @@ function ProfilePage() {
     </AppLayout>
   );
 }
-
 export default withAuth(ProfilePage, "FRANCHISOR");
+

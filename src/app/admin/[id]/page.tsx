@@ -16,7 +16,9 @@ import { ArrowLeft, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
+
 import withAuth from "@/lib/withAuth";
+
 import FranchiseDetail, {
   FranchiseData,
 } from "@/app/admin/components/franchise-detail";

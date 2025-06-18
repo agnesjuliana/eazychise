@@ -213,4 +213,3 @@ export default function HelpPage() {
     </AppLayout>
   );
 }
-

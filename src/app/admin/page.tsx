@@ -8,7 +8,9 @@ import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
 import withAuth from "@/lib/withAuth";
 
+
 function AdminVerifyPage() {
+
   const [role, setRole] = React.useState<string>("FRANCHISEE");
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
