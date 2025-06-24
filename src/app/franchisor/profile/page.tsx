@@ -282,5 +282,5 @@ function ProfilePage() {
     </FranchisorLayout>
   );
 }
-
 export default withAuth(ProfilePage, "FRANCHISOR");
+

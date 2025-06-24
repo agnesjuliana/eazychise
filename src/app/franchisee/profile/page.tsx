@@ -20,6 +20,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import withAuth from "@/lib/withAuth";
+
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -284,3 +285,4 @@ function ProfilePage() {
 }
 
 export default withAuth(ProfilePage, "FRANCHISEE");
+

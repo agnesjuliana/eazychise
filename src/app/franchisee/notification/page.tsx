@@ -1,3 +1,4 @@
+
 import AppLayout from "@/components/app-layout";
 import withAuth from "@/lib/withAuth";
 
@@ -23,3 +24,4 @@ function NotificationPage() {
 }
 
 export default withAuth(NotificationPage, "FRANCHISEE");
+

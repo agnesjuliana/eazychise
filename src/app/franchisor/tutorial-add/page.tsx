@@ -1,7 +1,9 @@
 "use client";
 
 import HeaderPage from "@/components/header";
+
 import withAuth from "@/lib/withAuth";
+
 
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -173,3 +175,4 @@ function TutorialAddPage() {
 }
 
 export default withAuth(TutorialAddPage, "FRANCHISOR");
+

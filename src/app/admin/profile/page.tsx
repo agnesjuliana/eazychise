@@ -34,7 +34,7 @@ function ProfilePage() {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/user/me", {
+        const response = await fetch("/api/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
