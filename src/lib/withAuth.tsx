@@ -242,7 +242,7 @@ export default function withAuth<T extends object>(
     // Handle loading state
     if (isLoading && !hasChecked) {
       return (
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center max-w-md">
           <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
         </div>
       );

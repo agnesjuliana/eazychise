@@ -1,6 +1,6 @@
 "use client";
 
-import AppLayout from "@/components/app-layout";
+import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -134,22 +134,22 @@ function ProfilePage() {
     {
       icon: User,
       label: "Akun",
-      href: "/profile/account",
+      href: "/franchisor/profile/account",
     },
     {
       icon: FileText,
       label: "Kelengkapan dokumen",
-      href: "/profile/documents",
+      href: "/franchisor/profile/documents",
     },
     {
       icon: HelpCircle,
       label: "Bantuan",
-      href: "/profile/help",
+      href: "/franchisor/profile/help",
     },
     {
       icon: Shield,
       label: "Kebijakan privasi",
-      href: "/profile/privacy",
+      href: "/franchisor/profile/privacy",
     },
     {
       icon: LogOut,
@@ -159,7 +159,7 @@ function ProfilePage() {
   ];
 
   return (
-    <AppLayout>
+    <FranchisorLayout className="overflow-x-hidden">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <HeaderPage title="PROFILE" />
@@ -279,7 +279,7 @@ function ProfilePage() {
           </DialogContent>
         </Dialog>
       </div>
-    </AppLayout>
+    </FranchisorLayout>
   );
 }
 

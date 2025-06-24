@@ -26,27 +26,27 @@ export default function AppLayout({
           <BottomNavbar
             navItems={[
               {
-                href: "/home-franchisor",
+                href: "/franchisor/home",
                 label: "Home",
                 icon: Home,
               },
               {
-                href: "/applicant",
+                href: "/franchisor/applicant",
                 label: "Applicant",
                 icon: FileText,
               },
               {
-                href: "/training",
+                href: "/franchisor/training",
                 label: "Training",
                 icon: GraduationCap,
               },
               {
-                href: "/notification",
+                href: "/franchisor/notification",
                 label: "Notification",
                 icon: Bell,
               },
               {
-                href: "/profile",
+                href: "/franchisor/profile",
                 label: "Profile",
                 icon: User,
               },
