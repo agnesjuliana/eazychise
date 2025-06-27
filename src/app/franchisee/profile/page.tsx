@@ -1,5 +1,6 @@
 "use client";
 
+import AppLayout from "@/components/app-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +11,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  FileText,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
+import withAuth from "@/lib/withAuth";
+
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import AdminLayout from "@/components/admin-layout";
-import withAuth from "@/lib/withAuth";
 
 function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -34,7 +42,7 @@ function ProfilePage() {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/me", {
+        const response = await fetch("/api/user/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -77,10 +85,6 @@ function ProfilePage() {
       // Call logout API endpoint
       const response = await fetch("/api/logout", {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Include cookies in request
       });
 
       if (!response.ok) {
@@ -131,9 +135,23 @@ function ProfilePage() {
     {
       icon: User,
       label: "Akun",
-      href: "/admin/profile/account",
+      href: "/profile/account",
     },
-
+    {
+      icon: FileText,
+      label: "Kelengkapan dokumen",
+      href: "/profile/documents",
+    },
+    {
+      icon: HelpCircle,
+      label: "Bantuan",
+      href: "/profile/help",
+    },
+    {
+      icon: Shield,
+      label: "Kebijakan privasi",
+      href: "/profile/privacy",
+    },
     {
       icon: LogOut,
       label: "Keluar",
@@ -142,7 +160,7 @@ function ProfilePage() {
   ];
 
   return (
-    <AdminLayout>
+    <AppLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <HeaderPage title="PROFILE" />
@@ -210,7 +228,7 @@ function ProfilePage() {
             </div>
           </div>
           {/* Menu Items */}
-          <div className="space-y-2 w-full">
+          <div className="space-y-2">
             {menuItems.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -262,8 +280,9 @@ function ProfilePage() {
           </DialogContent>
         </Dialog>
       </div>
-    </AdminLayout>
+    </AppLayout>
   );
 }
 
-export default withAuth(ProfilePage, "ADMIN");
+export default withAuth(ProfilePage, "FRANCHISEE");
+

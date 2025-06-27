@@ -16,8 +16,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import withAuth from "@/lib/withAuth";
 
-export default function RegisterPage() {
+function RegisterPage() {
   const { role } = useParams() as { role: string };
   const router = useRouter();
 
@@ -213,3 +214,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+export default withAuth(RegisterPage, "GUEST");
