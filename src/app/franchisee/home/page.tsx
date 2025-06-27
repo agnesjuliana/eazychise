@@ -11,9 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Bookmark, Filter, MapPin, Search, Star } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
+
+import withAuth from "@/lib/withAuth";
+import { useCategories } from "./_hooks/useGetHome";
 
 // Dummy franchise data
 const franchiseData = [
@@ -97,12 +100,17 @@ const franchiseData = [
   },
 ];
 
-const categories = ["Semua", "Makanan", "Minuman", "Jasa", "Retail"];
-
-export default function HomePage() {
+function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [showFilter, setShowFilter] = useState(false);
+
+  const {
+    data: categoriesData,
+    isLoading: isCategoriesLoading,
+    isError: isErrorCategories,
+    error,
+  } = useCategories();
 
   // Filter and search logic
   const filteredFranchises = useMemo(() => {
@@ -114,12 +122,24 @@ export default function HomePage() {
           tag.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
-      const matchesCategory =
-        selectedCategory === "Semua" || franchise.category === selectedCategory;
+      const matchesCategory = (() => {
+        // If "Semua" (all) is selected, show all franchises
+        if (selectedCategoryId === "all") return true;
+
+        // Find the selected category by ID from API data
+        const selectedCategory = categoriesData?.find(
+          (cat) => cat.id === selectedCategoryId
+        );
+
+        if (!selectedCategory) return true; // Fallback to show all
+
+        // Match franchise category with selected category name
+        return franchise.category === selectedCategory.name;
+      })();
 
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategoryId, categoriesData]);
 
   const toggleFavorite = (id: number) => {
     // In a real app, this would update the backend
@@ -255,21 +275,33 @@ export default function HomePage() {
         </div>
         {/* Category Pills */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-              className={`whitespace-nowrap ${
-                selectedCategory === category
-                  ? "bg-[#EF5A5A] hover:bg-[#EF5A5A]/90"
-                  : "border-gray-200 text-gray-600"
-              }`}
-            >
-              {category}
-            </Button>
-          ))}
+          {isCategoriesLoading ? (
+            <div className="text-sm text-gray-500">Loading categories...</div>
+          ) : isErrorCategories ? (
+            <div className="text-sm text-red-500">
+              Error loading categories: {error?.message}
+            </div>
+          ) : categoriesData && categoriesData.length > 0 ? (
+            categoriesData.map((category) => (
+              <Button
+                key={category.id}
+                variant={
+                  selectedCategoryId === category.id ? "default" : "outline"
+                }
+                size="sm"
+                onClick={() => setSelectedCategoryId(category.id)}
+                className={`whitespace-nowrap ${
+                  selectedCategoryId === category.id
+                    ? "bg-[#EF5A5A] hover:bg-[#EF5A5A]/90 text-white"
+                    : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {category.name}
+              </Button>
+            ))
+          ) : (
+            <div className="text-sm text-gray-500">No categories available</div>
+          )}
         </div>
         <div className="grid grid-cols-1 gap-3">
           {filteredFranchises.slice(4).map((franchise) => (
@@ -374,8 +406,10 @@ export default function HomePage() {
             Menampilkan {filteredFranchises.length} hasil untuk &ldquo;
             {searchQuery}&rdquo;
           </div>
-        )}
+        )}{" "}
       </div>
     </AppLayout>
   );
 }
+
+export default withAuth(HomePage, "FRANCHISEE");
