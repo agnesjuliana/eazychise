@@ -7,7 +7,11 @@ import { formatResponse, formatError } from "@/utils/response";
 const prisma = new PrismaClient();
 
 export async function GET(_req: Request) {
-  const auth = await requireRole([Role.FRANCHISOR, Role.FRANCHISEE, Role.ADMIN]);
+  const auth = await requireRole([
+    Role.FRANCHISOR,
+    Role.FRANCHISEE,
+    Role.ADMIN,
+  ]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {
       status: auth.status,

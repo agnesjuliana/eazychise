@@ -11,7 +11,11 @@ export async function GET(
   req: Request,
   { params }: { params: { slug: string } }
 ) {
-  const auth = await requireRole([Role.FRANCHISOR, Role.FRANCHISEE, Role.ADMIN]);
+  const auth = await requireRole([
+    Role.FRANCHISOR,
+    Role.FRANCHISEE,
+    Role.ADMIN,
+  ]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {
       status: auth.status,
@@ -82,9 +86,8 @@ export async function GET(
     );
   } catch (err) {
     console.error("GET /franchises/category/:slug error:", err);
-    return NextResponse.json(
-      formatError({ message: "Failed to fetch data" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatError({ message: "Failed to fetch data" }), {
+      status: 500,
+    });
   }
 }
