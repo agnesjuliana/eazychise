@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { requireRole } from "@/lib/auth-api";
+import { requireRole } from "@/lib/auth-api-backup";
 import { Role } from "@/type/user";
 import { CreateTutorialPayload } from "@/type/tutorial";
 import { formatResponse, formatError } from "@/utils/response";
@@ -70,16 +70,18 @@ export async function GET() {
   }
 
   try {
-
     // Ambil franchise yang dimiliki oleh franchisor ini
     const franchise = await prisma.franchise_listings.findFirst({
       where: { franchisor_id: auth.user.id },
     });
 
     if (!franchise) {
-      return NextResponse.json(formatResponse({ data: [], message: "No franchise found" }), {
-        status: 200,
-      });
+      return NextResponse.json(
+        formatResponse({ data: [], message: "No franchise found" }),
+        {
+          status: 200,
+        }
+      );
     }
 
     const tutorials = await prisma.listing_documents.findMany({
@@ -101,8 +103,11 @@ export async function GET() {
     );
   } catch (err) {
     console.error("GET /tutorials error:", err);
-    return NextResponse.json(formatError({ message: "Failed to get tutorials" }), {
-      status: 500,
-    });
+    return NextResponse.json(
+      formatError({ message: "Failed to get tutorials" }),
+      {
+        status: 500,
+      }
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { PrismaClient, Status } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth-api";
+import { requireRole } from "@/lib/auth-api-backup";
 import { Role } from "@/type/user";
 import { formatError, formatResponse } from "@/utils/response";
 import type { UpdateUserStatusPayload } from "@/type/user";
