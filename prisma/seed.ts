@@ -118,11 +118,7 @@ async function main() {
   await seedFranchises();
   await seedCategoryFranchise();
   await seedListingsHighlights();
-<<<<<<< HEAD
-  await seedListingDocuments();
-=======
   // await seedListingDocuments();
->>>>>>> main
 }
 
 main()
