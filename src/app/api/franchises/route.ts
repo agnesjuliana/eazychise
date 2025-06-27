@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getSessionUser } from "@/lib/auth-api-backup";
+import { getSessionUser } from "@/lib/auth-api";
 import { Role } from "@/type/user";
 import { formatResponse, formatError } from "@/utils/response";
 import { CreateFranchisePayload } from "@/type/franchise";

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth-api-backup";
+import { getSessionUser } from "@/lib/auth-api";
 import { formatResponse, formatError } from "@/utils/response";
 
 const prisma = new PrismaClient();

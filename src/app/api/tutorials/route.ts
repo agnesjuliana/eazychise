@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { requireRole } from "@/lib/auth-api-backup";
+import { requireRole } from "@/lib/auth-api";
 import { Role } from "@/type/user";
 import { CreateTutorialPayload } from "@/type/tutorial";
 import { formatResponse, formatError } from "@/utils/response";
