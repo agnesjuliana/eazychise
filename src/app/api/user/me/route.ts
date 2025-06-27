@@ -43,6 +43,52 @@ export async function GET() {
       );
     }
 
+    let detail = null;
+    if (user.role === "FRANCHISOR") {
+      detail = await prisma.franchisor_profiles.findUnique({
+        where: {
+          user_id: user.id,
+        },
+      });
+    }
+
+    let franchise = null;
+    if (user?.role === "FRANCHISOR") {
+      franchise = await prisma.franchise_listings.findFirst({
+        where: {
+          franchisor_id: user.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          image: true,
+          status: true,
+          location: true,
+          ownership_document: true,
+          financial_statement: true,
+          proposal: true,
+          sales_location: true,
+          equipment: true,
+          materials: true,
+          listing_documents: {
+            select: {
+              id: true,
+              type: true,
+              name: true,
+            },
+          },
+          listings_highlights: {
+            select: {
+              id: true,
+              title: true,
+              content: true,
+            },
+          },
+        },
+      });
+    }
+
     const response = NextResponse.json({
       success: true,
       data: {
@@ -51,6 +97,20 @@ export async function GET() {
         email: user.email,
         role: user.role,
         status: user.status,
+        detail:
+          user.role === "FRANCHISOR"
+            ? {
+                id: detail?.id || null,
+                ktp: detail?.ktp || null,
+                foto_diri: detail?.foto_diri || null,
+              }
+            : null,
+        franchise:
+          user?.role === "FRANCHISOR"
+            ? {
+                ...franchise,
+              }
+            : null,
       },
     });
 
