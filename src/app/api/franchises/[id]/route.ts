@@ -80,7 +80,9 @@ export async function GET(
 export async function PUT(req: Request, context: { params: { id: string } }) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
-    return NextResponse.json(formatError({ message: auth.error }), { status: auth.status });
+    return NextResponse.json(formatError({ message: auth.error }), {
+      status: auth.status,
+    });
   }
 
   const { id } = context.params;
@@ -119,4 +121,3 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
     );
   }
 }
-

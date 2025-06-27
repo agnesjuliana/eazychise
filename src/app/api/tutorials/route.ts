@@ -70,16 +70,18 @@ export async function GET() {
   }
 
   try {
-
     // Ambil franchise yang dimiliki oleh franchisor ini
     const franchise = await prisma.franchise_listings.findFirst({
       where: { franchisor_id: auth.user.id },
     });
 
     if (!franchise) {
-      return NextResponse.json(formatResponse({ data: [], message: "No franchise found" }), {
-        status: 200,
-      });
+      return NextResponse.json(
+        formatResponse({ data: [], message: "No franchise found" }),
+        {
+          status: 200,
+        }
+      );
     }
 
     const tutorials = await prisma.listing_documents.findMany({
@@ -101,8 +103,11 @@ export async function GET() {
     );
   } catch (err) {
     console.error("GET /tutorials error:", err);
-    return NextResponse.json(formatError({ message: "Failed to get tutorials" }), {
-      status: 500,
-    });
+    return NextResponse.json(
+      formatError({ message: "Failed to get tutorials" }),
+      {
+        status: 500,
+      }
+    );
   }
 }
