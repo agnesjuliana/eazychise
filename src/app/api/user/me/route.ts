@@ -100,17 +100,17 @@ export async function GET() {
         detail:
           user.role === "FRANCHISOR"
             ? {
-                id: detail?.id || null,
-                ktp: detail?.ktp || null,
-                foto_diri: detail?.foto_diri || null,
+                id: detail?.id || undefined,
+                ktp: detail?.ktp || undefined,
+                foto_diri: detail?.foto_diri || undefined,
               }
-            : null,
+            : undefined,
         franchise:
           user?.role === "FRANCHISOR"
             ? {
                 ...franchise,
               }
-            : null,
+            : undefined,
       },
     });
 

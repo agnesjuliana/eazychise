@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { type UpdateUserPayload, type FranchisorProfile } from "@/type/user";
 
 const prisma = new PrismaClient();
 
@@ -79,17 +80,17 @@ export async function GET(
         detail:
           user?.role === "FRANCHISOR"
             ? {
-                id: detail?.id || null,
-                ktp: detail?.ktp || null,
-                foto_diri: detail?.foto_diri || null,
+                id: detail?.id || undefined,
+                ktp: detail?.ktp || undefined,
+                foto_diri: detail?.foto_diri || undefined,
               }
-            : null,
+            : undefined,
         franchise:
           user?.role === "FRANCHISOR"
             ? {
                 ...franchise,
               }
-            : null,
+            : undefined,
       },
     });
     return res;
@@ -114,29 +115,56 @@ export async function PUT(
         { status: 400 }
       );
     }
-    const data = await request.json();
+    const data: UpdateUserPayload = await request.json();
 
-    const updateUser = await prisma.users.update({
-      where: {
-        id: id,
-      },
-      data: {
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        status: data.status,
-      },
+    // Start transaction
+    const { user, profile } = await prisma.$transaction(async (tx) => {
+      const user = await tx.users.update({
+        where: {
+          id: id,
+        },
+        data: {
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          status: data.status,
+        },
+      });
+
+      let profile: FranchisorProfile | null = null;
+
+      if (user.role === "FRANCHISOR") {
+        profile = await tx.franchisor_profiles.update({
+          where: {
+            user_id: id,
+          },
+          data: {
+            ktp: data.profile?.ktp || undefined,
+            foto_diri: data.profile?.foto_diri || undefined,
+          },
+        });
+      }
+
+      return { user, profile };
     });
 
     return NextResponse.json({
       success: true,
       message: "User updated successfully",
       data: {
-        id: updateUser.id,
-        name: updateUser.name,
-        email: updateUser.email,
-        role: updateUser.role,
-        status: updateUser.status,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        profile:
+          user.role === "FRANCHISOR"
+            ? {
+                id: profile?.id || undefined,
+                ktp: profile?.ktp || undefined,
+                foto_diri: profile?.foto_diri || undefined,
+              }
+            : undefined,
       },
     });
   } catch (err: unknown) {
