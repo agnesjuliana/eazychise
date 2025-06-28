@@ -66,23 +66,10 @@ interface CategoriesParams {
 export const useCategories = (
   params?: CategoriesParams
 ): UseQueryResult<Category[]> => {
-  const [apiData, setApiData] = useState<Category[] | undefined>(undefined);
+  const [data, setData] = useState<Category[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-
-  // Manually add "Semua" option to the frontend
-  const data = useMemo(() => {
-    if (!apiData) return undefined;
-
-    return [
-      { id: "all", name: "Semua" }, // Added manually in frontend
-      ...apiData.map((category) => ({
-        id: category.id,
-        name: category.name,
-      })),
-    ];
-  }, [apiData]);
 
   const queryString = useMemo(() => {
     if (!params) return "";
@@ -119,8 +106,8 @@ export const useCategories = (
       const result: CategoriesResponse = response.data;
 
       if (result.status) {
-        // Store only the API data, "Semua" will be added in useMemo above
-        setApiData(result.data);
+        // Store the API data directly
+        setData(result.data);
       } else {
         throw new Error(result.message || "Failed to fetch categories");
       }
@@ -135,7 +122,7 @@ export const useCategories = (
       } else {
         setError(err instanceof Error ? err : new Error("Unknown error"));
       }
-      setApiData(undefined);
+      setData(undefined);
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +172,11 @@ export const useGetFranchiseByCategoryId = (
       setIsError(false);
       setError(null);
 
-      const url = `/api/franchises/category/${categoryId}${queryString}`;
+      // Use categoryId if available, otherwise use a default or all franchises endpoint
+      const url = categoryId 
+        ? `/api/franchises/category/${categoryId}${queryString}`
+        : `/api/franchises${queryString}`; // Fallback to general franchises endpoint
+      
       const response = await axios.get(url, {
         withCredentials: true,
         headers: {
@@ -220,7 +211,8 @@ export const useGetFranchiseByCategoryId = (
   };
 
   useEffect(() => {
-    if (categoryId && categoryId !== "all") {
+    if (categoryId || params?.filter_value) {
+      // Fetch if we have a category ID or search parameters
       fetchFranchiseByCategory();
     } else {
       setData(undefined);
