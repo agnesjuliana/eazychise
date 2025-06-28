@@ -240,7 +240,6 @@ export async function PUT(request: Request) {
             { status: 400 }
           );
         }
-
         updatedDetail = await prisma.franchisor_profiles.create({
           data: {
             user: {
