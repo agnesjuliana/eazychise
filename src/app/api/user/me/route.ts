@@ -112,6 +112,7 @@ export async function GET() {
               }
             : undefined,
       },
+      token: "session_token", // Add token for consistency
     });
 
     // Update session cookie if status has changed
@@ -239,11 +240,11 @@ export async function PUT(request: Request) {
             { status: 400 }
           );
         }
-        
+
         updatedDetail = await prisma.franchisor_profiles.create({
           data: {
             user: {
-              connect: { id: session.id }
+              connect: { id: session.id },
             },
             ktp: ktp.trim(),
             foto_diri: foto_diri.trim(),
@@ -261,11 +262,13 @@ export async function PUT(request: Request) {
         email: updatedUser.email,
         role: updatedUser.role,
         status: updatedUser.status,
-        detail: updatedDetail ? {
-          id: updatedDetail.id,
-          ktp: updatedDetail.ktp,
-          foto_diri: updatedDetail.foto_diri,
-        } : null,
+        detail: updatedDetail
+          ? {
+              id: updatedDetail.id,
+              ktp: updatedDetail.ktp,
+              foto_diri: updatedDetail.foto_diri,
+            }
+          : null,
       },
     });
 

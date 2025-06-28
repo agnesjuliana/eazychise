@@ -70,37 +70,58 @@ export default function withAuth<T extends object>(
     const pathname = usePathname();
 
     // Use Zustand store selectors
-    const { useUser, useIsLoading, useIsAuthenticated, useHasChecked } =
-      useAuthStore;
+    const { useUser, useIsAuthenticated, useHasChecked, useJustLoggedOut } = useAuthStore;
     const user = useUser();
-    const isLoading = useIsLoading();
     const isAuthenticated = useIsAuthenticated();
     const hasChecked = useHasChecked();
+    const justLoggedOut = useJustLoggedOut();
 
     // Use Zustand store actions
-    const {
-      useLogin,
-      useLogout,
-      useStartLoading,
-      useStopLoading,
-      useSetHasChecked,
-    } = useAuthStore;
+    const { useLogin, useLogout, useSetHasChecked } = useAuthStore;
     const login = useLogin();
     const logout = useLogout();
-    const startLoading = useStartLoading();
-    const stopLoading = useStopLoading();
     const setHasChecked = useSetHasChecked();
 
     const isCheckingRef = useRef(false);
+    const hasShownToastRef = useRef(false);
+    const lastToastTimeRef = useRef(0);
+    const isRedirectingRef = useRef(false);
 
-    // Fetch user data
+    // Helper function to show toast with debouncing
+    const showToastOnce = useCallback(
+      (message: string, type: "info" | "error" = "info", debounceMs = 1000) => {
+        const now = Date.now();
+        if (now - lastToastTimeRef.current < debounceMs) {
+          return;
+        }
+
+        lastToastTimeRef.current = now;
+        if (type === "error") {
+          toast.error(message);
+        } else {
+          toast.info(message);
+        }
+      },
+      []
+    );
+
+    // Helper function to redirect only once
+    const redirectOnce = useCallback(
+      (path: string) => {
+        if (isRedirectingRef.current) return;
+        isRedirectingRef.current = true;
+        router.replace(path);
+      },
+      [router]
+    );
+
+    // Fetch user data with aggressive optimizations
     const fetchUserData = useCallback(async () => {
       if (isCheckingRef.current) return;
+
       isCheckingRef.current = true;
-      startLoading();
 
       try {
-        console.log("withAuth: Checking session on path:", pathname);
         const res = await fetch("/api/user/me", {
           method: "GET",
           headers: {
@@ -108,14 +129,11 @@ export default function withAuth<T extends object>(
           },
           credentials: "include",
         });
-        console.log("withAuth: Response status:", res);
 
         if (!res.ok) {
           if (res.status === 401) {
-            // Not authenticated
             logout();
-
-            // Only redirect if not on a public path or trying to access a protected route
+            // Immediate redirect for unauthenticated users on protected routes
             if (
               !isPublicPath(pathname) &&
               routeRole !== "GUEST" &&
@@ -124,217 +142,218 @@ export default function withAuth<T extends object>(
               router.replace("/login");
             }
           } else {
-            throw new Error("Failed to fetch user data");
+            logout();
           }
         } else {
           const data = await res.json();
-          console.log("withAuth: User data fetched:", data);
           if (data?.data) {
-            // Extract necessary data from response
-            const userData = data.data;
-
-            // Look for token in response or headers
-            const token = data.token || ""; // If you have token in the response
-
-            // Login with user data from response
-            login(userData, token);
+            // Optimistic update - update state immediately
+            login(data.data, data.token || "");
           }
         }
       } catch (err) {
-        console.error("Error checking authentication:", err);
+        console.error("Auth check failed:", err);
+        logout();
       } finally {
-        stopLoading();
         setHasChecked(true);
         isCheckingRef.current = false;
       }
-    }, [
-      pathname,
-      router,
-      login,
-      logout,
-      startLoading,
-      stopLoading,
-      setHasChecked,
-    ]); // Check if the user should be redirected based on their status and the path
-    const checkRedirection = useCallback(() => {
-      if (!user || isLoading) return;
+    }, [pathname, login, logout, setHasChecked, router]);
 
-      // Users with WAITING status should only access verification page
-      if (user.status === Status.WAITING && !isVerificationPath(pathname)) {
-        toast.info("Akun anda sedang menunggu verifikasi");
-        router.replace("/verifikasi");
-        return;
+    // Simplified useEffect - fetch user data once only
+    useEffect(() => {
+      if (!hasChecked && !isCheckingRef.current) {
+        fetchUserData();
+      }
+    }, [fetchUserData, hasChecked]);
+
+    // Reset flags when pathname changes - no redirection logic here
+    useEffect(() => {
+      hasShownToastRef.current = false;
+      lastToastTimeRef.current = 0;
+      isRedirectingRef.current = false;
+    }, [pathname]);
+
+    // Minimal event listeners - only essential ones
+    useEffect(() => {
+      let focusTimeout: NodeJS.Timeout;
+
+      const handleFocus = () => {
+        // Only recheck on focus if we're on a protected route and it's been a while
+        if (
+          hasChecked &&
+          !isCheckingRef.current &&
+          !isRedirectingRef.current &&
+          !isPublicPath(pathname)
+        ) {
+          clearTimeout(focusTimeout);
+          focusTimeout = setTimeout(() => {
+            if (!isRedirectingRef.current && !isCheckingRef.current) {
+              fetchUserData();
+            }
+          }, 3000); // Even longer debounce to reduce API calls
+        }
+      };
+
+      // Only add focus listener for authenticated users on protected routes
+      if (isAuthenticated && !isPublicPath(pathname)) {
+        window.addEventListener("focus", handleFocus);
       }
 
-      // Users with ACCEPTED status shouldn't access verification page
-      if (user.status === Status.ACCEPTED && isVerificationPath(pathname)) {
-        switch (user.role) {
-          case Role.FRANCHISEE:
-            router.replace("/franchisee/home");
-            break;
-          case Role.FRANCHISOR:
-            router.replace("/franchisor/home");
-            break;
-          case Role.ADMIN:
-            router.replace("/admin");
-            break;
+      return () => {
+        window.removeEventListener("focus", handleFocus);
+        clearTimeout(focusTimeout);
+      };
+    }, [fetchUserData, hasChecked, pathname, isAuthenticated]);
+
+    // Streamlined rendering logic - prioritize immediate rendering
+
+    // Skip loading entirely - render components immediately with cached data
+    // Only show loading on very first visit when no data exists at all
+    if (!hasChecked && !user && !isAuthenticated) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
+        </div>
+      );
+    }
+
+    // For authenticated users, render immediately without waiting
+    if (isAuthenticated && user) {
+      // Handle role-based redirects without showing loading
+      if (user.status === Status.WAITING && !isVerificationPath(pathname)) {
+        if (!isRedirectingRef.current) {
+          showToastOnce("Akun anda sedang menunggu verifikasi", "info");
+          redirectOnce("/verifikasi");
         }
-        return;
+        // Render the component immediately, redirect will happen in background
+        return <WrappedComponent {...props} user={user} />;
+      }
+
+      if (user.status === Status.ACCEPTED && isVerificationPath(pathname)) {
+        if (!isRedirectingRef.current) {
+          switch (user.role) {
+            case Role.FRANCHISEE:
+              redirectOnce("/franchisee/home");
+              break;
+            case Role.FRANCHISOR:
+              redirectOnce("/franchisor/home");
+              break;
+            case Role.ADMIN:
+              redirectOnce("/admin");
+              break;
+          }
+        }
+        // Render immediately while redirect happens
+        return <WrappedComponent {...props} user={user} />;
       }
 
       // Role-based path restrictions
       if (user.status === Status.ACCEPTED) {
-        // Check if user is trying to access a path they don't have permission for
         if (
           (isFranchiseePath(pathname) && user.role !== Role.FRANCHISEE) ||
           (isFranchisorPath(pathname) && user.role !== Role.FRANCHISOR) ||
           (isAdminPath(pathname) && user.role !== Role.ADMIN)
         ) {
-          toast.error("Anda tidak memiliki akses ke halaman ini");
+          if (!isRedirectingRef.current) {
+            showToastOnce("Anda tidak memiliki akses ke halaman ini", "error");
+            switch (user.role) {
+              case Role.FRANCHISEE:
+                redirectOnce("/franchisee/home");
+                break;
+              case Role.FRANCHISOR:
+                redirectOnce("/franchisor/home");
+                break;
+              case Role.ADMIN:
+                redirectOnce("/admin");
+                break;
+            }
+          }
+          // Show current page briefly while redirecting
+          return <WrappedComponent {...props} user={user} />;
+        }
+      }
+
+      // Role-specific route validation for authenticated users
+      if (!isPublicPath(pathname)) {
+        if (
+          (routeRole === "FRANCHISEE" && user.role !== Role.FRANCHISEE) ||
+          (routeRole === "FRANCHISOR" && user.role !== Role.FRANCHISOR) ||
+          (routeRole === "ADMIN" && user.role !== Role.ADMIN)
+        ) {
+          if (!isRedirectingRef.current) {
+            showToastOnce("Anda tidak memiliki akses ke halaman ini", "error");
+            switch (user.role) {
+              case Role.FRANCHISEE:
+                redirectOnce("/franchisee/home");
+                break;
+              case Role.FRANCHISOR:
+                redirectOnce("/franchisor/home");
+                break;
+              case Role.ADMIN:
+                redirectOnce("/admin");
+                break;
+            }
+          }
+          return <WrappedComponent {...props} user={user} />;
+        }
+      }
+
+      // Guest routes: redirect authenticated users quickly
+      if (routeRole === "GUEST") {
+        if (!isRedirectingRef.current) {
           switch (user.role) {
             case Role.FRANCHISEE:
-              router.replace("/franchisee/home");
+              redirectOnce("/franchisee/home");
               break;
             case Role.FRANCHISOR:
-              router.replace("/franchisor/home");
+              redirectOnce("/franchisor/home");
               break;
             case Role.ADMIN:
-              router.replace("/admin");
+              redirectOnce("/admin");
               break;
           }
-          return;
         }
+        // Show current page briefly while redirecting
+        return <WrappedComponent {...props} user={user} />;
       }
-    }, [user, isLoading, pathname, router]);
 
-    // Fetch user data on component mount and pathname change
-    useEffect(() => {
-      fetchUserData();
-    }, [fetchUserData]);
-
-    // Check redirection when user data or pathname changes
-    useEffect(() => {
-      checkRedirection();
-    }, [checkRedirection]); // Add event listeners to detect auth changes (tab focus, local storage changes)
-    useEffect(() => {
-      let debounceTimeout: NodeJS.Timeout;
-
-      const handleFocus = () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(fetchUserData, 300);
-      };
-
-      const handleStorage = () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(fetchUserData, 300);
-      };
-
-      window.addEventListener("focus", handleFocus);
-      window.addEventListener("storage", handleStorage);
-
-      return () => {
-        window.removeEventListener("focus", handleFocus);
-        window.removeEventListener("storage", handleStorage);
-        clearTimeout(debounceTimeout);
-      };
-    }, [fetchUserData]);
-
-    // Handle loading state
-    if (isLoading && !hasChecked) {
-      return (
-        <div className="flex min-h-screen items-center justify-center max-w-md">
-          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
-        </div>
-      );
-    } // Guest routes should only be accessible to unauthenticated users
-    if (routeRole === "GUEST" && isAuthenticated) {
-      switch (user?.role) {
-        case Role.FRANCHISEE:
-          router.replace("/franchisee/home");
-          break;
-        case Role.FRANCHISOR:
-          router.replace("/franchisor/home");
-          break;
-        case Role.ADMIN:
-          router.replace("/admin");
-          break;
-      }
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
-        </div>
-      );
+      // All checks passed - render component immediately
+      return <WrappedComponent {...props} user={user} />;
     }
 
-    // Verification route should only be accessible to users with WAITING status
-    if (routeRole === "VERIFICATION" && user?.status !== Status.WAITING) {
-      switch (user?.role) {
-        case Role.FRANCHISEE:
-          router.replace("/franchisee/home");
-          break;
-        case Role.FRANCHISOR:
-          router.replace("/franchisor/home");
-          break;
-        case Role.ADMIN:
-          router.replace("/admin");
-          break;
-        default:
-          router.replace("/login");
-          break;
-      }
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
-        </div>
-      );
-    }
-
-    // Role-specific route validation
-    if (!isPublicPath(pathname) && isAuthenticated) {
+    // Handle unauthenticated users
+    if (hasChecked && !isAuthenticated) {
+      // For public paths or optional auth, render immediately
       if (
-        (routeRole === "FRANCHISEE" && user?.role !== Role.FRANCHISEE) ||
-        (routeRole === "FRANCHISOR" && user?.role !== Role.FRANCHISOR) ||
-        (routeRole === "ADMIN" && user?.role !== Role.ADMIN)
+        isPublicPath(pathname) ||
+        routeRole === "GUEST" ||
+        routeRole === "OPTIONAL"
       ) {
-        toast.error("Anda tidak memiliki akses ke halaman ini");
-        switch (user?.role) {
-          case Role.FRANCHISEE:
-            router.replace("/franchisee/home");
-            break;
-          case Role.FRANCHISOR:
-            router.replace("/franchisor/home");
-            break;
-          case Role.ADMIN:
-            router.replace("/admin");
-            break;
+        return <WrappedComponent {...props} user={null} />;
+      }
+
+      // For protected routes, show toast and redirect immediately
+      if (
+        ["ANY", "FRANCHISEE", "FRANCHISOR", "ADMIN", "VERIFICATION"].includes(
+          routeRole
+        )
+      ) {
+        if (!hasShownToastRef.current && !isRedirectingRef.current && !justLoggedOut) {
+          showToastOnce("Anda harus login terlebih dahulu", "info");
+          hasShownToastRef.current = true;
+          redirectOnce("/login");
+        } else if (justLoggedOut && !isRedirectingRef.current) {
+          // If user just logged out, redirect without showing toast
+          redirectOnce("/login");
         }
+        // Show minimal loading during redirect
         return (
           <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
           </div>
         );
       }
-    }
-
-    // At top of render
-    if (!hasChecked) {
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
-        </div>
-      );
-    }
-
-    // Now perform login-required guard *only* after hasChecked
-    if (
-      ["ANY", "FRANCHISEE", "FRANCHISOR", "ADMIN", "VERIFICATION"].includes(
-        routeRole
-      ) &&
-      !isAuthenticated &&
-      !isPublicPath(pathname)
-    ) {
-      toast.info("Anda harus login terlebih dahulu");
-      return <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />;
     }
 
     // If all checks pass, render the component
