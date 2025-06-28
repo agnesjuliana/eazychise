@@ -50,3 +50,9 @@ next-env.d.ts
 # Docker
 docker/
 /prisma/migrations
+
+# Uploaded files
+/public/storage/image/*
+/public/storage/file/*
+!/public/storage/image/.gitkeep
+!/public/storage/file/.gitkeep
