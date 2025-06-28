@@ -3,62 +3,15 @@
 import HeaderPage from "@/components/header";
 
 import withAuth from "@/lib/withAuth";
-
+import CustomUploadFile from "@/components/CustomUploadFile";
 
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FileUp } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-// Helper component untuk area upload file, agar tidak menulis kode yang sama dua kali
-const FileUploadZone = ({
-  id,
-  title,
-  onFileChange,
-  fileName,
-}: {
-  id: string;
-  title: string;
-  onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  fileName: string | null;
-}) => (
-  <div>
-    <div className="bg-[#EF5A5A] text-white text-center p-2 rounded-t-lg font-semibold mb-1">
-      {title}
-    </div>
-    <div className="border-2 border-dashed border-gray-300 rounded-b-lg p-6 text-center">
-      <label
-        htmlFor={id}
-        className="cursor-pointer flex flex-col items-center justify-center"
-      >
-        <FileUp className="w-8 h-8 mb-1" />
-        {fileName ? (
-          <span className="text-sm font-semibold text-gray-800">
-            {fileName}
-          </span>
-        ) : (
-          <div>
-            <span className="text-[#EF5A5A] font-semibold">pilih</span>{" "}
-            <span className="text-blzck font-semibold">
-              file untuk diupload
-            </span>
-          </div>
-        )}
-        <p className="text-sm text-[#6E7E9D]">mendukung format pdf dan docx</p>
-      </label>
-      <Input
-        id={id}
-        type="file"
-        className="hidden" // Input file asli kita sembunyikan
-        onChange={onFileChange}
-        accept=".pdf,.docx"
-      />
-    </div>
-  </div>
-);
 
 function TutorialAddPage() {
   const router = useRouter();
@@ -117,7 +70,7 @@ function TutorialAddPage() {
         <main className="p-6 space-y-6">
           {/* Tutorial Section */}
           <div className="space-y-4">
-            <FileUploadZone
+            <CustomUploadFile
               id="tutorial-upload"
               title="Tutorial"
               onFileChange={handleFileChange(setTutorialFile)}
@@ -139,7 +92,7 @@ function TutorialAddPage() {
 
           {/* Guideline Section */}
           <div className="space-y-4">
-            <FileUploadZone
+            <CustomUploadFile
               id="guideline-upload"
               title="Guideline"
               onFileChange={handleFileChange(setGuidelineFile)}
@@ -175,4 +128,3 @@ function TutorialAddPage() {
 }
 
 export default withAuth(TutorialAddPage, "FRANCHISOR");
-
