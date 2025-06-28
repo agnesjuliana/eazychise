@@ -36,7 +36,7 @@ export default function AppLayout({
                 icon: FileText,
               },
               {
-                href: "/franchisor/training",
+                href: "/franchisor/tutorial-add",
                 label: "Training",
                 icon: GraduationCap,
               },

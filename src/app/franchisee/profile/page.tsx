@@ -11,14 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  User,
-  FileText,
-  HelpCircle,
-  Shield,
-  LogOut,
-  ChevronRight,
-} from "lucide-react";
+import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
 import withAuth from "@/lib/withAuth";
 
 import Image from "next/image";
@@ -136,11 +129,6 @@ function ProfilePage() {
       icon: User,
       label: "Akun",
       href: "/franchisee/profile/account",
-    },
-    {
-      icon: FileText,
-      label: "Kelengkapan dokumen",
-      href: "/franchisee/profile/documents",
     },
     {
       icon: HelpCircle,
