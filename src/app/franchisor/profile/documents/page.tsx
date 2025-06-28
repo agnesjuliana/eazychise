@@ -1,248 +1,674 @@
-// "use client";
+"use client";
 
-// import AppLayout from "@/components/app-layout";
-// import HeaderPage from "@/components/header";
-// import { Button } from "@/components/ui/button";
-// import {
-//   ArrowLeft,
-//   FileText,
-//   Upload,
-//   CheckCircle,
-//   XCircle,
-//   Clock,
-//   Download,
-// } from "lucide-react";
-// import { useRouter } from "next/navigation";
-// import { useState } from "react";
-// import { toast } from "sonner";
+import FranchisorLayout from "@/components/franchisor-layout";
+import HeaderPage from "@/components/header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft,
+  Edit3,
+  Save,
+  X,
+  MapPin,
+  FileText,
+  Package,
+  Coffee,
+} from "lucide-react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import withAuth from "@/lib/withAuth";
 
-// export default function DocumentsPage() {
-//   const router = useRouter();
-//   const [documents] = useState([
-//     {
-//       id: 1,
-//       name: "KTP",
-//       description: "Kartu Tanda Penduduk",
-//       status: "approved",
-//       uploadedAt: "2024-01-15",
-//       fileUrl: "/documents/ktp.pdf",
-//     },
-//     {
-//       id: 2,
-//       name: "NPWP",
-//       description: "Nomor Pokok Wajib Pajak",
-//       status: "pending",
-//       uploadedAt: "2024-01-20",
-//       fileUrl: "/documents/npwp.pdf",
-//     },
-//     {
-//       id: 3,
-//       name: "SIUP",
-//       description: "Surat Izin Usaha Perdagangan",
-//       status: "rejected",
-//       uploadedAt: "2024-01-18",
-//       fileUrl: "/documents/siup.pdf",
-//       rejectReason: "Dokumen tidak jelas, silakan upload ulang",
-//     },
-//     {
-//       id: 4,
-//       name: "Surat Keterangan Domisili",
-//       description: "Surat Keterangan Domisili Usaha",
-//       status: "not_uploaded",
-//       uploadedAt: null,
-//       fileUrl: null,
-//     },
-//   ]);
+function FranchisorDocumentsPage() {
+  const router = useRouter();
+  const [isEditingFranchise, setIsEditingFranchise] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [savingFranchise, setSavingFranchise] = useState(false);
 
-//   const getStatusIcon = (status: string) => {
-//     switch (status) {
-//       case "approved":
-//         return <CheckCircle className="w-5 h-5 text-green-500" />;
-//       case "pending":
-//         return <Clock className="w-5 h-5 text-yellow-500" />;
-//       case "rejected":
-//         return <XCircle className="w-5 h-5 text-red-500" />;
-//       default:
-//         return <Upload className="w-5 h-5 text-gray-400" />;
-//     }
-//   };
+  // State for franchise data
+  const [franchiseData, setFranchiseData] = useState({
+    id: "",
+    name: "",
+    price: 0,
+    image: "/image/auth/login.png",
+    location: "",
+    status: "OPEN",
+    ownership_document: "",
+    financial_statement: "",
+    proposal: "",
+    sales_location: "",
+    equipment: "",
+    materials: "",
+    listing_documents: [] as Array<{
+      id: string;
+      name: string;
+      path: string;
+      type: string;
+    }>,
+    listings_highlights: [] as Array<{
+      id: string;
+      title: string;
+      content: string;
+    }>,
+  });
 
-//   const getStatusText = (status: string) => {
-//     switch (status) {
-//       case "approved":
-//         return "Disetujui";
-//       case "pending":
-//         return "Menunggu Review";
-//       case "rejected":
-//         return "Ditolak";
-//       default:
-//         return "Belum Upload";
-//     }
-//   };
+  const [editFranchiseData, setEditFranchiseData] = useState({
+    name: "",
+    price: 0,
+    image: "/image/auth/login.png",
+    location: "",
+    status: "OPEN",
+    ownership_document: "",
+    financial_statement: "",
+    proposal: "",
+    sales_location: "",
+    equipment: "",
+    materials: "",
+  });
 
-//   const getStatusColor = (status: string) => {
-//     switch (status) {
-//       case "approved":
-//         return "bg-green-100 text-green-800";
-//       case "pending":
-//         return "bg-yellow-100 text-yellow-800";
-//       case "rejected":
-//         return "bg-red-100 text-red-800";
-//       default:
-//         return "bg-gray-100 text-gray-800";
-//     }
-//   };
+  useEffect(() => {
+    const fetchFranchiseData = async () => {
+      try {
+        setLoading(true);
 
-//   const handleUpload = (documentId: number) => {
-//     // Simulate file upload
-//     toast.success("Fitur upload akan segera tersedia");
-//   };
+        // Get user data with franchise details from /api/user/me
+        const userResponse = await fetch("/api/user/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
 
-//   const handleDownload = (document: any) => {
-//     if (document.fileUrl) {
-//       toast.success(`Mengunduh ${document.name}...`);
-//       // In real app, trigger download
-//     }
-//   };
+        if (!userResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
 
-//   return (
-//     <AppLayout>
-//       <div className="min-h-screen bg-gray-50">
-//         {/* Header */}
-//         <HeaderPage title="KELENGKAPAN DOKUMEN" />
+        const response = await userResponse.json();
 
-//         {/* Back Button */}
-//         <div className="px-4 -mt-6 relative z-10 mb-4">
-//           <Button
-//             variant="ghost"
-//             onClick={() => router.back()}
-//             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-//           >
-//             <ArrowLeft className="w-4 h-4" />
-//             <span>Kembali</span>
-//           </Button>
-//         </div>
+        if (response.success && response.data) {
+          const data = response.data;
 
-//         {/* Documents Content */}
-//         <div className="px-4">
-//           {/* Progress Summary */}
-//           <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
-//             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-//               Progress Dokumen
-//             </h3>
-//             <div className="flex items-center justify-between text-sm">
-//               <span className="text-gray-600">Dokumen Lengkap</span>
-//               <span className="font-medium text-[#EF5A5A]">
-//                 {documents.filter((d) => d.status === "approved").length} dari{" "}
-//                 {documents.length}
-//               </span>
-//             </div>
-//             <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-//               <div
-//                 className="bg-[#EF5A5A] h-2 rounded-full transition-all duration-300"
-//                 style={{
-//                   width: `${
-//                     (documents.filter((d) => d.status === "approved").length /
-//                       documents.length) *
-//                     100
-//                   }%`,
-//                 }}
-//               ></div>
-//             </div>
-//           </div>
+          // Set franchise data if available
+          if (data.franchise) {
+            const franchise = data.franchise;
 
-//           {/* Documents List */}
-//           <div className="space-y-3">
-//             {documents.map((document) => (
-//               <div
-//                 key={document.id}
-//                 className="bg-white rounded-lg p-4 shadow-sm"
-//               >
-//                 <div className="flex items-start justify-between">
-//                   <div className="flex-1">
-//                     <div className="flex items-center space-x-3 mb-2">
-//                       <FileText className="w-5 h-5 text-gray-400" />
-//                       <div>
-//                         <h4 className="font-medium text-gray-900">
-//                           {document.name}
-//                         </h4>
-//                         <p className="text-sm text-gray-500">
-//                           {document.description}
-//                         </p>
-//                       </div>
-//                     </div>
+            setFranchiseData({
+              id: franchise.id || "",
+              name: franchise.name || "",
+              price: franchise.price || 0,
+              image: "/image/auth/login.png",
+              location: franchise.location || "",
+              status: franchise.status || "OPEN",
+              ownership_document: franchise.ownership_document || "",
+              financial_statement: franchise.financial_statement || "",
+              proposal: franchise.proposal || "",
+              sales_location: franchise.sales_location || "",
+              equipment: franchise.equipment || "",
+              materials: franchise.materials || "",
+              listing_documents: franchise.listing_documents || [],
+              listings_highlights: franchise.listings_highlights || [],
+            });
 
-//                     <div className="flex items-center space-x-2 mb-2">
-//                       {getStatusIcon(document.status)}
-//                       <span
-//                         className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-//                           document.status
-//                         )}`}
-//                       >
-//                         {getStatusText(document.status)}
-//                       </span>
-//                     </div>
+            // Set edit franchise data
+            setEditFranchiseData({
+              name: franchise.name || "",
+              price: franchise.price || 0,
+              image: franchise.image || "/image/auth/login.png",
+              location: franchise.location || "",
+              status: franchise.status || "OPEN",
+              ownership_document: franchise.ownership_document || "",
+              financial_statement: franchise.financial_statement || "",
+              proposal: franchise.proposal || "",
+              sales_location: franchise.sales_location || "",
+              equipment: franchise.equipment || "",
+              materials: franchise.materials || "",
+            });
+          } else {
+            // No franchise found for this franchisor
+            toast.info("Belum ada franchise yang terdaftar");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching franchise data:", error);
+        toast.error("Gagal memuat data franchise");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//                     {document.uploadedAt && (
-//                       <p className="text-xs text-gray-400">
-//                         Upload:{" "}
-//                         {new Date(document.uploadedAt).toLocaleDateString(
-//                           "id-ID"
-//                         )}
-//                       </p>
-//                     )}
+    fetchFranchiseData();
+  }, [router]);
 
-//                     {document.status === "rejected" &&
-//                       document.rejectReason && (
-//                         <div className="mt-2 p-2 bg-red-50 rounded border-l-4 border-red-400">
-//                           <p className="text-sm text-red-700">
-//                             {document.rejectReason}
-//                           </p>
-//                         </div>
-//                       )}
-//                   </div>
+  const handleCancelFranchise = () => {
+    setEditFranchiseData({
+      name: franchiseData.name,
+      price: franchiseData.price,
+      image: franchiseData.image,
+      location: franchiseData.location,
+      status: franchiseData.status,
+      ownership_document: franchiseData.ownership_document,
+      financial_statement: franchiseData.financial_statement,
+      proposal: franchiseData.proposal,
+      sales_location: franchiseData.sales_location,
+      equipment: franchiseData.equipment,
+      materials: franchiseData.materials,
+    });
+    setIsEditingFranchise(false);
+  };
 
-//                   <div className="flex flex-col space-y-2">
-//                     {document.status === "not_uploaded" ||
-//                     document.status === "rejected" ? (
-//                       <Button
-//                         size="sm"
-//                         onClick={() => handleUpload(document.id)}
-//                         className="bg-[#EF5A5A] hover:bg-[#e44d4d]"
-//                       >
-//                         <Upload className="w-4 h-4 mr-1" />
-//                         Upload
-//                       </Button>
-//                     ) : (
-//                       <Button
-//                         size="sm"
-//                         variant="outline"
-//                         onClick={() => handleDownload(document)}
-//                       >
-//                         <Download className="w-4 h-4 mr-1" />
-//                         Download
-//                       </Button>
-//                     )}
-//                   </div>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
+  const handleSaveFranchise = async () => {
+    setSavingFranchise(true);
+    try {
+      // Update franchise data
+      const franchiseResponse = await fetch(
+        `/api/franchises/${franchiseData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editFranchiseData),
+          credentials: "include",
+        }
+      );
 
-//           {/* Help Section */}
-//           <div className="bg-blue-50 rounded-lg p-4 mt-6 border border-blue-200">
-//             <h4 className="font-medium text-blue-900 mb-2">
-//               Panduan Upload Dokumen
-//             </h4>
-//             <ul className="text-sm text-blue-800 space-y-1">
-//               <li>• Format file: PDF, JPG, PNG (max 2MB)</li>
-//               <li>• Pastikan dokumen jelas dan dapat dibaca</li>
-//               <li>• Dokumen harus masih berlaku</li>
-//               <li>• Jika ditolak, perbaiki sesuai keterangan</li>
-//             </ul>
-//           </div>
-//         </div>
-//       </div>
-//     </AppLayout>
-//   );
-// }
+      if (!franchiseResponse.ok) {
+        const errorData = await franchiseResponse.json();
+        throw new Error(errorData.error || "Failed to update franchise");
+      }
+
+      // Update local state
+      setFranchiseData((prev) => ({
+        ...prev,
+        ...editFranchiseData,
+      }));
+
+      setIsEditingFranchise(false);
+      toast.success("Data franchise berhasil diperbarui");
+    } catch (error) {
+      console.error("Error saving franchise:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Gagal memperbarui data franchise"
+      );
+    } finally {
+      setSavingFranchise(false);
+    }
+  };
+
+  const handleFranchiseInputChange = (
+    field: string,
+    value: string | number
+  ) => {
+    setEditFranchiseData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  if (loading) {
+    return (
+      <FranchisorLayout>
+        <div className="min-h-screen bg-gray-50">
+          <HeaderPage title="DOKUMEN FRANCHISE" />
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#EF5A5A] mx-auto"></div>
+              <p className="mt-2 text-gray-500">Memuat data franchise...</p>
+            </div>
+          </div>
+        </div>
+      </FranchisorLayout>
+    );
+  }
+
+  return (
+    <FranchisorLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <HeaderPage title="DOKUMEN FRANCHISE" />
+
+        {/* Back Button */}
+        <div className="w-full px-4 mt-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali</span>
+          </Button>
+        </div>
+
+        {/* Franchise Documents Content */}
+        <div className="px-4 mt-4 space-y-6 pb-6">
+          {/* Franchise Information */}
+          {franchiseData.id ? (
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Informasi Franchise
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingFranchise(!isEditingFranchise)}
+                  className="flex items-center space-x-2"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>{isEditingFranchise ? "Batal" : "Edit"}</span>
+                </Button>
+              </div>
+
+              {/* Franchise Image */}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-xs text-gray-500">
+                    Foto Franchise
+                  </Label>
+                  <div className="mt-2 relative h-60 w-full md:w-3/4 border rounded-md overflow-hidden">
+                    <Image
+                      src={franchiseData.image || "/image/auth/login.png"}
+                      alt="Franchise Image"
+                      width={600}
+                      height={400}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+
+                {/* Name */}
+                <div>
+                  <Label
+                    htmlFor="franchise-name"
+                    className="text-xs text-gray-500"
+                  >
+                    Nama Franchise
+                  </Label>
+                  {isEditingFranchise ? (
+                    <Input
+                      id="franchise-name"
+                      value={editFranchiseData.name}
+                      onChange={(e) =>
+                        handleFranchiseInputChange("name", e.target.value)
+                      }
+                      placeholder="Masukkan nama franchise"
+                    />
+                  ) : (
+                    <p className="font-medium">{franchiseData.name}</p>
+                  )}
+                </div>
+
+                {/* Price */}
+                <div>
+                  <Label
+                    htmlFor="franchise-price"
+                    className="text-xs text-gray-500"
+                  >
+                    Harga Franchise
+                  </Label>
+                  {isEditingFranchise ? (
+                    <Input
+                      id="franchise-price"
+                      type="number"
+                      value={editFranchiseData.price}
+                      onChange={(e) =>
+                        handleFranchiseInputChange(
+                          "price",
+                          Number(e.target.value)
+                        )
+                      }
+                      placeholder="Masukkan harga franchise"
+                    />
+                  ) : (
+                    <p className="font-medium">
+                      {new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(franchiseData.price)}
+                    </p>
+                  )}
+                </div>
+
+                {/* Status */}
+                <div>
+                  <Label
+                    htmlFor="franchise-status"
+                    className="text-xs text-gray-500"
+                  >
+                    Status
+                  </Label>
+                  {isEditingFranchise ? (
+                    <div className="flex gap-4 mt-1">
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id="status-open"
+                          checked={editFranchiseData.status === "OPEN"}
+                          onChange={() =>
+                            handleFranchiseInputChange("status", "OPEN")
+                          }
+                          className="mr-2"
+                        />
+                        <label htmlFor="status-open">Buka</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id="status-closed"
+                          checked={editFranchiseData.status === "CLOSED"}
+                          onChange={() =>
+                            handleFranchiseInputChange("status", "CLOSED")
+                          }
+                          className="mr-2"
+                        />
+                        <label htmlFor="status-closed">Tutup</label>
+                      </div>
+                    </div>
+                  ) : (
+                    <span
+                      className={`px-3 py-2 text-xs rounded-full font-semibold w-fit ${
+                        franchiseData.status === "OPEN"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {franchiseData.status === "OPEN" ? "Buka" : "Tutup"}
+                    </span>
+                  )}
+                </div>
+
+                {/* Location */}
+                <div>
+                  <Label
+                    htmlFor="franchise-location"
+                    className="text-xs text-gray-500"
+                  >
+                    Lokasi
+                  </Label>
+                  {isEditingFranchise ? (
+                    <Input
+                      id="franchise-location"
+                      value={editFranchiseData.location}
+                      onChange={(e) =>
+                        handleFranchiseInputChange("location", e.target.value)
+                      }
+                      placeholder="Masukkan lokasi franchise"
+                    />
+                  ) : (
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                      <p className="font-medium">{franchiseData.location}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sales Location */}
+                <div>
+                  <Label
+                    htmlFor="sales-location"
+                    className="text-xs text-gray-500"
+                  >
+                    Lokasi Penjualan
+                  </Label>
+                  {isEditingFranchise ? (
+                    <Input
+                      id="sales-location"
+                      value={editFranchiseData.sales_location}
+                      onChange={(e) =>
+                        handleFranchiseInputChange(
+                          "sales_location",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Masukkan lokasi penjualan"
+                    />
+                  ) : (
+                    <p className="font-medium">
+                      {franchiseData.sales_location}
+                    </p>
+                  )}
+                </div>
+
+                {/* Equipment */}
+                <div>
+                  <Label htmlFor="equipment" className="text-xs text-gray-500">
+                    Peralatan
+                  </Label>
+                  {isEditingFranchise ? (
+                    <Input
+                      id="equipment"
+                      value={editFranchiseData.equipment}
+                      onChange={(e) =>
+                        handleFranchiseInputChange("equipment", e.target.value)
+                      }
+                      placeholder="Masukkan peralatan yang disediakan"
+                    />
+                  ) : (
+                    <div className="flex items-center">
+                      <Package className="h-4 w-4 mr-1 text-gray-500" />
+                      <p className="font-medium">{franchiseData.equipment}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Materials */}
+                <div>
+                  <Label htmlFor="materials" className="text-xs text-gray-500">
+                    Bahan-bahan
+                  </Label>
+                  {isEditingFranchise ? (
+                    <Input
+                      id="materials"
+                      value={editFranchiseData.materials}
+                      onChange={(e) =>
+                        handleFranchiseInputChange("materials", e.target.value)
+                      }
+                      placeholder="Masukkan bahan-bahan yang disediakan"
+                    />
+                  ) : (
+                    <div className="flex items-center">
+                      <Coffee className="h-4 w-4 mr-1 text-gray-500" />
+                      <p className="font-medium">{franchiseData.materials}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Documents */}
+                <div>
+                  <Label className="text-xs text-gray-500 block mb-2">
+                    Dokumen
+                  </Label>
+                  <div className="space-y-2">
+                    <a
+                      href={franchiseData.ownership_document}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-600 hover:underline"
+                    >
+                      <FileText className="h-4 w-4 mr-1" />
+                      <span>Sertifikat Kepemilikan</span>
+                    </a>
+                    <a
+                      href={franchiseData.financial_statement}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-600 hover:underline"
+                    >
+                      <FileText className="h-4 w-4 mr-1" />
+                      <span>Laporan Keuangan</span>
+                    </a>
+                    <a
+                      href={franchiseData.proposal}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-600 hover:underline"
+                    >
+                      <FileText className="h-4 w-4 mr-1" />
+                      <span>Proposal</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Listing Documents */}
+                {franchiseData.listing_documents &&
+                  franchiseData.listing_documents.length > 0 && (
+                    <div>
+                      <Label className="text-xs text-gray-500 block mb-2">
+                        Dokumen Listing
+                      </Label>
+                      <div className="space-y-2">
+                        {franchiseData.listing_documents.map((doc, index) => (
+                          <a
+                            key={index}
+                            href={doc.path}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:underline"
+                          >
+                            <FileText className="h-4 w-4 mr-1" />
+                            <span>{doc.name}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Listing Highlights */}
+                {franchiseData.listings_highlights &&
+                  franchiseData.listings_highlights.length > 0 && (
+                    <div>
+                      <Label className="text-xs text-gray-500 block mb-2">
+                        Keunggulan
+                      </Label>
+                      <div className="space-y-3">
+                        {franchiseData.listings_highlights.map(
+                          (highlight, index) => (
+                            <div
+                              key={index}
+                              className="bg-gray-50 p-3 rounded-md"
+                            >
+                              <h3 className="font-medium text-sm">
+                                {highlight.title}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {highlight.content}
+                              </p>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </div>
+
+              {/* Save/Cancel Buttons */}
+              {isEditingFranchise && (
+                <div className="flex space-x-3 mt-6">
+                  <Button
+                    onClick={handleSaveFranchise}
+                    disabled={savingFranchise}
+                    className="flex-1 bg-[#EF5A5A] hover:bg-[#e44d4d]"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {savingFranchise ? "Menyimpan..." : "Simpan"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelFranchise}
+                    disabled={savingFranchise}
+                    className="flex-1"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Batal
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* No franchise found */
+            <div className="bg-white rounded-lg p-6 shadow-sm text-center">
+              <div className="py-8">
+                <Coffee className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Belum Ada Franchise Terdaftar
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Anda belum mendaftarkan franchise. Silakan daftar franchise
+                  untuk mulai berbagi peluang bisnis.
+                </p>
+                <Button
+                  onClick={() => router.push("/franchisor/add-franchise")}
+                  className="bg-[#EF5A5A] hover:bg-[#e44d4d]"
+                >
+                  Daftar Franchise
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Additional Documents */}
+          {(franchiseData.listing_documents.length > 0 ||
+            franchiseData.listings_highlights.length > 0) && (
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Dokumen Tambahan
+              </h3>
+
+              {franchiseData.listing_documents.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-medium text-gray-800 mb-2">
+                    Dokumen Listing
+                  </h4>
+                  <div className="space-y-2">
+                    {franchiseData.listing_documents.map((doc, index) => (
+                      <div key={index} className="p-3 bg-gray-50 rounded-md">
+                        <a
+                          href={doc.path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-600 hover:underline"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          <span>{doc.name || `Dokumen ${index + 1}`}</span>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {franchiseData.listings_highlights.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-800 mb-2">Highlights</h4>
+                  <div className="space-y-2">
+                    {franchiseData.listings_highlights.map(
+                      (highlight, index) => (
+                        <div key={index} className="p-3 bg-gray-50 rounded-md">
+                          <h3 className="font-medium text-sm">
+                            {highlight.title || `Highlight ${index + 1}`}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {highlight.content || "Tidak ada deskripsi"}
+                          </p>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </FranchisorLayout>
+  );
+}
+
+// Export the component with authentication
+export default withAuth(FranchisorDocumentsPage, "FRANCHISOR");

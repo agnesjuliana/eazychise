@@ -33,9 +33,11 @@ export async function POST(req: Request) {
       user: {
         id: user.id,
         name: user.name,
+        email: user.email,
         role: user.role,
         status: user.status,
       },
+      token: "session_token", // Simple token placeholder
     });
 
     res.cookies.set(

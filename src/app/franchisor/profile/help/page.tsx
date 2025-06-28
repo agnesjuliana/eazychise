@@ -1,215 +1,293 @@
 "use client";
 
-import AppLayout from "@/components/app-layout";
+import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
-import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  MessageCircle,
-  Phone,
-  Mail,
-  Clock,
-  ChevronRight,
-  HelpCircle,
-} from "lucide-react";
+import { ArrowLeft, Phone, Mail, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import withAuth from "@/lib/withAuth";
 
-export default function HelpPage() {
+function HelpPage() {
   const router = useRouter();
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
-  const faqData = [
+  const faqItems = [
     {
-      id: 1,
-      question: "Bagaimana cara mendaftar sebagai franchisee?",
+      question: "Bagaimana cara menambahkan listing franchise baru?",
       answer:
-        "Untuk mendaftar sebagai franchisee, Anda perlu mengisi form registrasi, melengkapi dokumen yang diperlukan, dan menunggu proses verifikasi dari admin.",
+        "Anda dapat menambahkan listing franchise melalui halaman 'Tambah Franchise' di dashboard. Pastikan melengkapi semua informasi yang diperlukan termasuk deskripsi, foto, dan dokumen pendukung.",
     },
     {
-      id: 2,
-      question: "Berapa lama proses verifikasi akun?",
+      question: "Bagaimana cara mengelola aplikasi dari franchisee?",
       answer:
-        "Proses verifikasi akun biasanya memakan waktu 1-3 hari kerja setelah semua dokumen lengkap disubmit.",
+        "Semua aplikasi dari calon franchisee dapat dilihat dan dikelola melalui halaman 'Manajemen Aplikasi'. Anda dapat mereview, menerima, atau menolak aplikasi yang masuk.",
     },
     {
-      id: 3,
-      question: "Dokumen apa saja yang diperlukan?",
+      question: "Apa yang harus dilakukan jika ada masalah dengan pembayaran?",
       answer:
-        "Dokumen yang diperlukan meliputi KTP, NPWP, SIUP, dan Surat Keterangan Domisili Usaha.",
+        "Jika ada masalah pembayaran, silakan hubungi tim customer service kami melalui email atau telepon. Sertakan detail transaksi untuk penanganan yang lebih cepat.",
     },
     {
-      id: 4,
-      question: "Bagaimana cara mengubah data profil?",
+      question: "Bagaimana cara memperbarui informasi franchise?",
       answer:
-        "Anda dapat mengubah data profil melalui menu Akun di halaman Profile, kemudian klik tombol Edit.",
+        "Anda dapat memperbarui informasi franchise melalui halaman 'Edit Franchise' di dashboard. Perubahan akan direview oleh tim kami sebelum dipublikasikan.",
     },
     {
-      id: 5,
-      question: "Apa yang harus dilakukan jika dokumen ditolak?",
+      question: "Apakah ada biaya untuk menggunakan platform EazyChise?",
       answer:
-        "Jika dokumen ditolak, silakan cek alasan penolakan dan upload ulang dokumen yang sudah diperbaiki sesuai keterangan.",
+        "Platform EazyChise menggunakan model commission-based. Biaya hanya dikenakan ketika ada transaksi yang berhasil. Detail lengkap dapat dilihat di halaman 'Biaya & Tarif'.",
+    },
+    {
+      question: "Bagaimana cara berkomunikasi dengan calon franchisee?",
+      answer:
+        "Anda dapat berkomunikasi dengan calon franchisee melalui sistem pesan dalam platform, atau melalui kontak yang telah disediakan dalam aplikasi mereka.",
+    },
+    {
+      question:
+        "Bagaimana cara meningkatkan visibilitas listing franchise saya?",
+      answer:
+        "Pastikan listing Anda dilengkapi dengan foto berkualitas, deskripsi yang menarik, dan informasi yang akurat. Anda juga dapat menggunakan fitur promosi untuk meningkatkan visibilitas.",
     },
   ];
 
   const contactOptions = [
     {
-      title: "Live Chat",
-      description: "Chat langsung dengan customer service",
-      icon: MessageCircle,
-      action: "Mulai Chat",
-      available: true,
-    },
-    {
-      title: "Telepon",
-      description: "Hubungi kami di (021) 1234-5678",
       icon: Phone,
-      action: "Panggil Sekarang",
-      available: true,
+      title: "Telepon",
+      description: "+62 21 1234 5678",
+      color: "bg-green-50 text-green-600",
     },
     {
-      title: "Email",
-      description: "Kirim email ke support@eazychise.com",
       icon: Mail,
-      action: "Kirim Email",
-      available: true,
+      title: "Email",
+      description: "support@eazychise.com",
+      color: "bg-purple-50 text-purple-600",
     },
   ];
 
-  const toggleFaq = (id: number) => {
-    setExpandedFaq(expandedFaq === id ? null : id);
-  };
-
   return (
-    <AppLayout>
+    <FranchisorLayout className="overflow-x-hidden">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <HeaderPage title="BANTUAN" />
-
-        {/* Back Button */}
-        <div className="px-4 -mt-6 relative z-10 mb-4">
-          <Button
-            variant="ghost"
+        <div className="relative">
+          <HeaderPage title="BANTUAN" />
+          <button
             onClick={() => router.back()}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Kembali</span>
-          </Button>
+            <ArrowLeft className="w-6 h-6" />
+          </button>
         </div>
 
-        {/* Help Content */}
-        <div className="px-4">
-          {/* Contact Support */}
-          <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Hubungi Support
-            </h3>
-            <div className="space-y-3">
-              {contactOptions.map((option, index) => {
-                const Icon = option.icon;
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-[#EF5A5A] bg-opacity-10 rounded-lg flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-[#EF5A5A]" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">
-                          {option.title}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          {option.description}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      className="bg-[#EF5A5A] hover:bg-[#e44d4d]"
-                      disabled={!option.available}
-                    >
-                      {option.action}
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Business Hours */}
-          <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
-            <div className="flex items-center space-x-2 mb-3">
-              <Clock className="w-5 h-5 text-[#EF5A5A]" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                Jam Operasional
-              </h3>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Senin - Jumat</span>
-                <span className="font-medium text-gray-900">
-                  08:00 - 17:00 WIB
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Sabtu</span>
-                <span className="font-medium text-gray-900">
-                  08:00 - 12:00 WIB
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Minggu</span>
-                <span className="font-medium text-gray-900">Tutup</span>
-              </div>
-            </div>
-          </div>
-
-          {/* FAQ Section */}
+        {/* Content */}
+        <div className="px-4 -mt-6 relative z-10 pb-8 space-y-4">
+          {/* Quick Actions */}
           <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex items-center space-x-2 mb-4">
-              <HelpCircle className="w-5 h-5 text-[#EF5A5A]" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                Pertanyaan Umum (FAQ)
-              </h3>
-            </div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Butuh Bantuan Cepat?
+            </h2>
             <div className="space-y-3">
-              {faqData.map((faq) => (
-                <div key={faq.id} className="border border-gray-200 rounded-lg">
-                  <Button
-                    variant="ghost"
-                    className="w-full p-4 justify-between text-left hover:bg-gray-50"
-                    onClick={() => toggleFaq(faq.id)}
-                  >
-                    <span className="font-medium text-gray-900">
-                      {faq.question}
-                    </span>
-                    <ChevronRight
-                      className={`w-4 h-4 text-gray-400 transition-transform ${
-                        expandedFaq === faq.id ? "transform rotate-90" : ""
-                      }`}
-                    />
-                  </Button>
-                  {expandedFaq === faq.id && (
-                    <div className="px-4 pb-4">
-                      <div className="pt-2 border-t border-gray-100">
-                        <p className="text-sm text-gray-600">{faq.answer}</p>
-                      </div>
+              {contactOptions.map((option, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => {
+                    if (option.title === "Telepon") {
+                      window.open("tel:+6221123456578");
+                    } else if (option.title === "Email") {
+                      window.open("mailto:support@eazychise.com");
+                    }
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-full ${option.color}`}>
+                      <option.icon className="w-5 h-5" />
                     </div>
-                  )}
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {option.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {option.description}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* App Version */}
-          <div className="text-center mt-6 mb-4">
-            <p className="text-xs text-gray-400">EazyChise App v1.0.0</p>
+          {/* FAQ Section */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Pertanyaan yang Sering Diajukan
+            </h2>
+            <div className="space-y-4">
+              {faqItems.map((item, index) => (
+                <details key={index} className="group">
+                  <summary className="flex items-center justify-between cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <h3 className="font-medium text-gray-900 text-left">
+                      {item.question}
+                    </h3>
+                    <ChevronRight className="w-5 h-5 text-gray-400 group-open:rotate-90 transition-transform" />
+                  </summary>
+                  <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-gray-600 leading-relaxed">
+                      {item.answer}
+                    </p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+
+          {/* Getting Started Guide */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Panduan Memulai sebagai Franchisor
+            </h2>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  1
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    Lengkapi Profil dan Dokumen
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Pastikan profil franchisor dan dokumen pendukung sudah
+                    lengkap dan terverifikasi untuk membangun kepercayaan
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  2
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    Buat Listing Franchise yang Menarik
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Tambahkan detail franchise dengan foto berkualitas,
+                    deskripsi yang jelas, dan informasi investasi yang
+                    transparan
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  3
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    Kelola Aplikasi Masuk
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Monitor dan responsi aplikasi dari calon franchisee dengan
+                    cepat dan profesional
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  4
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    Seleksi dan Evaluasi
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Lakukan seleksi menyeluruh untuk memastikan calon franchisee
+                    sesuai dengan kriteria bisnis Anda
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  5
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    Bangun Kemitraan Sukses
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Berikan training dan support yang berkualitas untuk
+                    memastikan kesuksesan mitra franchisee
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tips for Success */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Tips Sukses Menjadi Franchisor
+            </h2>
+            <div className="space-y-3">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-1">
+                  💡 Buat Deskripsi yang Menarik
+                </h3>
+                <p className="text-sm text-blue-700">
+                  Gunakan deskripsi yang jelas dan menarik untuk listing
+                  franchise Anda. Sertakan keunggulan, support yang diberikan,
+                  dan proyeksi bisnis.
+                </p>
+              </div>
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="font-medium text-green-900 mb-1">
+                  � Transparansi Investasi
+                </h3>
+                <p className="text-sm text-green-700">
+                  Berikan informasi investasi yang jelas dan transparan.
+                  Jelaskan dengan detail biaya franchise fee, modal operasional,
+                  dan ROI yang realistis.
+                </p>
+              </div>
+              <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <h3 className="font-medium text-orange-900 mb-1">
+                  🤝 Responsif dalam Komunikasi
+                </h3>
+                <p className="text-sm text-orange-700">
+                  Berikan respon yang cepat dan informatif kepada calon
+                  franchisee. Komunikasi yang baik meningkatkan tingkat
+                  konversi.
+                </p>
+              </div>
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <h3 className="font-medium text-purple-900 mb-1">
+                  🎯 Seleksi yang Tepat
+                </h3>
+                <p className="text-sm text-purple-700">
+                  Lakukan seleksi calon franchisee dengan cermat. Pilih mitra
+                  yang memiliki komitmen, kemampuan finansial, dan visi yang
+                  sejalan dengan brand Anda.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Still Need Help */}
+          <div className="bg-gradient-to-r from-[#EF5A5A] to-[#FF7B7B] rounded-lg p-6 text-white">
+            <h2 className="text-lg font-semibold mb-2">Masih Butuh Bantuan?</h2>
+            <p className="text-white/90 mb-4">
+              Tim customer service kami siap membantu Anda mengoptimalkan
+              listing franchise dan mengelola aplikasi dari calon franchisee
+              dengan efektif.
+            </p>
+            <button
+              onClick={() => window.open("mailto:support@eazychise.com")}
+              className="bg-white text-[#EF5A5A] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            >
+              Hubungi Support
+            </button>
           </div>
         </div>
       </div>
-    </AppLayout>
+    </FranchisorLayout>
   );
 }
+
+export default withAuth(HelpPage, "FRANCHISOR");
