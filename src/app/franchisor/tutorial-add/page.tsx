@@ -4,6 +4,12 @@ import HeaderPage from "@/components/header";
 
 import withAuth from "@/lib/withAuth";
 import CustomUploadFile from "@/components/CustomUploadFile";
+import {
+  FileUploadResult,
+  getUploadedFiles,
+  getUploadedFilePath,
+  getSavedFiles,
+} from "@/utils/fileUtils";
 
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -19,8 +25,10 @@ function TutorialAddPage() {
   // State untuk menyimpan file dan nama file
   const [tutorialFile, setTutorialFile] = useState<File | null>(null);
   const [tutorialFileName, setTutorialFileName] = useState("");
+  const [tutorialUploadPath, setTutorialUploadPath] = useState<string>("");
   const [guidelineFile, setGuidelineFile] = useState<File | null>(null);
   const [guidelineFileName, setGuidelineFileName] = useState("");
+  const [guidelineUploadPath, setGuidelineUploadPath] = useState<string>("");
 
   const handleFileChange =
     (setFile: (file: File | null) => void) =>
@@ -31,15 +39,44 @@ function TutorialAddPage() {
       }
     };
 
+  const handleTutorialUploadComplete = (result: FileUploadResult) => {
+    if (result.success && result.path) {
+      setTutorialUploadPath(result.path);
+      console.log("Tutorial uploaded to:", result.path);
+    }
+  };
+
+  const handleGuidelineUploadComplete = (result: FileUploadResult) => {
+    if (result.success && result.path) {
+      setGuidelineUploadPath(result.path);
+      console.log("Guideline uploaded to:", result.path);
+    }
+  };
+
   const handleSubmit = () => {
-    // Di sini logika untuk mengirim data ke backend
+    // Get uploaded files dari sessionStorage dan localStorage
+    const uploadedFiles = getUploadedFiles();
+    const savedFiles = getSavedFiles();
+    const tutorialStoredPath = getUploadedFilePath(tutorialFile?.name || "");
+    const guidelineStoredPath = getUploadedFilePath(guidelineFile?.name || "");
+
+    // Data untuk di-submit ke backend
     console.log("Submitting data:", {
       tutorialFile,
       tutorialFileName,
+      tutorialUploadPath,
+      tutorialStoredPath,
       guidelineFile,
       guidelineFileName,
+      guidelineUploadPath,
+      guidelineStoredPath,
+      allUploadedFiles: uploadedFiles,
+      allSavedFiles: savedFiles,
     });
-    alert("Data (cek console) akan di-upload!");
+
+    alert(
+      "Data berhasil disubmit! File tersimpan di localStorage. Cek console untuk detail."
+    );
     // router.push('/path-sukses-upload');
   };
 
@@ -75,6 +112,9 @@ function TutorialAddPage() {
               title="Tutorial"
               onFileChange={handleFileChange(setTutorialFile)}
               fileName={tutorialFile?.name || null}
+              onUploadComplete={handleTutorialUploadComplete}
+              maxSizeMB={15}
+              acceptedTypes={["pdf", "docx"]}
             />
             <div>
               <Label htmlFor="tutorial-name" className="font-semibold">
@@ -97,6 +137,9 @@ function TutorialAddPage() {
               title="Guideline"
               onFileChange={handleFileChange(setGuidelineFile)}
               fileName={guidelineFile?.name || null}
+              onUploadComplete={handleGuidelineUploadComplete}
+              maxSizeMB={10}
+              acceptedTypes={["pdf", "docx"]}
             />
             <div>
               <Label htmlFor="guideline-name" className="font-semibold">
