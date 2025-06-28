@@ -24,64 +24,6 @@ export async function GET(_req: Request) {
       where: {
         user_id: auth.user.id,
       },
-      select: {
-        purchase_type: true,
-        confirmation_status: true,
-        payment_status: true,
-        paid_at: true,
-        funding_request: {
-          select: {
-            id: true,
-            confirmation_status: true,
-            address: true,
-            phone_number: true,
-            npwp: true,
-            franchise_address: true,
-            ktp: true,
-            foto_diri: true,
-            foto_lokasi: true,
-            mou_franchisor: true,
-            mou_modal: true,
-          },
-        },
-        franchise: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            image: true,
-            status: true,
-            location: true,
-            ownership_document: true,
-            financial_statement: true,
-            proposal: true,
-            sales_location: true,
-            equipment: true,
-            materials: true,
-            franchisor: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-            listing_documents: {
-              select: {
-                id: true,
-                type: true,
-                name: true,
-              },
-            },
-            listings_highlights: {
-              select: {
-                id: true,
-                title: true,
-                content: true,
-              },
-            },
-          },
-        },
-      },
       skip: skip,
       take: limit,
     });
