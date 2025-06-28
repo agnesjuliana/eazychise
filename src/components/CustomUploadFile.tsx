@@ -207,7 +207,12 @@ const CustomUploadFile = ({
         {uploadResult && uploadResult.success && (
           <div className="mt-2">
             <p className="text-xs text-green-600 break-all">
-              Saved to: {uploadResult.path}
+              File disimpan dengan nama &quot;
+              {(uploadResult.path?.split("/").pop() || fileName || "").replace(
+                /\s+/g,
+                "-"
+              )}
+              &quot;
             </p>
           </div>
         )}
