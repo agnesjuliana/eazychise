@@ -14,6 +14,11 @@ const parseCSV = (path: string) => {
   });
 };
 
+function encodeImage(path: string) {
+  const imageBuffer = readFileSync(path);
+  return imageBuffer.toString("base64");
+}
+
 async function seedUsers() {
   const users = parseCSV("prisma/seed/users.csv");
 
@@ -37,6 +42,34 @@ async function seedUsers() {
     } else {
       console.log(`ℹ️ Skipped existing user: ${user.email}`);
     }
+  }
+}
+
+async function seedProfiles() {
+  try {
+    const profiles = parseCSV("prisma/seed/franchisor_profiles.csv");
+    const ktp = encodeImage("prisma/seed/images/ktp.png");
+    const fotoDiri = encodeImage("prisma/seed/images/foto_diri.png");
+
+    for (const profile of profiles) {
+      const exists = await prisma.franchisor_profiles.findUnique({
+        where: { user_id: profile.user_id },
+      });
+      if (!exists) {
+        await prisma.franchisor_profiles.create({
+          data: {
+            id: profile.id,
+            user_id: profile.user_id,
+            ktp: ktp,
+            foto_diri: fotoDiri,
+          },
+        });
+      }
+    }
+
+    console.log("✅ Seeded franchisor profiles");
+  } catch (error) {
+    console.error("❌ Error seeding profiles:", error);
   }
 }
 
@@ -69,8 +102,15 @@ async function seedCategoryFranchise() {
 
 async function seedListingsHighlights() {
   try {
+    type HighlightRow = {
+      id: string;
+      id_franchise: string;
+      title: string;
+      content: string;
+    };
+
     const highlights = parseCSV("prisma/seed/listings_highlights.csv").map(
-      (row: any) => ({
+      (row: HighlightRow) => ({
         id: row.id,
         id_franchise: row.id_franchise,
         title: row.title,
@@ -91,8 +131,16 @@ async function seedListingsHighlights() {
 
 async function seedListingDocuments() {
   try {
+    type DocumentRow = {
+      id: string;
+      id_franchise: string;
+      type: string; // should match DocumentType enum
+      name: string;
+      path: string;
+    };
+
     const documents = parseCSV("prisma/seed/listing_documents.csv").map(
-      (row: any) => ({
+      (row: DocumentRow) => ({
         id: row.id,
         id_franchise: row.id_franchise,
         type: row.type, // must match DocumentType enum: PENDUKUNG or GUIDELINES
@@ -114,11 +162,12 @@ async function seedListingDocuments() {
 
 async function main() {
   await seedUsers();
+  await seedProfiles();
   await seedCategories();
   await seedFranchises();
   await seedCategoryFranchise();
   await seedListingsHighlights();
-  // await seedListingDocuments();
+  await seedListingDocuments();
 }
 
 main()
