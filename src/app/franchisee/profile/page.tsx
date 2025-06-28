@@ -135,22 +135,22 @@ function ProfilePage() {
     {
       icon: User,
       label: "Akun",
-      href: "/profile/account",
+      href: "/franchisee/profile/account",
     },
     {
       icon: FileText,
       label: "Kelengkapan dokumen",
-      href: "/profile/documents",
+      href: "/franchisee/profile/documents",
     },
     {
       icon: HelpCircle,
       label: "Bantuan",
-      href: "/profile/help",
+      href: "/franchisee/profile/help",
     },
     {
       icon: Shield,
       label: "Kebijakan privasi",
-      href: "/profile/privacy",
+      href: "/franchisee/profile/privacy",
     },
     {
       icon: LogOut,
@@ -187,39 +187,21 @@ function ProfilePage() {
                   </h3>
                   <div className="flex items-center space-x-2">
                     <p className="text-sm text-gray-500">
-                      {loading
-                        ? "Loading..."
-                        : userData.role === "franchisee"
-                        ? "Franchisee"
-                        : userData.role === "franchisor"
-                        ? "Franchisor"
-                        : userData.role === "admin"
-                        ? "Admin"
-                        : userData.role}
+                      {loading ? "Loading..." : userData.role}
                     </p>
                     {!loading && userData.status && (
                       <span
                         className={`text-xs px-2 py-1 rounded-full ${
-                          userData.status === "active"
+                          userData.status === "ACCEPTED"
                             ? "bg-green-100 text-green-800"
-                            : userData.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : userData.status === "revisi"
+                            : userData.status === "WAITING"
                             ? "bg-orange-100 text-orange-800"
-                            : userData.status === "rejected"
+                            : userData.status === "REJECTED"
                             ? "bg-red-100 text-red-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {userData.status === "active"
-                          ? "Aktif"
-                          : userData.status === "pending"
-                          ? "Pending"
-                          : userData.status === "revisi"
-                          ? "Revisi"
-                          : userData.status === "rejected"
-                          ? "Ditolak"
-                          : userData.status}
+                        {userData.status}
                       </span>
                     )}
                   </div>
@@ -285,4 +267,3 @@ function ProfilePage() {
 }
 
 export default withAuth(ProfilePage, "FRANCHISEE");
-

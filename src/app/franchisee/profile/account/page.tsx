@@ -183,26 +183,18 @@ export default function AccountPage() {
               <div className="flex items-center space-x-2">
                 <span
                   className={`text-xs px-2 py-1 rounded-full ${
-                    userData.status === "active"
+                    userData.status === "ACCEPTED"
                       ? "bg-green-100 text-green-800"
-                      : userData.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : userData.status === "revisi"
+                      : userData.status === "WAITING"
                       ? "bg-orange-100 text-orange-800"
-                      : userData.status === "rejected"
+                      : userData.status === "REVISI"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : userData.status === "REJECTED"
                       ? "bg-red-100 text-red-800"
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  {userData.status === "active"
-                    ? "Aktif"
-                    : userData.status === "pending"
-                    ? "Pending"
-                    : userData.status === "revisi"
-                    ? "Revisi"
-                    : userData.status === "rejected"
-                    ? "Ditolak"
-                    : userData.status}
+                  {userData.status}
                 </span>
               </div>
             </div>
