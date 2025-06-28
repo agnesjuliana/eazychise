@@ -1,6 +1,15 @@
 id,name,email,password,role,status
 e2f1c1f4-15a5-4a83-bb57-13534de3e050,Admin,admin@eazychise.com,admin123,ADMIN,ACCEPTED
 712e8324-7a46-4dbb-a2cc-b17d12c3c321,Franchisee One,franchisee1@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+7c67a4f7-86d7-4f10-8c8d-222222222002,Franchisee Two,franchisee2@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+87c9e6ff-1846-4eaf-9ea0-333333333003,Franchisee Three,franchisee3@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+8f50ff2a-55ee-4629-95b4-444444444004,Franchisee Four,franchisee4@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+92bd1e90-b2e1-4e35-a5d1-555555555005,Franchisee Five,franchisee5@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+9fdbaae3-4c18-4c6c-a3aa-666666666006,Franchisee Six,franchisee6@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+ab2fe9d6-3422-42b6-bccd-777777777007,Franchisee Seven,franchisee7@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+bc927d93-c5b0-4eb1-8c0b-888888888008,Franchisee Eight,franchisee8@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+f0e8b2e7-7e2b-4f31-8e9b-999999999009,Franchisee Nine,franchisee9@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
+a12d8c78-6de3-49b0-8900-aaaaaaaaaaaa,Franchisee Ten,franchisee10@eazychise.com,franchisee123,FRANCHISEE,ACCEPTED
 4f041e33-e71f-4483-b007-7c33f421f9ed,Franchisor 1,franchisor1@eazychise.com,franchisor1123,FRANCHISOR,ACCEPTED
 feeacad2-eb69-4b22-adeb-63cd1160359a,Franchisor 2,franchisor2@eazychise.com,franchisor2123,FRANCHISOR,ACCEPTED
 2c7b835a-d963-43b4-9e13-ecb8e8024a35,Franchisor 3,franchisor3@eazychise.com,franchisor3123,FRANCHISOR,ACCEPTED
