@@ -10,6 +10,12 @@ export enum Status {
   ACCEPTED = "ACCEPTED",
 }
 
+export type FranchisorProfile = {
+  id: string;
+  ktp?: string;
+  foto_diri?: string;
+};
+
 export type User = {
   id: string;
   name: string;
@@ -24,4 +30,13 @@ export type User = {
 export type UpdateUserStatusPayload = {
   user_id: string;
   status: Status;
+};
+
+export type UpdateUserPayload = {
+  id: string;
+  name?: string;
+  email?: string;
+  role?: Role;
+  status?: Status;
+  profile?: FranchisorProfile;
 };

@@ -1,0 +1,5 @@
+id,purchase_id,confirmation_status,address,phone_number,npwp,franchise_address,ktp,foto_diri,foto_lokasi,mou_franchisor,mou_modal
+0e8a215f-9e70-4e8b-b711-aaaaaaa00001,9a9d0e61-4b94-4c5e-94e4-111111111002,WAITING,Jl. Veteran No.1,081234567891,123456789000001,Jl. Gatot Subroto No.5,ktp1.jpg,foto_diri1.jpg,lokasi1.jpg,mou1.pdf,modal1.pdf
+4f6255d9-d7e0-4e23-b382-aaaaaaa00002,9a9d0e61-4b94-4c5e-94e4-111111111003,WAITING,Jl. Melati No.3,081234567892,123456789000002,Jl. Asia Afrika No.12,ktp2.jpg,foto_diri2.jpg,lokasi2.jpg,mou2.pdf,modal2.pdf
+ec2b22a7-77e7-4dc4-b1ff-aaaaaaa00003,9a9d0e61-4b94-4c5e-94e4-111111111005,REJECTED,Jl. Merdeka No.8,081234567893,123456789000003,Jl. Diponegoro No.11,ktp3.jpg,foto_diri3.jpg,lokasi3.jpg,mou3.pdf,modal3.pdf
+90154b77-71d0-4a86-b6d4-aaaaaaa00004,9a9d0e61-4b94-4c5e-94e4-111111111008,ACCEPTED,Jl. Kembang No.9,081234567894,123456789000004,Jl. Sudirman No.19,ktp4.jpg,foto_diri4.jpg,lokasi4.jpg,mou4.pdf,modal4.pdf

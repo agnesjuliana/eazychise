@@ -14,6 +14,11 @@ const parseCSV = (path: string) => {
   });
 };
 
+function encodeImage(path: string) {
+  const imageBuffer = readFileSync(path);
+  return imageBuffer.toString("base64");
+}
+
 async function seedUsers() {
   const users = parseCSV("prisma/seed/users.csv");
 
@@ -37,6 +42,34 @@ async function seedUsers() {
     } else {
       console.log(`ℹ️ Skipped existing user: ${user.email}`);
     }
+  }
+}
+
+async function seedProfiles() {
+  try {
+    const profiles = parseCSV("prisma/seed/franchisor_profiles.csv");
+    const ktp = encodeImage("prisma/seed/images/ktp.png");
+    const fotoDiri = encodeImage("prisma/seed/images/foto_diri.png");
+
+    for (const profile of profiles) {
+      const exists = await prisma.franchisor_profiles.findUnique({
+        where: { user_id: profile.user_id },
+      });
+      if (!exists) {
+        await prisma.franchisor_profiles.create({
+          data: {
+            id: profile.id,
+            user_id: profile.user_id,
+            ktp: ktp,
+            foto_diri: fotoDiri,
+          },
+        });
+      }
+    }
+
+    console.log("✅ Seeded franchisor profiles");
+  } catch (error) {
+    console.error("❌ Error seeding profiles:", error);
   }
 }
 
@@ -69,8 +102,15 @@ async function seedCategoryFranchise() {
 
 async function seedListingsHighlights() {
   try {
+    type HighlightRow = {
+      id: string;
+      id_franchise: string;
+      title: string;
+      content: string;
+    };
+
     const highlights = parseCSV("prisma/seed/listings_highlights.csv").map(
-      (row: any) => ({
+      (row: HighlightRow) => ({
         id: row.id,
         id_franchise: row.id_franchise,
         title: row.title,
@@ -91,8 +131,16 @@ async function seedListingsHighlights() {
 
 async function seedListingDocuments() {
   try {
+    type DocumentRow = {
+      id: string;
+      id_franchise: string;
+      type: string; // should match DocumentType enum
+      name: string;
+      path: string;
+    };
+
     const documents = parseCSV("prisma/seed/listing_documents.csv").map(
-      (row: any) => ({
+      (row: DocumentRow) => ({
         id: row.id,
         id_franchise: row.id_franchise,
         type: row.type, // must match DocumentType enum: PENDUKUNG or GUIDELINES
@@ -112,13 +160,77 @@ async function seedListingDocuments() {
   }
 }
 
+async function seedFranchisePurchases() {
+  const purchases = parseCSV("prisma/seed/franchise_purchases.csv");
+
+  for (const purchase of purchases) {
+    const exists = await prisma.franchise_purchases.findUnique({
+      where: { id: purchase.id },
+    });
+
+    if (!exists) {
+      await prisma.franchise_purchases.create({
+        data: {
+          id: purchase.id,
+          user_id: purchase.user_id,
+          franchise_id: purchase.franchise_id,
+          purchase_type: purchase.purchase_type,
+          confirmation_status: purchase.confirmation_status,
+          payment_status: purchase.payment_status,
+          paid_at: purchase.paid_at ? new Date(purchase.paid_at) : null,
+        },
+      });
+      console.log(`✅ Created purchase: ${purchase.id}`);
+    } else {
+      console.log(`ℹ️ Skipped existing purchase: ${purchase.id}`);
+    }
+  }
+}
+
+async function seedFundingRequests() {
+  const requests = parseCSV("prisma/seed/funding_request.csv");
+
+  for (const request of requests) {
+    const exists = await prisma.funding_request.findUnique({
+      where: { purchase_id: request.purchase_id },
+    });
+
+    if (!exists) {
+      await prisma.funding_request.create({
+        data: {
+          id: request.id,
+          purchase_id: request.purchase_id,
+          confirmation_status: request.confirmation_status,
+          address: request.address,
+          phone_number: request.phone_number,
+          npwp: request.npwp,
+          franchise_address: request.franchise_address,
+          ktp: request.ktp,
+          foto_diri: request.foto_diri,
+          foto_lokasi: request.foto_lokasi,
+          mou_franchisor: request.mou_franchisor,
+          mou_modal: request.mou_modal,
+        },
+      });
+      console.log(`✅ Created funding request: ${request.purchase_id}`);
+    } else {
+      console.log(
+        `ℹ️ Skipped existing funding request: ${request.purchase_id}`
+      );
+    }
+  }
+}
+
 async function main() {
   await seedUsers();
+  await seedProfiles();
   await seedCategories();
   await seedFranchises();
   await seedCategoryFranchise();
   await seedListingsHighlights();
-  // await seedListingDocuments();
+  await seedListingDocuments();
+  await seedFranchisePurchases();
+  await seedFundingRequests();
 }
 
 main()
