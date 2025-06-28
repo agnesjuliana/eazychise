@@ -12,60 +12,98 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { User as UserType } from "@/type/user";
-import { ArrowLeft, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  CreditCard,
+  FileText,
+  MapPin,
+  Package,
+  Coffee,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 import withAuth from "@/lib/withAuth";
 
-import FranchiseDetail, {
-  FranchiseData,
-} from "@/app/admin/components/franchise-detail";
-
 function DetailPage() {
   const router = useRouter();
-  const [user, setUser] = React.useState<UserType | null>(null);
+  const [mounted, setMounted] = React.useState(false);
+  const [user, setUser] = React.useState<
+    | (UserType & {
+        detail?: {
+          id?: string;
+          ktp?: string;
+          foto_diri?: string;
+        };
+        franchise?: {
+          id: string;
+          name: string;
+          price: number;
+          image: string;
+          status: string;
+          location: string;
+          ownership_document: string;
+          financial_statement: string;
+          proposal: string;
+          sales_location: string;
+          equipment: string;
+          materials: string;
+          listing_documents: Array<{
+            id: string;
+            type: string;
+            name: string;
+          }>;
+          listings_highlights: Array<{
+            id: string;
+            title: string;
+            content: string;
+          }>;
+        };
+      })
+    | null
+  >(null);
   const [loading, setLoading] = React.useState(true);
   const [tolakDialogOpen, setTolakDialogOpen] = React.useState(false);
   const [actionLoading, setActionLoading] = React.useState(false);
   const pathName = usePathname();
   const id = pathName.split("/").pop();
-  // Dummy data for franchise details (franchisor)
-  const franchiseData: FranchiseData = {
-    name: "Franchise Kopi Nusantara",
-    price: 7500000,
-    image: "/image/home/template-picture-franchise-food.png",
-    status: "active",
-    location: "Bandung, Indonesia",
-    ownership_document: "http://example.com/ownership-certificate.pdf",
-    financial_statement: "http://example.com/financial-statement.pdf",
-    proposal: "http://example.com/proposal.pdf",
-    sales_location: "Mall Paris Van Java, Second Floor",
-    equipment: "Espresso Machine, Grinder, Blender",
-    materials: "Coffee Beans, Sugar, Cream, Syrup",
-    ktp: "654321098765432",
-    foto_diri: "/image/home/template-picture-franchise-food.png",
-    listing_documents: [
-      {
-        name: "Franchise Agreement",
-        path: "http://example.com/franchise-agreement.pdf",
-      },
-      {
-        name: "Business Model Canvas",
-        path: "http://example.com/business-canvas.pdf",
-      },
-    ],
-    listing_highlights: [
-      {
-        title: "High Demand Product",
-        content: "Coffee culture growing rapidly in Bandung.",
-      },
-      {
-        title: "Comprehensive Support",
-        content: "Training, marketing, and operational assistance provided.",
-      },
-    ],
+
+  // Handle client-side mounting
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Helper function for currency formatting
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Helper function to safely handle image URLs
+  const getSafeImageUrl = (imageUrl?: string) => {
+    if (!imageUrl) {
+      return "/image/home/template-picture-franchise-food.png";
+    }
+
+    // Check if it's a valid URL format
+    if (
+      imageUrl.startsWith("/") ||
+      imageUrl.startsWith("http://") ||
+      imageUrl.startsWith("https://")
+    ) {
+      return imageUrl;
+    }
+
+    // Default fallback
+    return "/image/home/template-picture-franchise-food.png";
   };
 
   // Fetch data user
@@ -73,16 +111,23 @@ function DetailPage() {
     async function fetchUserDetail() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/user/${id}`);
+        const res = await fetch(`/api/user/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (data.success) {
           setUser(data.data);
         } else {
-          alert("Gagal mengambil data pengguna");
+          toast.error("Gagal mengambil data pengguna");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+        toast.error("Terjadi kesalahan saat mengambil data");
       } finally {
         setLoading(false);
       }
@@ -158,7 +203,7 @@ function DetailPage() {
 
       {/* Content */}
       <div className="w-full px-4 mt-4 pb-4">
-        {loading ? (
+        {!mounted || loading ? (
           <div className="flex flex-col items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mb-2" />
             <p className="text-gray-500">Memuat data...</p>
@@ -214,7 +259,211 @@ function DetailPage() {
 
             {/* Show franchise details if user is a franchisor */}
             {user.role === "FRANCHISOR" && (
-              <FranchiseDetail franchiseData={franchiseData} />
+              <div className="mt-6 space-y-6">
+                <h2 className="text-xl font-bold border-b pb-2">
+                  Detail Franchisor
+                </h2>
+
+                {/* Data Diri Franchisor */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-md">Data Diri</h3>
+
+                  {user.detail?.ktp && (
+                    <div>
+                      <Label className="text-xs text-gray-500">NIK</Label>
+                      <div className="flex items-center">
+                        <CreditCard className="h-4 w-4 mr-1 text-gray-500" />
+                        <p className="font-medium">{user.detail.ktp}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {user.detail?.foto_diri && (
+                    <div>
+                      <Label className="text-xs text-gray-500">Foto Diri</Label>
+                      <div className="mt-2 relative h-48 w-48 border rounded-md overflow-hidden">
+                        <Image
+                          src={getSafeImageUrl(user.detail.foto_diri)}
+                          alt="Franchisor Image"
+                          width={600}
+                          height={400}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Detail Franchise */}
+                {user.franchise && (
+                  <div className="space-y-4 mt-6">
+                    <h3 className="font-semibold text-md border-b pb-2">
+                      Detail Franchise
+                    </h3>
+
+                    {/* Franchise Image */}
+                    <div>
+                      <Label className="text-xs text-gray-500">
+                        Foto Franchise
+                      </Label>
+                      <div className="mt-2 relative h-60 w-full md:w-3/4 border rounded-md overflow-hidden">
+                        <Image
+                          src={getSafeImageUrl(user.franchise.image)}
+                          alt="Franchise Image"
+                          width={600}
+                          height={400}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500">
+                        Nama Franchise
+                      </Label>
+                      <p className="font-medium">{user.franchise.name}</p>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500">Harga</Label>
+                      <p className="font-medium">
+                        {formatCurrency(user.franchise.price)}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-xs text-gray-500">Status</Label>
+                      <span className="px-3 py-2 text-xs rounded-full font-semibold w-fit bg-green-100 text-green-800">
+                        {user.franchise.status === "OPEN" ? "Buka" : "Tutup"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500">Lokasi</Label>
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                        <p className="font-medium">{user.franchise.location}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500">
+                        Lokasi Penjualan
+                      </Label>
+                      <p className="font-medium">
+                        {user.franchise.sales_location}
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500">Peralatan</Label>
+                      <div className="flex items-center">
+                        <Package className="h-4 w-4 mr-1 text-gray-500" />
+                        <p className="font-medium">
+                          {user.franchise.equipment}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500">
+                        Bahan-bahan
+                      </Label>
+                      <div className="flex items-center">
+                        <Coffee className="h-4 w-4 mr-1 text-gray-500" />
+                        <p className="font-medium">
+                          {user.franchise.materials}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-gray-500 block mb-2">
+                        Dokumen
+                      </Label>
+                      <div className="space-y-2">
+                        <a
+                          href={user.franchise.ownership_document}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-600 hover:underline"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          <span>Sertifikat Kepemilikan</span>
+                        </a>
+                        <a
+                          href={user.franchise.financial_statement}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-600 hover:underline"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          <span>Laporan Keuangan</span>
+                        </a>
+                        <a
+                          href={user.franchise.proposal}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-600 hover:underline"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          <span>Proposal</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Listing Dokumen */}
+                    {user.franchise.listing_documents &&
+                      user.franchise.listing_documents.length > 0 && (
+                        <div>
+                          <Label className="text-xs text-gray-500 block mb-2">
+                            Dokumen Listing
+                          </Label>
+                          <div className="space-y-2">
+                            {user.franchise.listing_documents.map(
+                              (doc, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center text-blue-600"
+                                >
+                                  <FileText className="h-4 w-4 mr-1" />
+                                  <span>{doc.name}</span>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Listing Highlights */}
+                    {user.franchise.listings_highlights &&
+                      user.franchise.listings_highlights.length > 0 && (
+                        <div>
+                          <Label className="text-xs text-gray-500 block mb-2">
+                            Keunggulan
+                          </Label>
+                          <div className="space-y-3">
+                            {user.franchise.listings_highlights.map(
+                              (highlight, index) => (
+                                <div
+                                  key={index}
+                                  className="bg-gray-50 p-3 rounded-md"
+                                >
+                                  <h3 className="font-medium text-sm">
+                                    {highlight.title}
+                                  </h3>
+                                  <p className="text-sm text-gray-600">
+                                    {highlight.content}
+                                  </p>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Action Buttons */}
