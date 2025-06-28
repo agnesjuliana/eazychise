@@ -15,6 +15,7 @@ export default function AppLayout({
   className = "",
   showBottomNav = true,
 }: AppLayoutProps) {
+  
   return (
     <div className={`min-h-screen bg-gray-50 flex justify-center ${className}`}>
       <div className="w-full max-w-md relative">
@@ -26,27 +27,27 @@ export default function AppLayout({
           <BottomNavbar
             navItems={[
               {
-                href: "/home",
+                href: "/franchisee/home",
                 label: "Home",
                 icon: Home,
               },
               {
-                href: "/event",
+                href: "/franchisee/event",
                 label: "Event",
                 icon: Calendar,
               },
               {
-                href: "/franchise",
+                href: "/franchisee/franchise",
                 label: "Franchise",
                 icon: Building2,
               },
               {
-                href: "/notification",
+                href: "/franchisee/notification",
                 label: "Notification",
                 icon: Bell,
               },
               {
-                href: "/profile",
+                href: "/franchisee/profile",
                 label: "Profile",
                 icon: User,
               },

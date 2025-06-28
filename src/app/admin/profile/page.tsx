@@ -16,8 +16,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin-layout";
+import withAuth from "@/lib/withAuth";
 
-export default function ProfilePage() {
+function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,7 @@ export default function ProfilePage() {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/user/me", {
+        const response = await fetch("/api/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -75,7 +76,7 @@ export default function ProfilePage() {
     try {
       // Call logout API endpoint
       const response = await fetch("/api/logout", {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
@@ -264,3 +265,5 @@ export default function ProfilePage() {
     </AdminLayout>
   );
 }
+
+export default withAuth(ProfilePage, "ADMIN");

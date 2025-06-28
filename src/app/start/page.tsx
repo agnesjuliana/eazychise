@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import withAuth from "@/lib/withAuth";
 
-export default function StartPage() {
+function StartPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-10">
       <Card className="max-w-sm w-full text-center space-y-6 p-6 shadow-xl rounded-2xl border border-gray-200">
@@ -52,3 +53,5 @@ export default function StartPage() {
     </div>
   );
 }
+
+export default withAuth(StartPage, "GUEST");

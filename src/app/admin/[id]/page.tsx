@@ -9,26 +9,64 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User as UserType } from "@/type/user";
-import { ArrowLeft, CheckCircle, XCircle, Edit2, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
-export default function UserDetailPage() {
+import withAuth from "@/lib/withAuth";
+
+import FranchiseDetail, {
+  FranchiseData,
+} from "@/app/admin/components/franchise-detail";
+
+function DetailPage() {
   const router = useRouter();
   const [user, setUser] = React.useState<UserType | null>(null);
   const [loading, setLoading] = React.useState(true);
-  const [revisiDialogOpen, setRevisiDialogOpen] = React.useState(false);
-  const [revisiMessage, setRevisiMessage] = React.useState("");
   const [tolakDialogOpen, setTolakDialogOpen] = React.useState(false);
   const [actionLoading, setActionLoading] = React.useState(false);
   const pathName = usePathname();
   const id = pathName.split("/").pop();
+  // Dummy data for franchise details (franchisor)
+  const franchiseData: FranchiseData = {
+    name: "Franchise Kopi Nusantara",
+    price: 7500000,
+    image: "/image/home/template-picture-franchise-food.png",
+    status: "active",
+    location: "Bandung, Indonesia",
+    ownership_document: "http://example.com/ownership-certificate.pdf",
+    financial_statement: "http://example.com/financial-statement.pdf",
+    proposal: "http://example.com/proposal.pdf",
+    sales_location: "Mall Paris Van Java, Second Floor",
+    equipment: "Espresso Machine, Grinder, Blender",
+    materials: "Coffee Beans, Sugar, Cream, Syrup",
+    ktp: "654321098765432",
+    foto_diri: "/image/home/template-picture-franchise-food.png",
+    listing_documents: [
+      {
+        name: "Franchise Agreement",
+        path: "http://example.com/franchise-agreement.pdf",
+      },
+      {
+        name: "Business Model Canvas",
+        path: "http://example.com/business-canvas.pdf",
+      },
+    ],
+    listing_highlights: [
+      {
+        title: "High Demand Product",
+        content: "Coffee culture growing rapidly in Bandung.",
+      },
+      {
+        title: "Comprehensive Support",
+        content: "Training, marketing, and operational assistance provided.",
+      },
+    ],
+  };
 
   // Fetch data user
   React.useEffect(() => {
@@ -56,35 +94,28 @@ export default function UserDetailPage() {
   }, [id]);
 
   // Handler untuk menerima, menolak, atau meminta revisi
-  const handleAction = async (action: "approve" | "reject" | "revisi") => {
+  const handleAction = async (action: "ACCEPTED" | "REJECTED") => {
     try {
       setActionLoading(true);
 
       // Buat payload berdasarkan action
       const payload = {
-        id: id,
-        action,
-        message: action === "revisi" ? revisiMessage : undefined,
+        user_id: id,
+        status: action,
       };
 
-      const res = await fetch("/api/admin/verify-account", {
-        method: "PUT",
+      const res = await fetch("/api/user/verify", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
-      if (data.success) {
+      if (data.status) {
         // Jika berhasil, kembali ke halaman sebelumnya
         toast.success(
-          `Akun berhasil ${
-            action === "approve"
-              ? "disetujui"
-              : action === "reject"
-              ? "ditolak"
-              : "diminta revisi"
-          }`
+          `Akun berhasil ${action === "ACCEPTED" ? "disetujui" : "ditolak"}`
         );
         router.push("/admin");
         router.refresh();
@@ -96,7 +127,6 @@ export default function UserDetailPage() {
       alert("Terjadi kesalahan saat melakukan tindakan");
     } finally {
       setActionLoading(false);
-      setRevisiDialogOpen(false);
     }
   };
 
@@ -127,7 +157,7 @@ export default function UserDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="w-full px-4 mt-4">
+      <div className="w-full px-4 mt-4 pb-4">
         {loading ? (
           <div className="flex flex-col items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mb-2" />
@@ -158,20 +188,16 @@ export default function UserDetailPage() {
                   <Label className="text-xs text-gray-500">Status</Label>
                   <span
                     className={`px-3 py-2 text-xs rounded-full font-semibold w-fit ${
-                      user.status === "pending"
+                      user.status === "WAITING"
                         ? "bg-yellow-100 text-yellow-800"
-                        : user.status === "revisi"
-                        ? "bg-orange-100 text-orange-800"
-                        : user.status === "active"
+                        : user.status === "ACCEPTED"
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {user.status === "pending"
+                    {user.status === "WAITING"
                       ? "Pending"
-                      : user.status === "revisi"
-                      ? "Revisi"
-                      : user.status === "active"
+                      : user.status === "ACCEPTED"
                       ? "Aktif"
                       : "Ditolak"}
                   </span>
@@ -186,10 +212,15 @@ export default function UserDetailPage() {
               </div>
             </div>
 
+            {/* Show franchise details if user is a franchisor */}
+            {user.role === "FRANCHISOR" && (
+              <FranchiseDetail franchiseData={franchiseData} />
+            )}
+
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 mt-6">
               <Button
-                onClick={() => handleAction("approve")}
+                onClick={() => handleAction("ACCEPTED")}
                 disabled={actionLoading}
                 className="flex items-center justify-center space-x-1 bg-green-500 hover:bg-green-600 cursor-pointer"
               >
@@ -201,15 +232,6 @@ export default function UserDetailPage() {
                     <span>Terima</span>
                   </>
                 )}
-              </Button>
-
-              <Button
-                onClick={() => setRevisiDialogOpen(true)}
-                disabled={actionLoading}
-                className="flex items-center justify-center space-x-1 bg-yellow-500 hover:bg-yellow-600 cursor-pointer"
-              >
-                <Edit2 className="h-4 w-4 mr-1" />
-                <span>Revisi</span>
               </Button>
 
               <Button
@@ -229,49 +251,6 @@ export default function UserDetailPage() {
         )}
       </div>
 
-      {/* Dialog Revisi */}
-      <Dialog open={revisiDialogOpen} onOpenChange={setRevisiDialogOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Kirim Permintaan Revisi</DialogTitle>
-            <DialogDescription>
-              Berikan detail tentang apa yang perlu direvisi oleh pengguna.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="py-4">
-            <Label htmlFor="revisiMessage" className="mb-2 block">
-              Pesan Revisi
-            </Label>
-            <Input
-              id="revisiMessage"
-              value={revisiMessage}
-              onChange={(e) => setRevisiMessage(e.target.value)}
-              placeholder="Contoh: Mohon lampirkan dokumen identitas yang jelas"
-              className="resize-none w-full"
-            />
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setRevisiDialogOpen(false)}
-            >
-              Batal
-            </Button>
-            <Button
-              onClick={() => handleAction("revisi")}
-              disabled={!revisiMessage.trim() || actionLoading}
-              className="bg-[#EF5A5A] hover:bg-[#c84d4d]"
-            >
-              {actionLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-1" />
-              ) : null}
-              Kirim Revisi
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       {/* Dialog Reject */}
       <Dialog open={tolakDialogOpen} onOpenChange={setTolakDialogOpen}>
         <DialogContent className="sm:max-w-[400px]">
@@ -288,10 +267,10 @@ export default function UserDetailPage() {
               Batal
             </Button>
             <Button
-              onClick={() => handleAction("reject")}
+              onClick={() => handleAction("REJECTED")}
               className="bg-[#EF5A5A] hover:bg-[#c84d4d] cursor-pointer"
             >
-              Setuju
+              Tolak
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -299,3 +278,5 @@ export default function UserDetailPage() {
     </AdminLayout>
   );
 }
+
+export default withAuth(DetailPage, "ADMIN");

@@ -74,6 +74,7 @@ model franchise_purchases {
 model funding_request {
   id                String @id @default(uuid()) @db.Uuid
   purchase_id       String @unique @db.Uuid
+  confirmation_status ConfirmationStatus
   address           String
   phone_number      String
   npwp              String
@@ -99,6 +100,7 @@ model franchisor_profiles {
 model franchise_listings {
   id                  String  @id @default(uuid()) @db.Uuid
   franchisor_id       String  @db.Uuid
+  confirmation_status ConfirmationStatus
   name                String
   price               Decimal
   image               String
