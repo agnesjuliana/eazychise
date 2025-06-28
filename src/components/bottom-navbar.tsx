@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 type NavbarItem = {
   href: string;
@@ -21,15 +22,24 @@ export default function BottomNavbar({
   onNavClick,
 }: BottomNavbarProps) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not showing active state until mounted
+  const getIsActive = (href: string) => {
+    return mounted ? pathname === href : false;
+  };
 
   return (
     <div
       className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 shadow-lg z-50 ${className}`}
     >
       <div className="flex items-center justify-around h-16 px-4">
-        {" "}
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = getIsActive(item.href);
           const Icon = item.icon;
 
           const handleClick = (e: React.MouseEvent) => {
