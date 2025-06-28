@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import BottomNavbar from "./bottom-navbar";
-import { Shield, User as UserIcon } from "lucide-react";
+import { Shield, User as UserIcon, Calendar } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -100,6 +100,12 @@ export default function AdminLayout({
                 icon: Shield,
               },
 
+              {
+                href: "/admin/event",
+                label: "Event",
+                icon: Calendar,
+              },
+              
               {
                 href: "/admin/profile",
                 label: "Profile",
