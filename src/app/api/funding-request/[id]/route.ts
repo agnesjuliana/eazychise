@@ -125,48 +125,63 @@ export async function PATCH(
       });
     }
 
-    const updated = await prisma.funding_request.update({
-      where: { id: funding_request.id },
-      data: {
-        confirmation_status: status,
-      },
-      include: {
-        purchase: {
-          select: {
-            id: true,
-            purchase_type: true,
-            confirmation_status: true,
-            payment_status: true,
-            paid_at: true,
-            franchise: {
-              select: {
-                id: true,
-                name: true,
-                price: true,
-                image: true,
-                status: true,
-                location: true,
-                ownership_document: true,
-                financial_statement: true,
-                proposal: true,
-                sales_location: true,
-                equipment: true,
-                materials: true,
+    const { updated } = await prisma.$transaction(async (tx) => {
+      const updated = await prisma.funding_request.update({
+        where: { id: funding_request.id },
+        data: {
+          confirmation_status: status,
+        },
+        include: {
+          purchase: {
+            select: {
+              id: true,
+              purchase_type: true,
+              confirmation_status: true,
+              payment_status: true,
+              paid_at: true,
+              franchise: {
+                select: {
+                  id: true,
+                  name: true,
+                  price: true,
+                  image: true,
+                  status: true,
+                  location: true,
+                  ownership_document: true,
+                  financial_statement: true,
+                  proposal: true,
+                  sales_location: true,
+                  equipment: true,
+                  materials: true,
+                },
               },
-            },
-            user: {
-              select: {
-                id: true,
-                status: true,
-                name: true,
-                email: true,
-                profile_image: true,
-                role: true,
+              user: {
+                select: {
+                  id: true,
+                  status: true,
+                  name: true,
+                  email: true,
+                  profile_image: true,
+                  role: true,
+                },
               },
             },
           },
         },
-      },
+      });
+
+      await tx.user_notifications.create({
+        data: {
+          user_id: updated.purchase.user.id,
+          title: "Status Permintaan Pendanaan Diperbarui",
+          message: `Status permintaan pendanaan untuk franchise ${updated.purchase.franchise.name} telah diperbarui menjadi ${status}.`,
+          type: "funding_request",
+          is_read: false,
+          sent_at: new Date(),
+        },
+      });
+
+      return { updated };
     });
 
     return NextResponse.json(

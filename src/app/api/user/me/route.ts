@@ -112,6 +112,7 @@ export async function GET() {
               }
             : undefined,
       },
+      token: "session_token", // Add token for consistency
     });
 
     // Update session cookie if status has changed
@@ -163,7 +164,7 @@ export async function PUT(request: Request) {
 
     const session = JSON.parse(sessionCookie.value);
     const body = await request.json();
-    const { name, email } = body;
+    const { name, email, ktp, foto_diri } = body;
 
     // Validation
     if (!name || !email) {
@@ -210,6 +211,47 @@ export async function PUT(request: Request) {
       },
     });
 
+    let updatedDetail = null;
+    // Update franchisor details if role is FRANCHISOR and detail data is provided
+    if (session.role === "FRANCHISOR" && (ktp || foto_diri)) {
+      const updateData: { ktp?: string; foto_diri?: string } = {};
+      if (ktp) updateData.ktp = ktp.trim();
+      if (foto_diri) updateData.foto_diri = foto_diri.trim();
+
+      // Check if franchisor profile exists
+      const existingProfile = await prisma.franchisor_profiles.findUnique({
+        where: { user_id: session.id },
+      });
+
+      if (existingProfile) {
+        // Update existing profile
+        updatedDetail = await prisma.franchisor_profiles.update({
+          where: { user_id: session.id },
+          data: updateData,
+        });
+      } else {
+        // Create new profile - both fields are required for creation
+        if (!ktp || !foto_diri) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "KTP dan foto diri wajib diisi untuk membuat profil baru",
+            },
+            { status: 400 }
+          );
+        }
+        updatedDetail = await prisma.franchisor_profiles.create({
+          data: {
+            user: {
+              connect: { id: session.id },
+            },
+            ktp: ktp.trim(),
+            foto_diri: foto_diri.trim(),
+          },
+        });
+      }
+    }
+
     const response = NextResponse.json({
       success: true,
       message: "Data berhasil diperbarui",
@@ -219,6 +261,13 @@ export async function PUT(request: Request) {
         email: updatedUser.email,
         role: updatedUser.role,
         status: updatedUser.status,
+        detail: updatedDetail
+          ? {
+              id: updatedDetail.id,
+              ktp: updatedDetail.ktp,
+              foto_diri: updatedDetail.foto_diri,
+            }
+          : null,
       },
     });
 

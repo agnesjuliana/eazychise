@@ -3,62 +3,21 @@
 import HeaderPage from "@/components/header";
 
 import withAuth from "@/lib/withAuth";
-
+import CustomUploadFile from "@/components/CustomUploadFile";
+import {
+  FileUploadResult,
+  getUploadedFiles,
+  getUploadedFilePath,
+  getSavedFiles,
+} from "@/utils/fileUtils";
 
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FileUp } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-// Helper component untuk area upload file, agar tidak menulis kode yang sama dua kali
-const FileUploadZone = ({
-  id,
-  title,
-  onFileChange,
-  fileName,
-}: {
-  id: string;
-  title: string;
-  onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  fileName: string | null;
-}) => (
-  <div>
-    <div className="bg-[#EF5A5A] text-white text-center p-2 rounded-t-lg font-semibold mb-1">
-      {title}
-    </div>
-    <div className="border-2 border-dashed border-gray-300 rounded-b-lg p-6 text-center">
-      <label
-        htmlFor={id}
-        className="cursor-pointer flex flex-col items-center justify-center"
-      >
-        <FileUp className="w-8 h-8 mb-1" />
-        {fileName ? (
-          <span className="text-sm font-semibold text-gray-800">
-            {fileName}
-          </span>
-        ) : (
-          <div>
-            <span className="text-[#EF5A5A] font-semibold">pilih</span>{" "}
-            <span className="text-blzck font-semibold">
-              file untuk diupload
-            </span>
-          </div>
-        )}
-        <p className="text-sm text-[#6E7E9D]">mendukung format pdf dan docx</p>
-      </label>
-      <Input
-        id={id}
-        type="file"
-        className="hidden" // Input file asli kita sembunyikan
-        onChange={onFileChange}
-        accept=".pdf,.docx"
-      />
-    </div>
-  </div>
-);
 
 function TutorialAddPage() {
   const router = useRouter();
@@ -66,8 +25,10 @@ function TutorialAddPage() {
   // State untuk menyimpan file dan nama file
   const [tutorialFile, setTutorialFile] = useState<File | null>(null);
   const [tutorialFileName, setTutorialFileName] = useState("");
+  const [tutorialUploadPath, setTutorialUploadPath] = useState<string>("");
   const [guidelineFile, setGuidelineFile] = useState<File | null>(null);
   const [guidelineFileName, setGuidelineFileName] = useState("");
+  const [guidelineUploadPath, setGuidelineUploadPath] = useState<string>("");
 
   const handleFileChange =
     (setFile: (file: File | null) => void) =>
@@ -78,15 +39,44 @@ function TutorialAddPage() {
       }
     };
 
+  const handleTutorialUploadComplete = (result: FileUploadResult) => {
+    if (result.success && result.path) {
+      setTutorialUploadPath(result.path);
+      console.log("Tutorial uploaded to:", result.path);
+    }
+  };
+
+  const handleGuidelineUploadComplete = (result: FileUploadResult) => {
+    if (result.success && result.path) {
+      setGuidelineUploadPath(result.path);
+      console.log("Guideline uploaded to:", result.path);
+    }
+  };
+
   const handleSubmit = () => {
-    // Di sini logika untuk mengirim data ke backend
+    // Get uploaded files dari sessionStorage dan localStorage
+    const uploadedFiles = getUploadedFiles();
+    const savedFiles = getSavedFiles();
+    const tutorialStoredPath = getUploadedFilePath(tutorialFile?.name || "");
+    const guidelineStoredPath = getUploadedFilePath(guidelineFile?.name || "");
+
+    // Data untuk di-submit ke backend
     console.log("Submitting data:", {
       tutorialFile,
       tutorialFileName,
+      tutorialUploadPath,
+      tutorialStoredPath,
       guidelineFile,
       guidelineFileName,
+      guidelineUploadPath,
+      guidelineStoredPath,
+      allUploadedFiles: uploadedFiles,
+      allSavedFiles: savedFiles,
     });
-    alert("Data (cek console) akan di-upload!");
+
+    alert(
+      "Data berhasil disubmit! File tersimpan di localStorage. Cek console untuk detail."
+    );
     // router.push('/path-sukses-upload');
   };
 
@@ -117,11 +107,14 @@ function TutorialAddPage() {
         <main className="p-6 space-y-6">
           {/* Tutorial Section */}
           <div className="space-y-4">
-            <FileUploadZone
+            <CustomUploadFile
               id="tutorial-upload"
               title="Tutorial"
               onFileChange={handleFileChange(setTutorialFile)}
               fileName={tutorialFile?.name || null}
+              onUploadComplete={handleTutorialUploadComplete}
+              maxSizeMB={15}
+              acceptedTypes={["pdf", "docx"]}
             />
             <div>
               <Label htmlFor="tutorial-name" className="font-semibold">
@@ -139,11 +132,14 @@ function TutorialAddPage() {
 
           {/* Guideline Section */}
           <div className="space-y-4">
-            <FileUploadZone
+            <CustomUploadFile
               id="guideline-upload"
               title="Guideline"
               onFileChange={handleFileChange(setGuidelineFile)}
               fileName={guidelineFile?.name || null}
+              onUploadComplete={handleGuidelineUploadComplete}
+              maxSizeMB={10}
+              acceptedTypes={["pdf", "docx"]}
             />
             <div>
               <Label htmlFor="guideline-name" className="font-semibold">
@@ -175,4 +171,3 @@ function TutorialAddPage() {
 }
 
 export default withAuth(TutorialAddPage, "FRANCHISOR");
-

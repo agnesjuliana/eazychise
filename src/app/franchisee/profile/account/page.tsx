@@ -20,9 +20,6 @@ export default function AccountPage() {
   const [userData, setUserData] = useState({
     name: "",
     email: "",
-    phone: "",
-    address: "",
-    birthDate: "",
     role: "",
     status: "",
     avatar: "/image/auth/login.png",
@@ -51,9 +48,6 @@ export default function AccountPage() {
           const fetchedUserData = {
             name: data.data.name || "",
             email: data.data.email || "",
-            phone: "", // These fields might not be in your current schema
-            address: "", // You may need to add these to your database
-            birthDate: "", // and API response
             role: data.data.role || "",
             status: data.data.status || "",
             avatar: "/image/auth/login.png",
