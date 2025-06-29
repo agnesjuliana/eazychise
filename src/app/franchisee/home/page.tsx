@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import AppLayout from "@/components/app-layout";
@@ -10,130 +11,77 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Bookmark, Filter, MapPin, Search, Star } from "lucide-react";
-import Link from "next/link";
+import { Bookmark, Filter, MapPin, Search } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import withAuth from "@/lib/withAuth";
-
-
-// Dummy franchise data
-const franchiseData = [
-  {
-    id: 1,
-    name: "Pecel Madiun Bu Ati",
-    category: "Makanan",
-    price: "Rp5.000.000",
-    location: "Surabaya",
-    rating: 4.5,
-    image: "/image/franchise/pecel-madiun.jpg",
-    description: "Mulai dari",
-    isFavorite: true,
-    isNew: false,
-    tags: ["Makanan", "Tradisional", "Murah"],
-  },
-  {
-    id: 2,
-    name: "Soto Surabaya Pak Slamet",
-    category: "Makanan",
-    price: "Rp6.000.000",
-    location: "Surabaya",
-    rating: 4.8,
-    image: "/image/franchise/soto-surabaya.jpg",
-    description: "Mulai dari",
-    isFavorite: false,
-    isNew: true,
-    tags: ["Makanan", "Soto", "Tradisional"],
-  },
-  {
-    id: 3,
-    name: "Bakso Malang Cak Toha",
-    category: "Makanan",
-    price: "Rp7.000.000",
-    location: "Malang",
-    rating: 4.7,
-    image: "/image/franchise/bakso-malang.jpg",
-    description: "Mulai dari",
-    isFavorite: true,
-    isNew: false,
-    tags: ["Makanan", "Bakso", "Malang"],
-  },
-  {
-    id: 4,
-    name: "Sego Cawuk Mifta",
-    category: "Makanan",
-    price: "Rp15.000.000",
-    location: "Yogyakarta",
-    rating: 4.6,
-    image: "/image/franchise/sego-cawuk.jpg",
-    description: "Mulai dari",
-    isFavorite: false,
-    isNew: false,
-    tags: ["Makanan", "Gudeg", "Yogyakarta"],
-  },
-  {
-    id: 5,
-    name: "Coffee Shop Modern",
-    category: "Minuman",
-    price: "Rp25.000.000",
-    location: "Jakarta",
-    rating: 4.9,
-    image: "/image/franchise/coffee-shop.jpg",
-    description: "Mulai dari",
-    isFavorite: false,
-    isNew: true,
-    tags: ["Minuman", "Coffee", "Modern"],
-  },
-  {
-    id: 6,
-    name: "Laundry Express",
-    category: "Jasa",
-    price: "Rp12.000.000",
-    location: "Bandung",
-    rating: 4.3,
-    image: "/image/franchise/laundry.jpg",
-    description: "Mulai dari",
-    isFavorite: false,
-    isNew: false,
-    tags: ["Jasa", "Laundry", "Express"],
-  },
-];
-
-const categories = ["Semua", "Makanan", "Minuman", "Jasa", "Retail"];
-
+import {
+  useCategories,
+  useGetFranchiseByCategoryId,
+} from "./_hooks/useGetHome";
 
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [showFilter, setShowFilter] = useState(false);
 
-  // Filter and search logic
+  const {
+    data: categoriesData,
+    isLoading: isCategoriesLoading,
+    isError: isErrorCategories,
+    error,
+  } = useCategories();
+
+  // Set default category to Food category ID when categories are loaded
+  useMemo(() => {
+    if (categoriesData && categoriesData.length > 0 && !selectedCategoryId) {
+      const foodCategory = categoriesData.find(
+        (cat) =>
+          cat.name.toLowerCase().includes("food") ||
+          cat.name.toLowerCase().includes("makanan")
+      );
+      if (foodCategory) {
+        setSelectedCategoryId(foodCategory.id);
+      } else {
+        // If no Food category found, use the first category
+        setSelectedCategoryId(categoriesData[0].id);
+      }
+    }
+  }, [categoriesData, selectedCategoryId]);
+
+  console.log("Categories Data:", categoriesData);
+
+  const {
+    data: franchiseData,
+    isLoading: isFranchisesLoading,
+    isError: isErrorFranchises,
+    error: franchiseError,
+  } = useGetFranchiseByCategoryId(
+    selectedCategoryId, // Use the actual category ID
+    {
+      per_page: 10,
+      page: 1,
+      filter_value: searchQuery || undefined,
+      filter_by: searchQuery ? "name" : undefined,
+    }
+  );
+
   const filteredFranchises = useMemo(() => {
-    return franchiseData.filter((franchise) => {
-      const matchesSearch =
-        franchise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        franchise.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        franchise.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+    return franchiseData?.data || [];
+  }, [franchiseData]);
 
-      const matchesCategory =
-        selectedCategory === "Semua" || franchise.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [searchQuery, selectedCategory]);
+  console.log("Filtered Franchises:", filteredFranchises);
 
   const toggleFavorite = (id: number) => {
-    // In a real app, this would update the backend
     console.log(`Toggle favorite for franchise ${id}`);
   };
 
   return (
     <AppLayout className="overflow-x-hidden">
       {/* Header */}
-      <HeaderPage title="Hai John doe!" />
+      <HeaderPage title="Hai, Franchisee!" />
 
       <div className="p-4 space-y-6">
         {/* Subtitle */}
@@ -181,69 +129,83 @@ function HomePage() {
         </div>{" "}
         {/* Franchise Cards Grid */}
         <div className="grid grid-cols-2 gap-3">
-          {filteredFranchises.slice(0, 4).map((franchise) => (
-            <Card
-              key={franchise.id}
-              className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
-            >
-              <Link href={`/franchise/${franchise.id}`} className="block">
-                <div className="relative">
-                  <div className="bg-gray-200 relative overflow-hidden rounded-t-lg items-center flex justify-center h-36">
-                    {/* Real image or placeholder */}
-                    <Image
-                      src="/image/home/template-picture-franchise-food.png"
-                      alt={franchise.name}
-                      width={138}
-                      height={138}
-                      className="object-cover rounded-2xl item"
-                    />
-                  </div>
-                  {franchise.isNew && (
-                    <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded">
-                      Baru
-                    </div>
-                  )}
-                </div>{" "}
+          {isFranchisesLoading ? (
+            // Loading skeleton for popular franchises
+            Array.from({ length: 4 }).map((_, index) => (
+              <Card
+                key={`loading-${index}`}
+                className="p-0 overflow-hidden border-gray-200 animate-pulse"
+              >
+                <div className="h-36 bg-gray-200"></div>
                 <CardContent className="p-3">
-                  <div className="flex items-start justify-between mb-1">
-                    <CardTitle className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1 pr-2">
-                      {franchise.name}
-                    </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleFavorite(franchise.id);
-                      }}
-                    >
-                      <Bookmark
-                        className={`w-4 h-4 ${
-                          franchise.isFavorite
-                            ? "fill-orange-500 text-orange-500"
-                            : "text-gray-400"
-                        }`}
-                      />
-                    </Button>
-                  </div>
-                  <CardDescription className="text-xs text-gray-500 mb-2">
-                    Mulai dari
-                  </CardDescription>
-                  <div className="flex items-center gap-1 mb-2">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs text-gray-600">
-                      {franchise.rating}
-                    </span>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {franchise.price}
-                  </p>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-2 w-1/2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                 </CardContent>
-              </Link>
-            </Card>
-          ))}
+              </Card>
+            ))
+          ) : isErrorFranchises ? (
+            <div className="col-span-2 text-center text-red-500 text-sm py-8">
+              Error loading franchises: {franchiseError?.message}
+            </div>
+          ) : filteredFranchises.length > 0 ? (
+            filteredFranchises.slice(0, 4).map((franchise) => (
+              <Card
+                key={franchise.id}
+                className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
+              >
+                <Link
+                  href={`/franchisee/franchise/${franchise.id}`}
+                  className="block"
+                >
+                  <div className="relative">
+                    <div className="bg-gray-200 relative overflow-hidden rounded-t-lg items-center flex justify-center h-36">
+                      {/* Changed from template image to API image */}
+                      <Image
+                        src={
+                          franchise.image
+                            ? `/api/images/${franchise.image}`
+                            : "/image/home/template-picture-franchise-food.png"
+                        }
+                        alt={franchise.name}
+                        width={138}
+                        height={138}
+                        className="object-cover rounded-2xl item"
+                      />
+                    </div>
+                  </div>{" "}
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between mb-1">
+                      <CardTitle className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1 pr-2">
+                        {franchise.name}
+                      </CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Bookmark className={`w-4 h-4 text-gray-400 `} />
+                      </Button>
+                    </div>
+                    <CardDescription className="text-xs text-gray-500 mb-2">
+                      Mulai dari
+                    </CardDescription>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {franchise.price}
+                    </p>
+                  </CardContent>
+                </Link>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-2 text-center text-gray-500 text-sm py-8">
+              No franchises available
+            </div>
+          )}
         </div>
         {/* Category Filter Section */}
         <div className="flex items-center justify-between">
@@ -259,119 +221,124 @@ function HomePage() {
         </div>
         {/* Category Pills */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-              className={`whitespace-nowrap ${
-                selectedCategory === category
-                  ? "bg-[#EF5A5A] hover:bg-[#EF5A5A]/90"
-                  : "border-gray-200 text-gray-600"
-              }`}
-            >
-              {category}
-            </Button>
-          ))}
+          {isCategoriesLoading ? (
+            <div className="text-sm text-gray-500">Loading categories...</div>
+          ) : isErrorCategories ? (
+            <div className="text-sm text-red-500">
+              Error loading categories: {error?.message}
+            </div>
+          ) : categoriesData && categoriesData.length > 0 ? (
+            categoriesData.map((category) => (
+              <Button
+                key={category.id}
+                variant={
+                  selectedCategoryId === category.id ? "default" : "outline"
+                }
+                size="sm"
+                onClick={() => setSelectedCategoryId(category.id)}
+                className={`whitespace-nowrap ${
+                  selectedCategoryId === category.id
+                    ? "bg-[#EF5A5A] hover:bg-[#EF5A5A]/90 text-white"
+                    : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {category.name}
+              </Button>
+            ))
+          ) : (
+            <div className="text-sm text-gray-500">No categories available</div>
+          )}
         </div>
         <div className="grid grid-cols-1 gap-3">
-          {filteredFranchises.slice(4).map((franchise) => (
-            <Card
-              key={franchise.id}
-              className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
-            >
-              <Link href={`/franchise/${franchise.id}`} className="block">
+          {isFranchisesLoading ? (
+            // Loading skeleton for remaining franchises
+            Array.from({ length: 3 }).map((_, index) => (
+              <Card
+                key={`loading-list-${index}`}
+                className="p-0 overflow-hidden border-gray-200 animate-pulse"
+              >
                 <div className="flex">
-                  <div className="w-20 h-28 bg-gray-200 relative flex-shrink-0 overflow-hidden">
-                    <Image
-                      src="/image/home/template-picture-franchise-food.png"
-                      alt={franchise.name}
-                      width={138}
-                      height={138}
-                      className="object-cover rounded-2xl"
-                    />
-                    {franchise.isNew && (
-                      <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1 rounded z-10">
-                        Baru
-                      </div>
-                    )}
-                  </div>{" "}
+                  <div className="w-20 h-28 bg-gray-200 flex-shrink-0"></div>
                   <CardContent className="flex-1 p-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1 pr-2">
-                        <div className="flex items-start justify-between mb-1">
-                          <CardTitle className="text-sm font-semibold text-gray-900 flex-1 pr-2">
-                            {franchise.name}
-                          </CardTitle>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleFavorite(franchise.id);
-                            }}
-                          >
-                            <Bookmark
-                              className={`w-4 h-4 ${
-                                franchise.isFavorite
-                                  ? "fill-orange-500 text-orange-500"
-                                  : "text-gray-400"
-                              }`}
-                            />
-                          </Button>
-                        </div>
-                        <CardDescription className="text-xs text-gray-500 mb-1">
-                          Mulai dari
-                        </CardDescription>
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs text-gray-600">
-                              {franchise.rating}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-600">
-                              {franchise.location}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {franchise.price}
-                        </p>
-                      </div>
-                    </div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded mb-1 w-1/3"></div>
+                    <div className="h-3 bg-gray-200 rounded mb-1 w-1/2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                   </CardContent>
                 </div>
-              </Link>
-            </Card>
-          ))}
-        </div>
-        {/* New Arrivals Section */}
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Ada yang Baru Nih
-          </h2>
-          <Card className="p-0 overflow-hidden border-gray-200">
-            <div className="h-32 bg-gradient-to-r from-orange-200 to-red-200 flex items-center justify-center">
-              <span className="text-orange-600 font-semibold">
-                Featured Franchise
-              </span>
+              </Card>
+            ))
+          ) : isErrorFranchises ? (
+            <div className="text-center text-red-500 text-sm py-8">
+              Error loading franchises: {franchiseError?.message}
             </div>
-            <CardContent className="p-4">
-              <CardTitle className="text-base font-semibold text-gray-900 mb-2">
-                Promo Spesial Franchise Baru
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600">
-                Dapatkan diskon hingga 30% untuk franchise pilihan bulan ini
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </div>{" "}
+          ) : filteredFranchises.length > 4 ? (
+            filteredFranchises.slice(4).map((franchise) => (
+              <Card
+                key={franchise.id}
+                className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
+              >
+                <Link
+                  href={`/franchisee/franchise/${franchise.id}`}
+                  className="block"
+                >
+                  <div className="flex">
+                    <div className="w-20 h-28 bg-gray-200 relative flex-shrink-0 overflow-hidden">
+                      {/* Changed from template image to API image */}
+                      <Image
+                        src={
+                          franchise.image
+                            ? `/api/images/${franchise.image}`
+                            : "/image/home/template-picture-franchise-food.png"
+                        }
+                        alt={franchise.name}
+                        width={138}
+                        height={138}
+                        className="object-cover rounded-2xl"
+                      />
+                    </div>
+                    <CardContent className="flex-1 p-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 pr-2">
+                          <div className="flex items-start justify-between mb-1">
+                            <CardTitle className="text-sm font-semibold text-gray-900 flex-1 pr-2">
+                              {franchise.name}
+                            </CardTitle>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                            >
+                              <Bookmark className={`w-4 h-4 text-gray-400 `} />
+                            </Button>
+                          </div>
+                          <CardDescription className="text-xs text-gray-500 mb-1">
+                            Mulai dari
+                          </CardDescription>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-600">
+                                {franchise.location}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {franchise.price}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </div>
+                </Link>
+              </Card>
+            ))
+          ) : null}
+        </div>
         {/* Search Results Info */}
         {searchQuery && (
           <div className="text-center text-gray-500 text-sm">

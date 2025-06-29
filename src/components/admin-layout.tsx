@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import {
+  callLogoutAPI,
+  showSuccessToast,
+  showErrorToast,
+} from "@/lib/authUtils";
+import useAuthStore from "@/store/authStore";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -30,47 +35,30 @@ export default function AdminLayout({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
+  // Get logout action from auth store
+  const { useLogout } = useAuthStore;
+  const logout = useLogout();
+
   const handleLogout = async () => {
     setIsLoggingOut(true);
+
     try {
-      // Call logout API endpoint
-      const response = await fetch("/api/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Update store immediately for instant UI feedback
+      logout();
 
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
+      // Show success toast immediately
+      showSuccessToast("Admin logout berhasil");
 
-      const data = await response.json();
+      // Close dialog
+      setLogoutDialogOpen(false);
 
-      if (data.success) {
-        // Also clear client-side cookies as backup
-        document.cookie =
-          "session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-        document.cookie =
-          "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-        document.cookie =
-          "user=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      // Call logout API in background (non-blocking)
+      callLogoutAPI().catch(console.warn);
 
-        // Show success toast
-        toast.success("Admin logout berhasil");
-
-        // Close dialog
-        setLogoutDialogOpen(false);
-
-        // Redirect to login page
-        setTimeout(() => {
-          router.push("/login");
-        }, 1000);
-      } else {
-        throw new Error(data.error || "Logout failed");
-      }
+      // Redirect immediately without delay
+      router.replace("/login");
     } catch (error) {
-      toast.error("Gagal logout");
+      showErrorToast("Gagal logout");
       console.error("Logout error:", error);
     } finally {
       setIsLoggingOut(false);

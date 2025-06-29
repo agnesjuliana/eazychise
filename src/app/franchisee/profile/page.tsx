@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
 import withAuth from "@/lib/withAuth";
+import { callLogoutAPI, showSuccessToast, showErrorToast } from "@/lib/authUtils";
+import useAuthStore from "@/store/authStore";
 
 import Image from "next/image";
 import React, { useState } from "react";
@@ -30,6 +32,10 @@ function ProfilePage() {
     status: "",
   });
   const router = useRouter();
+
+  // Get logout action from auth store
+  const { useLogout } = useAuthStore;
+  const logout = useLogout();
 
   React.useEffect(() => {
     const fetchUserData = async () => {
@@ -74,42 +80,25 @@ function ProfilePage() {
   }, [router]);
   const handleLogout = async () => {
     setIsLoggingOut(true);
+    
     try {
-      // Call logout API endpoint
-      const response = await fetch("/api/logout", {
-        method: "GET",
-      });
+      // Update store immediately for instant UI feedback
+      logout();
+      
+      // Show success toast immediately
+      showSuccessToast("Berhasil logout");
+      
+      // Close dialog
+      setLogoutDialogOpen(false);
 
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Also clear client-side cookies as backup
-        document.cookie =
-          "session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-        document.cookie =
-          "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-        document.cookie =
-          "user=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-
-        // Show success toast
-        toast.success("Berhasil logout");
-
-        // Close dialog
-        setLogoutDialogOpen(false);
-
-        // Redirect to login page
-        setTimeout(() => {
-          router.push("/login");
-        }, 1000);
-      } else {
-        throw new Error(data.error || "Logout failed");
-      }
+      // Call logout API in background (non-blocking)
+      callLogoutAPI().catch(console.warn);
+      
+      // Redirect immediately without delay
+      router.replace("/login");
+      
     } catch (error) {
-      toast.error("Gagal logout");
+      showErrorToast("Gagal logout");
       console.error("Logout error:", error);
     } finally {
       setIsLoggingOut(false);
