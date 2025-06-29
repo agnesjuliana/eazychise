@@ -28,6 +28,15 @@ export async function GET(
     const per_page = parseInt(searchParams.get("per_page") || "10");
     const sort = searchParams.get("sort") || "asc";
     const sort_by = searchParams.get("sort_by") || "id";
+    const filter_value = searchParams.get("filter_value") || "";
+    const filter_by = searchParams.get("filter_by") || "name";
+
+    const filter = {
+      [filter_by]: {
+        contains: filter_value,
+        mode: "insensitive",
+      },
+    };
 
     const category_id = params.id;
 
@@ -38,6 +47,7 @@ export async function GET(
             category_id,
           },
         },
+        ...filter,
       },
     });
 
@@ -50,6 +60,7 @@ export async function GET(
             category_id,
           },
         },
+        ...filter,
       },
       include: {
         franchisor: {

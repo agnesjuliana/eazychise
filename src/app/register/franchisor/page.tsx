@@ -191,7 +191,7 @@ function FranchisorRegisterPage() {
         name: formData.franchiseName,
         price: parseFloat(formData.price),
         image: formData.image,
-        status: formData.status,
+        status: "OPEN",
         location: formData.location,
         ownership_document: formData.ownership_document,
         financial_statement: formData.financial_statement,
@@ -201,6 +201,7 @@ function FranchisorRegisterPage() {
         materials: formData.materials,
         listing_highlights: highlights,
         listing_documents: documents,
+        category_id: [], // Default empty array, bisa diisi sesuai kebutuhan
       },
     };
 
