@@ -2,7 +2,7 @@
 
 import { Role, Status } from "@/type/user";
 import { useRouter, usePathname } from "next/navigation";
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import useAuthStore from "@/store/authStore";
@@ -68,9 +68,11 @@ export default function withAuth<T extends object>(
   const ComponentWithAuth = (props: T) => {
     const router = useRouter();
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
 
     // Use Zustand store selectors
-    const { useUser, useIsAuthenticated, useHasChecked, useJustLoggedOut } = useAuthStore;
+    const { useUser, useIsAuthenticated, useHasChecked, useJustLoggedOut } =
+      useAuthStore;
     const user = useUser();
     const isAuthenticated = useIsAuthenticated();
     const hasChecked = useHasChecked();
@@ -86,6 +88,11 @@ export default function withAuth<T extends object>(
     const hasShownToastRef = useRef(false);
     const lastToastTimeRef = useRef(0);
     const isRedirectingRef = useRef(false);
+
+    // Set mounted state to prevent hydration mismatch
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
     // Helper function to show toast with debouncing
     const showToastOnce = useCallback(
@@ -218,6 +225,16 @@ export default function withAuth<T extends object>(
       );
     }
 
+    // Prevent hydration mismatch by ensuring consistent rendering on server and client
+    if (!mounted) {
+      // Always render a consistent loading state that matches what the client will show initially
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
+        </div>
+      );
+    }
+
     // For authenticated users, render immediately without waiting
     if (isAuthenticated && user) {
       // Handle role-based redirects without showing loading
@@ -339,7 +356,11 @@ export default function withAuth<T extends object>(
           routeRole
         )
       ) {
-        if (!hasShownToastRef.current && !isRedirectingRef.current && !justLoggedOut) {
+        if (
+          !hasShownToastRef.current &&
+          !isRedirectingRef.current &&
+          !justLoggedOut
+        ) {
           showToastOnce("Anda harus login terlebih dahulu", "info");
           hasShownToastRef.current = true;
           redirectOnce("/login");
