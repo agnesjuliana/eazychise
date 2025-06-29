@@ -214,6 +214,35 @@ async function seedFundingRequests() {
   }
 }
 
+async function seedUserNotifications() {
+  const notifications = parseCSV("prisma/seed/user_notifications.csv");
+
+  for (const notif of notifications) {
+    const exists = await prisma.user_notifications.findFirst({
+      where: {
+        id: notif.id,
+      },
+    });
+
+    if (!exists) {
+      await prisma.user_notifications.create({
+        data: {
+          id: notif.id,
+          user_id: notif.user_id,
+          title: notif.title,
+          message: notif.message,
+          type: notif.type,
+          is_read: notif.is_read === "true" || notif.is_read === true,
+          sent_at: new Date(notif.sent_at),
+        },
+      });
+      console.log(`✅ Created notification for user_id: ${notif.user_id}`);
+    } else {
+      console.log(`ℹ️ Skipped existing notification: ${notif.id}`);
+    }
+  }
+}
+
 async function main() {
   await seedUsers();
   await seedProfiles();
@@ -224,6 +253,7 @@ async function main() {
   await seedListingDocuments();
   await seedFranchisePurchases();
   await seedFundingRequests();
+  await seedUserNotifications();
 }
 
 main()

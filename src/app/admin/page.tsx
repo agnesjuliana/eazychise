@@ -1,10 +1,11 @@
 "use client";
-import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { User as UserType } from "@/type/user";
 import React from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import AdminLayout from "@/components/admin-layout";
 import withAuth from "@/lib/withAuth";
 
@@ -13,6 +14,7 @@ function AdminVerifyPage() {
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
+  
   React.useEffect(() => {
     const fetchAllUsers = async () => {
       setLoading(true);
@@ -83,7 +85,8 @@ function AdminVerifyPage() {
     return user
       .filter((u) => u.role === role)
       .filter((u) => u.status === status || status === "all");
-  }, [user, role, status]); // Menghitung tinggi header dan switch (162px header + padding bottom/top + tinggi tombol + gap + tinggi status filter)
+  }, [user, role, status]);
+
   console.log("userRender", userRender);
   const headerHeight = 162 + 20 + 44 + 16 + 44 + 16; // Perkiraan tinggi total elemen fixed
 
@@ -91,7 +94,50 @@ function AdminVerifyPage() {
     <AdminLayout>
       {/* Fixed Header dan Button */}
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
-        <HeaderPage title="Verifikasi Akun" />
+        {/* Custom Header dengan Back Button Integrated */}
+        <div className="bg-[#EF5A5A] h-[162px] w-full relative rounded-b-[10px] flex items-center justify-center">
+          {/* Back Button di dalam header */}
+          <div className="absolute left-4 top-4">
+            <BackButton fallbackUrl="/" variant="ghost" size="sm" className="text-white hover:bg-white/20 border-white/30" />
+          </div>
+          
+          {/* Cloud decorations - existing */}
+          <Image
+            src="/image/cloud.png"
+            alt="Cloud Element"
+            width={62}
+            height={41}
+            className="absolute -top-[20px] left-[80px]"
+          />
+          <Image
+            src="/image/cloud.png"
+            alt="Cloud Element"
+            width={62}
+            height={41}
+            className="absolute bottom-[45px] left-[0px]"
+          />
+          <Image
+            src="/image/cloud.png"
+            alt="Cloud Element"
+            width={62}
+            height={41}
+            className="absolute top-[20px] -right-[40px]"
+          />
+          <Image
+            src="/image/cloud.png"
+            alt="Cloud Element"
+            width={62}
+            height={41}
+            className="absolute bottom-[10px] right-[40px]"
+          />
+          
+          {/* Title */}
+          <div className="text-center text-white">
+            <h1 className="text-xl font-bold">Admin Panel</h1>
+            <p className="text-sm opacity-90">Verifikasi Akun</p>
+          </div>
+        </div>
+        
         {/* Role Filter */}
         <div className="flex w-full items-center px-2 bg-gray-50 justify-around">
           <Button
@@ -120,7 +166,8 @@ function AdminVerifyPage() {
           >
             Franchisor
           </Button>
-        </div>{" "}
+        </div>
+        
         {/* Status Filter */}
         <div className="flex w-full items-center px-1 bg-gray-50 justify-between border-t border-gray-200 pt-2">
           <Button
@@ -177,11 +224,13 @@ function AdminVerifyPage() {
           </Button>
         </div>
       </div>
+      
       {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
       <div
         style={{ height: `${headerHeight}px` }}
         className="w-full bg-gray-50"
       ></div>
+      
       {/* Konten Utama */}
       <div className="flex flex-col gap-4 w-full px-4 pb-10">
         <div className="flex flex-col gap-3 w-full ">
@@ -236,7 +285,7 @@ function AdminVerifyPage() {
               </p>
             </div>
           )}
-        </div>{" "}
+        </div>
       </div>
     </AdminLayout>
   );
