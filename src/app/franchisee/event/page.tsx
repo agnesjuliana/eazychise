@@ -7,13 +7,13 @@ import { DayPicker } from "react-day-picker";
 import HeaderPage from "@/components/header";
 import Image from "next/image";
 import "react-day-picker/style.css";
-import { id } from "date-fns/locale";
-import { EventPayload } from "@/type/events";
-import { Loader2, Calendar } from "lucide-react";
+import { id } from 'date-fns/locale';
+import { EventPayload } from '@/type/events';
+import { Loader2, Calendar } from 'lucide-react';
 
 function EventPage() {
-  const [mounted, setMounted] = React.useState(false);
-  const [today, setToday] = React.useState<Date | null>(null);
+  const [mounted, setMounted] = React.useState(false)
+  const [today, setToday] = React.useState<Date | null>(null)
   const [events, setEvents] = React.useState<EventPayload[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [eventDates, setEventDates] = React.useState<Date[]>([]);
@@ -40,9 +40,7 @@ function EventPage() {
       // API returns status or success flag
       if (res.ok && (data.success || data.status)) {
         setEvents(data.data || []);
-        setEventDates(
-          (data.data || []).map((e: EventPayload) => new Date(e.datetime))
-        );
+        setEventDates((data.data || []).map((e: EventPayload) => new Date(e.datetime)));
       } else {
         console.error("Failed to fetch events:", data);
       }
@@ -56,6 +54,9 @@ function EventPage() {
   // Utility formatters
   const formatDate = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const formatDate = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
     return dateObj.toLocaleDateString("id-ID", {
       day: "numeric",
       month: "long",
@@ -64,29 +65,16 @@ function EventPage() {
   };
   const formatTime = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
-    return dateObj.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   };
   const formatPrice = (price: string | number) => {
-    const priceNumber = typeof price === "string" ? Number(price) : price;
-    return priceNumber === 0
-      ? "Gratis"
-      : new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(priceNumber);
+    const priceNumber = typeof price === 'string' ? Number(price) : price;
+    return priceNumber === 0 ? 'Gratis' : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(priceNumber);
   };
 
   const getImageSrc = (imagePath: string) => {
-    if (!imagePath) return "/images/placeholder.png";
-    if (
-      imagePath.startsWith("http") ||
-      imagePath.startsWith("/images/") ||
-      imagePath.startsWith("/storage/")
-    ) {
+    if (!imagePath) return '/images/placeholder.png';
+    if (imagePath.startsWith('http') || imagePath.startsWith('/images/') || imagePath.startsWith('/storage/')) {
       return imagePath;
     }
     return `/storage/image/${imagePath}`;
@@ -334,7 +322,7 @@ function EventPage() {
         </div>
 
         {/* Events List - Simple card layout like admin */}
-        <div className="mx-4 space-y-3">
+        <div className='mx-4 space-y-3'>
           {loading ? (
             <div className="flex justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A]" />
@@ -345,45 +333,45 @@ function EventPage() {
                 Event Bulan Ini ({filteredEvents.length})
               </h3>
               {filteredEvents.map((event, index) => (
-                <div
-                  key={event.id ?? index}
-                  className="bg-white rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                <div 
+                  key={event.id ?? index} 
+                  className='bg-white rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow'
                   onClick={() => {
                     // Open event image or details
                     if (event.image) {
-                      window.open(getImageSrc(event.image), "_blank");
+                      window.open(getImageSrc(event.image), '_blank');
                     }
                   }}
                 >
                   <div className="flex items-start space-x-4">
                     {/* Event Image */}
-                    <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                    <div className='w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden'>
                       <Image
                         src={getImageSrc(event.image)}
                         alt={event.name}
                         width={80}
                         height={64}
-                        className="w-full h-full object-cover"
+                        className='w-full h-full object-cover'
                         onError={(e) => {
                           // Fallback to gradient if image fails to load
                           const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.nextElementSibling?.classList.remove("hidden");
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
                         }}
                       />
                       {/* Fallback gradient */}
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden">
-                        <span className="text-white font-bold text-lg">
+                      <div className='w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden'>
+                        <span className='text-white font-bold text-lg'>
                           {event.name.charAt(0)}
                         </span>
                       </div>
                     </div>
-
+                    
                     {/* Event Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center space-x-2 text-xs text-gray-500 mb-1'>
                         <Calendar className="w-3 h-3" />
-                        <span className="text-[#EF5A5A] font-medium">
+                        <span className='text-[#EF5A5A] font-medium'>
                           {formatDate(event.datetime)}
                         </span>
                         <span>•</span>

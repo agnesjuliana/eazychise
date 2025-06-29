@@ -15,33 +15,48 @@ export async function GET() {
   }
 
   try {
-    const franchises = await prisma.franchise_listings.findMany({
+    const franchise = await prisma.franchise_listings.findFirst({
       where: {
         franchisor_id: auth.user.id,
       },
-      include: {
-        listing_documents: {
-          select: {
-            id: true,
-            type: true,
-            name: true,
-            path: true,
-          },
-        },
-        listings_highlights: {
-          select: {
-            id: true,
-            title: true,
-            content: true,
-          },
-        },
+    });
+
+    if (!franchise) {
+      return NextResponse.json(
+        formatError({ message: "Franchise not found" }),
+        { status: 404 }
+      );
+    }
+
+    const accepted = await prisma.franchise_purchases.count({
+      where: {
+        franchise_id: franchise.id,
+        confirmation_status: "ACCEPTED",
+      },
+    });
+
+    const waiting = await prisma.franchise_purchases.count({
+      where: {
+        franchise_id: franchise.id,
+        confirmation_status: "WAITING",
+      },
+    });
+
+    const rejected = await prisma.franchise_purchases.count({
+      where: {
+        franchise_id: franchise.id,
+        confirmation_status: "REJECTED",
       },
     });
 
     return NextResponse.json(
       formatResponse({
-        message: "Success get franchises",
-        data: franchises,
+        message: "Success get franchise",
+        data: {
+          accepted,
+          waiting,
+          rejected,
+        },
       }),
       { status: 200 }
     );
