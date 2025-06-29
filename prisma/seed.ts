@@ -53,8 +53,8 @@ async function seedProfiles() {
           data: {
             id: profile.id,
             user_id: profile.user_id,
-            ktp: "image/dummy/ktp.png",
-            foto_diri: "image/dummy/foto_diri.png",
+            ktp: "/image/dummy/ktp.png",
+            foto_diri: "/image/dummy/foto_diri.png",
           },
         });
       }
