@@ -11,20 +11,21 @@ function PrivacyPolicyPage() {
 
   return (
     <AppLayout className="overflow-x-hidden">
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="relative">
-          <HeaderPage title="KEBIJAKAN PRIVASI" />
-          <button
-            onClick={() => router.back()}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-        </div>
+      {/* Header */}
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-50 max-w-md mx-auto bg-gray-50 w-full">
+        <HeaderPage title="KEBIJAKAN PRIVASI" />
+        <button
+          onClick={() => router.back()}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+      </div>
+      <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
 
+      <div className="min-h-screen bg-gray-50">
         {/* Content */}
-        <div className="px-4 -mt-6 relative z-10 pb-8">
+        <div className="px-4 mt-3 relative z-10 pb-8">
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="space-y-6">
               {/* Introduction */}
