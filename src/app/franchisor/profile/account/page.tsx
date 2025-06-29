@@ -5,33 +5,22 @@ import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  ArrowLeft,
-  Mail,
-  Edit3,
-  Save,
-  X,
-  MapPin,
-  FileText,
-  Package,
-  Coffee,
-} from "lucide-react";
+import { ArrowLeft, Mail, Edit3, Save, X } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import withAuth from "@/lib/withAuth";
+import CustomUploadFile from "@/components/CustomUploadFile";
+import { FileUploadResult } from "@/utils/fileUtils";
 
 function FranchisorAccountPage() {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [franchiseId, setFranchiseId] = useState<string | null>(null);
 
-  // State for user and franchise data
+  // State for user data
   const [userData, setUserData] = useState({
     id: "",
     name: "",
@@ -46,36 +35,15 @@ function FranchisorAccountPage() {
     },
   });
 
-  const [franchiseData, setFranchiseData] = useState({
-    id: "",
-    name: "",
-    price: 0,
-    image: "/image/auth/login.png",
-    status: "OPEN",
-    location: "",
-    ownership_document: "",
-    financial_statement: "",
-    proposal: "",
-    sales_location: "",
-    equipment: "",
-    materials: "",
-    listing_documents: [] as Array<{
-      id: string;
-      name: string;
-      path: string;
-      type: string;
-    }>,
-    listings_highlights: [] as Array<{
-      id: string;
-      title: string;
-      content: string;
-    }>,
-  });
-
-  const [editData, setEditData] = useState(franchiseData);
   const [editUserData, setEditUserData] = useState({
     name: "",
     email: "",
+    ktp: "",
+    foto_diri: "",
+  });
+
+  // State for file uploads
+  const [fileNames, setFileNames] = useState({
     ktp: "",
     foto_diri: "",
   });
@@ -126,30 +94,10 @@ function FranchisorAccountPage() {
             foto_diri: data.detail?.foto_diri || "",
           });
 
-          // Set franchise data if available
+          // Set franchise data if available (for reference only)
           if (data.franchise) {
-            const franchise = data.franchise;
-            setFranchiseId(franchise.id);
-
-            const franchiseInfo = {
-              id: franchise.id,
-              name: franchise.name || "",
-              price: franchise.price || 0,
-              image: "/image/auth/login.png",
-              status: franchise.status || "OPEN",
-              location: franchise.location || "",
-              ownership_document: franchise.ownership_document || "",
-              financial_statement: franchise.financial_statement || "",
-              proposal: franchise.proposal || "",
-              sales_location: franchise.sales_location || "",
-              equipment: franchise.equipment || "",
-              materials: franchise.materials || "",
-              listing_documents: franchise.listing_documents || [],
-              listings_highlights: franchise.listings_highlights || [],
-            };
-
-            setFranchiseData(franchiseInfo);
-            setEditData(franchiseInfo);
+            // We have franchise data but this page only manages user account data
+            // Franchise data management is in the documents page
           } else {
             // No franchise found for this franchisor
             toast.info("Belum ada franchise yang terdaftar");
@@ -179,7 +127,53 @@ function FranchisorAccountPage() {
       ktp: userData.detail.ktp,
       foto_diri: userData.detail.foto_diri,
     });
+
+    // Clear file names
+    setFileNames({
+      ktp: "",
+      foto_diri: "",
+    });
+
     setIsEditingProfile(false);
+  };
+
+  // File handling functions
+  const handleFileChange =
+    (field: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        setFileNames((prev) => ({
+          ...prev,
+          [field]: file.name,
+        }));
+      }
+    };
+
+  const handleFileUploadComplete =
+    (field: string) => (result: FileUploadResult) => {
+      if (result.success && result.path) {
+        setEditUserData((prev) => ({
+          ...prev,
+          [field]: result.path,
+        }));
+        toast.success(
+          `${field === "ktp" ? "KTP" : "Foto diri"} berhasil diupload`
+        );
+      }
+    };
+
+  const handleOpenDocument = (url: string) => {
+    if (!url) {
+      toast.error("Dokumen tidak tersedia");
+      return;
+    }
+    // Open in new tab
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const getDocumentDisplayName = (url: string) => {
+    if (!url) return "Tidak ada file";
+    return url.split("/").pop() || "Dokumen";
   };
 
   const handleSaveProfile = async () => {
@@ -216,6 +210,12 @@ function FranchisorAccountPage() {
           foto_diri: editUserData.foto_diri,
         },
       }));
+
+      // Clear file names after successful save
+      setFileNames({
+        ktp: "",
+        foto_diri: "",
+      });
 
       setIsEditingProfile(false);
       toast.success("Profil berhasil diperbarui");
@@ -356,6 +356,216 @@ function FranchisorAccountPage() {
               </div>
             </div>
 
+            {/* Franchisor Personal Details */}
+            {(userData.detail.ktp ||
+              userData.detail.foto_diri ||
+              isEditingProfile) && (
+              <div className="mt-6 border-t pt-6 space-y-4">
+                <h3 className="font-semibold text-md">Data Diri Franchisor</h3>
+
+                <div>
+                  <Label className="text-xs text-gray-500">KTP</Label>
+                  {isEditingProfile ? (
+                    <div className="space-y-4">
+                      <CustomUploadFile
+                        id="ktp-upload"
+                        title="Upload KTP"
+                        onFileChange={handleFileChange("ktp")}
+                        fileName={fileNames.ktp}
+                        onUploadComplete={handleFileUploadComplete("ktp")}
+                        maxSizeMB={5}
+                        acceptedTypes={["png", "jpg", "jpeg", "pdf"]}
+                      />
+
+                      {/* Show current KTP image in edit mode */}
+                      {(editUserData.ktp || userData.detail.ktp) && (
+                        <div className="mt-2">
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(
+                                editUserData.ktp || userData.detail.ktp
+                              )
+                            }
+                            className="relative h-48 w-full md:w-3/4 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            <Image
+                              src={(() => {
+                                const imageUrl =
+                                  editUserData.ktp || userData.detail.ktp;
+                                return imageUrl?.startsWith("/") ||
+                                  imageUrl?.startsWith("http://") ||
+                                  imageUrl?.startsWith("https://")
+                                  ? imageUrl
+                                  : "/image/auth/login.png";
+                              })()}
+                              alt="KTP"
+                              width={400}
+                              height={240}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Show current KTP info */}
+                      {userData.detail.ktp && (
+                        <div className="text-xs text-gray-600">
+                          KTP saat ini:
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(userData.detail.ktp)
+                            }
+                            className="ml-1 text-blue-600 hover:underline"
+                          >
+                            {getDocumentDisplayName(userData.detail.ktp)}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : userData.detail.ktp || editUserData.ktp ? (
+                    <div className="mt-2">
+                      <button
+                        onClick={() => handleOpenDocument(userData.detail.ktp)}
+                        className="relative h-48 w-full md:w-3/4 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                      >
+                        <Image
+                          src={
+                            (isEditingProfile
+                              ? editUserData.ktp
+                              : userData.detail.ktp
+                            )?.startsWith("/") ||
+                            (isEditingProfile
+                              ? editUserData.ktp
+                              : userData.detail.ktp
+                            )?.startsWith("http://") ||
+                            (isEditingProfile
+                              ? editUserData.ktp
+                              : userData.detail.ktp
+                            )?.startsWith("https://")
+                              ? isEditingProfile
+                                ? editUserData.ktp
+                                : userData.detail.ktp
+                              : "/image/auth/login.png"
+                          }
+                          alt="KTP"
+                          width={400}
+                          height={240}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      Belum ada KTP yang diupload
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="text-xs text-gray-500">Foto Diri</Label>
+                  {isEditingProfile ? (
+                    <div className="space-y-4">
+                      <CustomUploadFile
+                        id="foto-diri-upload"
+                        title="Upload Foto Diri"
+                        onFileChange={handleFileChange("foto_diri")}
+                        fileName={fileNames.foto_diri}
+                        onUploadComplete={handleFileUploadComplete("foto_diri")}
+                        maxSizeMB={5}
+                        acceptedTypes={["png", "jpg", "jpeg"]}
+                      />
+
+                      {/* Show current foto_diri image in edit mode */}
+                      {(editUserData.foto_diri ||
+                        userData.detail.foto_diri) && (
+                        <div className="mt-2">
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(
+                                editUserData.foto_diri ||
+                                  userData.detail.foto_diri
+                              )
+                            }
+                            className="relative h-48 w-48 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            <Image
+                              src={(() => {
+                                const imageUrl =
+                                  editUserData.foto_diri ||
+                                  userData.detail.foto_diri;
+                                return imageUrl?.startsWith("/") ||
+                                  imageUrl?.startsWith("http://") ||
+                                  imageUrl?.startsWith("https://")
+                                  ? imageUrl
+                                  : "/image/auth/login.png";
+                              })()}
+                              alt="Foto Diri Franchisor"
+                              width={192}
+                              height={192}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Show current foto_diri info */}
+                      {userData.detail.foto_diri && (
+                        <div className="text-xs text-gray-600">
+                          Foto diri saat ini:
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(userData.detail.foto_diri)
+                            }
+                            className="ml-1 text-blue-600 hover:underline"
+                          >
+                            {getDocumentDisplayName(userData.detail.foto_diri)}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : userData.detail.foto_diri ? (
+                    <div className="mt-2">
+                      <button
+                        onClick={() =>
+                          handleOpenDocument(userData.detail.foto_diri)
+                        }
+                        className="relative h-48 w-48 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                      >
+                        <Image
+                          src={
+                            (isEditingProfile
+                              ? editUserData.foto_diri
+                              : userData.detail.foto_diri
+                            )?.startsWith("/") ||
+                            (isEditingProfile
+                              ? editUserData.foto_diri
+                              : userData.detail.foto_diri
+                            )?.startsWith("http://") ||
+                            (isEditingProfile
+                              ? editUserData.foto_diri
+                              : userData.detail.foto_diri
+                            )?.startsWith("https://")
+                              ? isEditingProfile
+                                ? editUserData.foto_diri
+                                : userData.detail.foto_diri
+                              : "/image/auth/login.png"
+                          }
+                          alt="Foto Diri Franchisor"
+                          width={192}
+                          height={192}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      Belum ada foto diri yang diupload
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Profile Save/Cancel Buttons */}
             {isEditingProfile && (
               <div className="flex space-x-3 mt-6">
@@ -376,85 +586,6 @@ function FranchisorAccountPage() {
                   <X className="w-4 h-4 mr-2" />
                   Batal
                 </Button>
-              </div>
-            )}
-
-            {/* Franchisor Personal Details */}
-            {(userData.detail.ktp ||
-              userData.detail.foto_diri ||
-              isEditingProfile) && (
-              <div className="mt-6 border-t pt-6 space-y-4">
-                <h3 className="font-semibold text-md">Data Diri Franchisor</h3>
-
-                <div>
-                  <Label className="text-xs text-gray-500">NIK (KTP)</Label>
-                  {isEditingProfile ? (
-                    <Input
-                      value={editUserData.ktp}
-                      onChange={(e) =>
-                        handleUserInputChange("ktp", e.target.value)
-                      }
-                      placeholder="Masukkan URL gambar KTP"
-                    />
-                  ) : userData.detail.ktp ? (
-                    <div className="mt-2">
-                      <div className="relative h-48 w-full md:w-3/4 border rounded-md overflow-hidden">
-                        <Image
-                          src={
-                            userData.detail.ktp.startsWith("/") ||
-                            userData.detail.ktp.startsWith("http://") ||
-                            userData.detail.ktp.startsWith("https://")
-                              ? userData.detail.ktp
-                              : "/image/auth/login.png"
-                          }
-                          alt="KTP"
-                          width={400}
-                          height={240}
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 italic">
-                      Belum ada KTP yang diupload
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label className="text-xs text-gray-500">Foto Diri</Label>
-                  {isEditingProfile ? (
-                    <Input
-                      value={editUserData.foto_diri}
-                      onChange={(e) =>
-                        handleUserInputChange("foto_diri", e.target.value)
-                      }
-                      placeholder="Masukkan URL foto diri"
-                    />
-                  ) : userData.detail.foto_diri ? (
-                    <div className="mt-2">
-                      <div className="relative h-48 w-48 border rounded-md overflow-hidden">
-                        <Image
-                          src={
-                            userData.detail.foto_diri.startsWith("/") ||
-                            userData.detail.foto_diri.startsWith("http://") ||
-                            userData.detail.foto_diri.startsWith("https://")
-                              ? userData.detail.foto_diri
-                              : "/image/auth/login.png"
-                          }
-                          alt="Foto Diri Franchisor"
-                          width={192}
-                          height={192}
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 italic">
-                      Belum ada foto diri yang diupload
-                    </p>
-                  )}
-                </div>
               </div>
             )}
           </div>

@@ -8,30 +8,63 @@ import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
 import withAuth from "@/lib/withAuth";
 
-
 function AdminVerifyPage() {
-
   const [role, setRole] = React.useState<string>("FRANCHISEE");
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   React.useEffect(() => {
-    const fetchUser = async () => {
+    const fetchAllUsers = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/user", {
+        // Try to fetch all users with a large per_page value first
+        const response = await fetch(`/api/user?page=1&per_page=1000`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // Include cookies in request
+          credentials: "include",
         });
+
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
+
         const data = await response.json();
-        if (data.status) {
-          setUser(data.data as UserType[]);
+
+        if (data.status && data.data) {
+          // Check if we got all users or need to fetch more
+          const meta = data.meta;
+
+          if (meta && meta.total_pages > 1) {
+            // If there are more pages, fetch them
+            let allUsers: UserType[] = [...data.data];
+
+            for (let page = 2; page <= meta.total_pages; page++) {
+              const pageResponse = await fetch(
+                `/api/user?page=${page}&per_page=1000`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
+                }
+              );
+
+              if (pageResponse.ok) {
+                const pageData = await pageResponse.json();
+                if (pageData.status && pageData.data) {
+                  allUsers = [...allUsers, ...pageData.data];
+                }
+              }
+            }
+
+            setUser(allUsers);
+          } else {
+            // All users fetched in single request
+            setUser(data.data as UserType[]);
+          }
         } else {
           console.error("Failed to fetch user data:", data);
         }
@@ -42,7 +75,7 @@ function AdminVerifyPage() {
       }
     };
 
-    fetchUser();
+    fetchAllUsers();
   }, []);
 
   const userRender = React.useMemo(() => {

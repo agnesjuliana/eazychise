@@ -14,8 +14,8 @@ export const metadata = {
   title: "EazyChise - Franchisee/Franchisor Platform",
   description: "Franchisee/Franchisor Platform",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: "/favicon/favicon.ico",
+    shortcut: "/favicon/favicon.ico",
   },
 };
 
