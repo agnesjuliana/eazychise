@@ -56,6 +56,7 @@ export async function GET(
               id: true,
               type: true,
               name: true,
+              path: true,
             },
           },
           listings_highlights: {
