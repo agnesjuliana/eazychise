@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import AppLayout from "@/components/app-layout";
@@ -22,10 +21,27 @@ import {
   useGetFranchiseByCategoryId,
 } from "./_hooks/useGetHome";
 
+const formatRupiah = (price: string | number): string => {
+  const numPrice =
+    typeof price === "string" ? parseFloat(price.replace(/[^\d]/g, "")) : price;
+
+  // Check if it's a valid number
+  if (isNaN(numPrice)) return price.toString();
+
+  // Format with thousand separators
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(numPrice);
+};
+
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [showFilter, setShowFilter] = useState(false);
+  const [showAllFranchises, setShowAllFranchises] = useState(false);
 
   const {
     data: categoriesData,
@@ -51,32 +67,21 @@ function HomePage() {
     }
   }, [categoriesData, selectedCategoryId]);
 
-  console.log("Categories Data:", categoriesData);
-
   const {
     data: franchiseData,
     isLoading: isFranchisesLoading,
     isError: isErrorFranchises,
     error: franchiseError,
-  } = useGetFranchiseByCategoryId(
-    selectedCategoryId, // Use the actual category ID
-    {
-      per_page: 10,
-      page: 1,
-      filter_value: searchQuery || undefined,
-      filter_by: searchQuery ? "name" : undefined,
-    }
-  );
+  } = useGetFranchiseByCategoryId(selectedCategoryId, {
+    per_page: showAllFranchises ? 30 : 10,
+    page: 1,
+    filter_value: searchQuery || undefined,
+    filter_by: searchQuery ? "name" : undefined,
+  });
 
   const filteredFranchises = useMemo(() => {
     return franchiseData?.data || [];
   }, [franchiseData]);
-
-  console.log("Filtered Franchises:", filteredFranchises);
-
-  const toggleFavorite = (id: number) => {
-    console.log(`Toggle favorite for franchise ${id}`);
-  };
 
   return (
     <AppLayout className="overflow-x-hidden">
@@ -123,84 +128,92 @@ function HomePage() {
           <Button
             variant="ghost"
             className="text-orange-500 text-sm p-0 h-auto"
+            onClick={() => setShowAllFranchises(!showAllFranchises)}
           >
-            Lainnya
+            {showAllFranchises ? "Lebih Sedikit" : "Lainnya"}
           </Button>
         </div>{" "}
         {/* Franchise Cards Grid */}
-        <div className="grid grid-cols-2 gap-3">
+        <div
+          className={`grid ${
+            showAllFranchises ? "grid-cols-2 gap-3" : "grid-cols-2 gap-3"
+          }`}
+        >
           {isFranchisesLoading ? (
             // Loading skeleton for popular franchises
-            Array.from({ length: 4 }).map((_, index) => (
-              <Card
-                key={`loading-${index}`}
-                className="p-0 overflow-hidden border-gray-200 animate-pulse"
-              >
-                <div className="h-36 bg-gray-200"></div>
-                <CardContent className="p-3">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded mb-2 w-1/2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                </CardContent>
-              </Card>
-            ))
+            Array.from({ length: showAllFranchises ? 12 : 4 }).map(
+              (_, index) => (
+                <Card
+                  key={`loading-${index}`}
+                  className="p-0 overflow-hidden border-gray-200 animate-pulse"
+                >
+                  <div className="h-36 bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded mb-2 w-1/2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </CardContent>
+                </Card>
+              )
+            )
           ) : isErrorFranchises ? (
             <div className="col-span-2 text-center text-red-500 text-sm py-8">
               Error loading franchises: {franchiseError?.message}
             </div>
           ) : filteredFranchises.length > 0 ? (
-            filteredFranchises.slice(0, 4).map((franchise) => (
-              <Card
-                key={franchise.id}
-                className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
-              >
-                <Link
-                  href={`/franchisee/franchise/${franchise.id}`}
-                  className="block"
+            filteredFranchises
+              .slice(0, showAllFranchises ? filteredFranchises.length : 4)
+              .map((franchise) => (
+                <Card
+                  key={franchise.id}
+                  className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
                 >
-                  <div className="relative">
-                    <div className="bg-gray-200 relative overflow-hidden rounded-t-lg items-center flex justify-center h-36">
-                      {/* Changed from template image to API image */}
-                      <Image
-                        src={
-                          franchise.image
-                            ? `/api/images/${franchise.image}`
-                            : "/image/home/template-picture-franchise-food.png"
-                        }
-                        alt={franchise.name}
-                        width={138}
-                        height={138}
-                        className="object-cover rounded-2xl item"
-                      />
-                    </div>
-                  </div>{" "}
-                  <CardContent className="p-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <CardTitle className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1 pr-2">
-                        {franchise.name}
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                      >
-                        <Bookmark className={`w-4 h-4 text-gray-400 `} />
-                      </Button>
-                    </div>
-                    <CardDescription className="text-xs text-gray-500 mb-2">
-                      Mulai dari
-                    </CardDescription>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {franchise.price}
-                    </p>
-                  </CardContent>
-                </Link>
-              </Card>
-            ))
+                  <Link
+                    href={`/franchisee/franchise/${franchise.id}`}
+                    className="block"
+                  >
+                    <div className="relative">
+                      <div className="bg-gray-200 relative overflow-hidden rounded-t-lg h-36">
+                        {/* Changed from template image to API image */}
+                        <Image
+                          src={
+                            franchise.image
+                              ? `${franchise.image}`
+                              : "/image/home/template-picture-franchise-food.png"
+                          }
+                          alt={franchise.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>{" "}
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between mb-1">
+                        <CardTitle className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1 pr-2">
+                          {franchise.name}
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-6 h-6 p-0 hover:bg-gray-100 flex-shrink-0"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          <Bookmark className={`w-4 h-4 text-gray-400 `} />
+                        </Button>
+                      </div>
+                      <CardDescription className="text-xs text-gray-500 mb-2">
+                        Mulai dari
+                      </CardDescription>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {formatRupiah(franchise.price)}
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))
           ) : (
             <div className="col-span-2 text-center text-gray-500 text-sm py-8">
               No franchises available
@@ -272,7 +285,7 @@ function HomePage() {
             <div className="text-center text-red-500 text-sm py-8">
               Error loading franchises: {franchiseError?.message}
             </div>
-          ) : filteredFranchises.length > 4 ? (
+          ) : filteredFranchises.length > 4 && !showAllFranchises ? (
             filteredFranchises.slice(4).map((franchise) => (
               <Card
                 key={franchise.id}
@@ -283,18 +296,17 @@ function HomePage() {
                   className="block"
                 >
                   <div className="flex">
-                    <div className="w-20 h-28 bg-gray-200 relative flex-shrink-0 overflow-hidden">
+                    <div className="w-20 h-28 bg-gray-200 relative flex-shrink-0 overflow-hidden rounded-l-lg">
                       {/* Changed from template image to API image */}
                       <Image
                         src={
                           franchise.image
-                            ? `/api/images/${franchise.image}`
+                            ? `${franchise.image}`
                             : "/image/home/template-picture-franchise-food.png"
                         }
                         alt={franchise.name}
-                        width={138}
-                        height={138}
-                        className="object-cover rounded-2xl"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                     <CardContent className="flex-1 p-3">
@@ -328,7 +340,7 @@ function HomePage() {
                             </div>
                           </div>
                           <p className="text-sm font-semibold text-gray-900">
-                            {franchise.price}
+                            {formatRupiah(franchise.price)}
                           </p>
                         </div>
                       </div>
