@@ -22,6 +22,19 @@ export type ListingDocuments = {
   path: string;
 };
 
+export type FundingRequestPayload = {
+  confirmation_status: "WAITING" | "REJECTED" | "ACCEPTED";
+  address: string;
+  phone_number: string;
+  npwp: string;
+  franchise_address: string;
+  ktp: string;
+  foto_diri: string;
+  foto_lokasi: string;
+  mou_franchisor: string;
+  mou_modal: string;
+};
+
 // Main Payload Type
 export type FranchiseUpdatePayload = {
   id: string;
@@ -55,4 +68,12 @@ export type CreateFranchisePayload = {
   materials: string;
   listing_documents: ListingDocuments[];
   listings_highlights: ListingHighlight[];
+};
+
+export type PurchaseFranchisePayload = {
+  purchase_type: "FUNDED" | "PURCHASED";
+  confirmation_status: "WAITING" | "REJECTED" | "ACCEPTED";
+  payment_status: "PAID" | "PROCESSED";
+  paid_at?: Date;
+  funding_request?: FundingRequestPayload;
 };

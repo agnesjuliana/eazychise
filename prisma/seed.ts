@@ -160,6 +160,67 @@ async function seedListingDocuments() {
   }
 }
 
+async function seedFranchisePurchases() {
+  const purchases = parseCSV("prisma/seed/franchise_purchases.csv");
+
+  for (const purchase of purchases) {
+    const exists = await prisma.franchise_purchases.findUnique({
+      where: { id: purchase.id },
+    });
+
+    if (!exists) {
+      await prisma.franchise_purchases.create({
+        data: {
+          id: purchase.id,
+          user_id: purchase.user_id,
+          franchise_id: purchase.franchise_id,
+          purchase_type: purchase.purchase_type,
+          confirmation_status: purchase.confirmation_status,
+          payment_status: purchase.payment_status,
+          paid_at: purchase.paid_at ? new Date(purchase.paid_at) : null,
+        },
+      });
+      console.log(`✅ Created purchase: ${purchase.id}`);
+    } else {
+      console.log(`ℹ️ Skipped existing purchase: ${purchase.id}`);
+    }
+  }
+}
+
+async function seedFundingRequests() {
+  const requests = parseCSV("prisma/seed/funding_request.csv");
+
+  for (const request of requests) {
+    const exists = await prisma.funding_request.findUnique({
+      where: { purchase_id: request.purchase_id },
+    });
+
+    if (!exists) {
+      await prisma.funding_request.create({
+        data: {
+          id: request.id,
+          purchase_id: request.purchase_id,
+          confirmation_status: request.confirmation_status,
+          address: request.address,
+          phone_number: request.phone_number,
+          npwp: request.npwp,
+          franchise_address: request.franchise_address,
+          ktp: request.ktp,
+          foto_diri: request.foto_diri,
+          foto_lokasi: request.foto_lokasi,
+          mou_franchisor: request.mou_franchisor,
+          mou_modal: request.mou_modal,
+        },
+      });
+      console.log(`✅ Created funding request: ${request.purchase_id}`);
+    } else {
+      console.log(
+        `ℹ️ Skipped existing funding request: ${request.purchase_id}`
+      );
+    }
+  }
+}
+
 async function main() {
   await seedUsers();
   await seedProfiles();
@@ -168,6 +229,8 @@ async function main() {
   await seedCategoryFranchise();
   await seedListingsHighlights();
   await seedListingDocuments();
+  await seedFranchisePurchases();
+  await seedFundingRequests();
 }
 
 main()

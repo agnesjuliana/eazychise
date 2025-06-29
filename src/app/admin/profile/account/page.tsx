@@ -181,31 +181,6 @@ function AccountPage() {
                 {userData.name}
               </h2>
               <p className="text-sm text-gray-500 mb-2">{userData.role}</p>
-              <div className="flex items-center space-x-2">
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    userData.status === "active"
-                      ? "bg-green-100 text-green-800"
-                      : userData.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : userData.status === "revisi"
-                      ? "bg-orange-100 text-orange-800"
-                      : userData.status === "rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {userData.status === "active"
-                    ? "Aktif"
-                    : userData.status === "pending"
-                    ? "Pending"
-                    : userData.status === "revisi"
-                    ? "Revisi"
-                    : userData.status === "rejected"
-                    ? "Ditolak"
-                    : userData.status}
-                </span>
-              </div>
             </div>
           </div>
 

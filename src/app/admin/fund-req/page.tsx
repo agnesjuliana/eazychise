@@ -9,46 +9,54 @@ import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
 import withAuth from "@/lib/withAuth";
 
+type FundingWithUser = {
+  id: string;
+  confirmation_status: string;
+  status: "WAITING" | "ACCEPTED" | "REJECTED";
+  purchase: {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      status: string;
+    };
+  };
+};
+
 function AdminApprovePage() {
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [requests, setRequests] = React.useState<FundingWithUser[]>([]);
 
   React.useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/user", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-        const data = await response.json();
-        if (data.status) {
-          setUser(data.data as UserType[]);
-        } else {
-          console.error("Failed to fetch user data:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      } finally {
-        setLoading(false);
+  const fetchRequests = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/funding-request");
+      const data = await res.json();
+      if (data.status) {
+        setRequests(data.data);
+      } else {
+        console.error("Failed to fetch funding request data:", data);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching funding request:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchUser();
-  }, []);
+  fetchRequests();
+}, []);
+
 
   const userRender = React.useMemo(() => {
-    return user
-      .filter((u) => u.role === "FRANCHISEE")
-      .filter((u) => u.status === status || status === "all");
-  }, [user, status]);
+  return requests.filter(
+    (r) => r.purchase?.user && (r.purchase.user.status === status || status === "all")
+  );
+}, [requests, status]);
+
 
   const headerHeight = 162 + 20 + 44 + 16; // header + spacing + status filter
 
@@ -98,42 +106,42 @@ function AdminApprovePage() {
               <p className="text-gray-500">Mengambil data akun...</p>
             </div>
           ) : userRender.length > 0 ? (
-            userRender.map((u) => (
-              <div
-                key={u.id}
+            userRender.map((req) => (
+            <div
+                key={req.id}
                 className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-sm"
-              >
+            >
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-semibold">{u.name}</h3>
+                <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-semibold">{req.purchase.user.name}</h3>
                     <span
-                      className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                        u.status === "WAITING"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : u.status === "ACCEPTED"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                    className={`px-2 py-1 text-xs rounded-full font-semibold ${
+                        req.status === "WAITING"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : req.status === "ACCEPTED"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                     >
-                      {u.status === "WAITING"
+                    {req.status === "WAITING"
                         ? "Pending"
-                        : u.status === "ACCEPTED"
-                        ? "Aktif"
+                        : req.status === "ACCEPTED"
+                        ? "Approved"
                         : "Ditolak"}
                     </span>
-                  </div>
-                  <p className="text-sm text-gray-600">{u.email}</p>
                 </div>
-                <Link href={`/admin/fund-req/${u.id}`}>
-                  <Button
+                <p className="text-sm text-gray-600">{req.purchase.user.email}</p>
+                </div>
+                <Link href={`/admin/fund-req/${req.id}`}>
+                <Button
                     variant="default"
                     size="sm"
                     className="bg-[#EF5A5A] hover:bg-[#c84d4d] active:bg-[#b04545] cursor-pointer text-white"
-                  >
+                >
                     See Request
-                  </Button>
+                </Button>
                 </Link>
-              </div>
+            </div>
             ))
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center">
