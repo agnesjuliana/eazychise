@@ -90,7 +90,7 @@ function TutorialAddPage() {
 
           {/* Tombol kembali yang "mengambang" di atas */}
           <button
-            onClick={() => router.push("/tutorial")}
+            onClick={() => router.back()}
             className="absolute left-6 top-1/2 -translate-y-14 text-white z-10" // Sesuaikan posisi jika perlu
           >
             <ArrowLeft size={30} />
