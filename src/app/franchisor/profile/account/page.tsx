@@ -7,12 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, Edit3, Save, X } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import withAuth from "@/lib/withAuth";
-import CustomUploadFile from "@/components/CustomUploadFile";
-import { FileUploadResult } from "@/utils/fileUtils";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 
 function FranchisorAccountPage() {
   const router = useRouter();
@@ -38,12 +37,6 @@ function FranchisorAccountPage() {
   const [editUserData, setEditUserData] = useState({
     name: "",
     email: "",
-    ktp: "",
-    foto_diri: "",
-  });
-
-  // State for file uploads
-  const [fileNames, setFileNames] = useState({
     ktp: "",
     foto_diri: "",
   });
@@ -128,39 +121,21 @@ function FranchisorAccountPage() {
       foto_diri: userData.detail.foto_diri,
     });
 
-    // Clear file names
-    setFileNames({
-      ktp: "",
-      foto_diri: "",
-    });
-
     setIsEditingProfile(false);
   };
 
-  // File handling functions
-  const handleFileChange =
-    (field: string) => (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        setFileNames((prev) => ({
-          ...prev,
-          [field]: file.name,
-        }));
-      }
-    };
-
-  const handleFileUploadComplete =
-    (field: string) => (result: FileUploadResult) => {
-      if (result.success && result.path) {
-        setEditUserData((prev) => ({
-          ...prev,
-          [field]: result.path,
-        }));
-        toast.success(
-          `${field === "ktp" ? "KTP" : "Foto diri"} berhasil diupload`
-        );
-      }
-    };
+  // Cloudinary upload handlers
+  const handleCloudinaryUpload = (field: string) => (result: CloudinaryUploadResult) => {
+    if (result.secure_url) {
+      setEditUserData((prev) => ({
+        ...prev,
+        [field]: result.secure_url,
+      }));
+      toast.success(
+        `${field === "ktp" ? "KTP" : "Foto diri"} berhasil diupload`
+      );
+    }
+  };
 
   const handleOpenDocument = (url: string) => {
     if (!url) {
@@ -212,11 +187,6 @@ function FranchisorAccountPage() {
       }));
 
       // Clear file names after successful save
-      setFileNames({
-        ktp: "",
-        foto_diri: "",
-      });
-
       setIsEditingProfile(false);
       toast.success("Profil berhasil diperbarui");
     } catch (error) {
@@ -370,14 +340,13 @@ function FranchisorAccountPage() {
                   <Label className="text-xs text-gray-500">KTP</Label>
                   {isEditingProfile ? (
                     <div className="space-y-4">
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="ktp-upload"
                         title="Upload KTP"
-                        onFileChange={handleFileChange("ktp")}
-                        fileName={fileNames.ktp}
-                        onUploadComplete={handleFileUploadComplete("ktp")}
+                        onUploadComplete={handleCloudinaryUpload("ktp")}
                         maxSizeMB={5}
                         acceptedTypes={["png", "jpg", "jpeg", "pdf"]}
+                        currentUrl={editUserData.ktp}
                       />
 
                       {/* Show current KTP image in edit mode */}
@@ -468,14 +437,13 @@ function FranchisorAccountPage() {
                   <Label className="text-xs text-gray-500">Foto Diri</Label>
                   {isEditingProfile ? (
                     <div className="space-y-4">
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="foto-diri-upload"
                         title="Upload Foto Diri"
-                        onFileChange={handleFileChange("foto_diri")}
-                        fileName={fileNames.foto_diri}
-                        onUploadComplete={handleFileUploadComplete("foto_diri")}
+                        onUploadComplete={handleCloudinaryUpload("foto_diri")}
                         maxSizeMB={5}
                         acceptedTypes={["png", "jpg", "jpeg"]}
+                        currentUrl={editUserData.foto_diri}
                       />
 
                       {/* Show current foto_diri image in edit mode */}

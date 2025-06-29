@@ -18,12 +18,11 @@ import {
   Trash,
 } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import withAuth from "@/lib/withAuth";
-import CustomUploadFile from "@/components/CustomUploadFile";
-import { FileUploadResult } from "@/utils/fileUtils";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 
 function FranchisorDocumentsPage() {
   const router = useRouter();
@@ -359,28 +358,16 @@ function FranchisorDocumentsPage() {
     }));
   };
 
-  // File handling functions
-  const handleFileChange =
-    (field: string) => (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        setFileNames((prev) => ({
-          ...prev,
-          [field]: file.name,
-        }));
-      }
-    };
-
-  const handleFileUploadComplete =
-    (field: string) => (result: FileUploadResult) => {
-      if (result.success && result.path) {
+  const handleCloudinaryUpload =
+    (field: string) => (result: CloudinaryUploadResult) => {
+      if (result.secure_url) {
         if (field === "new_listing_document") {
           // Add to new listing documents array
           setNewListingDocs((prev) => [
             ...prev,
             {
-              name: fileNames.new_listing_document,
-              path: result.path as string, // Type assertion since we check for result.path above
+              name: fileNames.new_listing_document || "Document",
+              path: result.secure_url as string,
               type: "document",
             },
           ]);
@@ -393,9 +380,9 @@ function FranchisorDocumentsPage() {
         } else {
           setEditFranchiseData((prev) => ({
             ...prev,
-            [field]: result.path,
+            [field]: result.secure_url,
           }));
-          toast.success(`${field.replace("_", " ")} berhasil diupload`);
+          toast.success(`${field.replace("_", " ").replace(/^\w/, c => c.toUpperCase())} berhasil diupload`);
         }
       }
     };
@@ -548,14 +535,13 @@ function FranchisorDocumentsPage() {
                   {/* Image Upload in Edit Mode */}
                   {isEditingFranchise && (
                     <div className="mt-4">
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="franchise-image"
                         title="Upload Foto Franchise Baru"
-                        onFileChange={handleFileChange("franchise_image")}
-                        fileName={fileNames.franchise_image}
-                        onUploadComplete={handleFileUploadComplete("image")}
+                        onUploadComplete={handleCloudinaryUpload("image")}
                         maxSizeMB={5}
                         acceptedTypes={["png", "jpg", "jpeg"]}
+                        currentUrl={editFranchiseData.image}
                       />
 
                       {/* Show current image info */}
@@ -783,16 +769,13 @@ function FranchisorDocumentsPage() {
                   {isEditingFranchise ? (
                     <div className="space-y-4">
                       {/* Ownership Document Upload */}
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="ownership-document"
                         title="Sertifikat Kepemilikan"
-                        onFileChange={handleFileChange("ownership_document")}
-                        fileName={fileNames.ownership_document}
-                        onUploadComplete={handleFileUploadComplete(
-                          "ownership_document"
-                        )}
+                        onUploadComplete={handleCloudinaryUpload("ownership_document")}
                         maxSizeMB={10}
                         acceptedTypes={["pdf", "png", "jpg", "jpeg"]}
+                        currentUrl={editFranchiseData.ownership_document}
                       />
 
                       {/* Current file display */}
@@ -815,16 +798,13 @@ function FranchisorDocumentsPage() {
                       )}
 
                       {/* Financial Statement Upload */}
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="financial-statement"
                         title="Laporan Keuangan"
-                        onFileChange={handleFileChange("financial_statement")}
-                        fileName={fileNames.financial_statement}
-                        onUploadComplete={handleFileUploadComplete(
-                          "financial_statement"
-                        )}
+                        onUploadComplete={handleCloudinaryUpload("financial_statement")}
                         maxSizeMB={10}
                         acceptedTypes={["pdf", "png", "jpg", "jpeg"]}
+                        currentUrl={editFranchiseData.financial_statement}
                       />
 
                       {/* Current file display */}
@@ -847,14 +827,13 @@ function FranchisorDocumentsPage() {
                       )}
 
                       {/* Proposal Upload */}
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="proposal"
                         title="Proposal"
-                        onFileChange={handleFileChange("proposal")}
-                        fileName={fileNames.proposal}
-                        onUploadComplete={handleFileUploadComplete("proposal")}
+                        onUploadComplete={handleCloudinaryUpload("proposal")}
                         maxSizeMB={10}
                         acceptedTypes={["pdf", "png", "jpg", "jpeg"]}
+                        currentUrl={editFranchiseData.proposal}
                       />
 
                       {/* Current file display */}
@@ -1030,14 +1009,10 @@ function FranchisorDocumentsPage() {
                   {/* Upload new listing document (in edit mode) */}
                   {isEditingFranchise && (
                     <div className="mt-4">
-                      <CustomUploadFile
+                      <CloudinaryUploader
                         id="new-listing-document"
                         title="Upload Dokumen Listing Baru"
-                        onFileChange={handleFileChange("new_listing_document")}
-                        fileName={fileNames.new_listing_document}
-                        onUploadComplete={handleFileUploadComplete(
-                          "new_listing_document"
-                        )}
+                        onUploadComplete={handleCloudinaryUpload("new_listing_document")}
                         maxSizeMB={10}
                         acceptedTypes={[
                           "pdf",

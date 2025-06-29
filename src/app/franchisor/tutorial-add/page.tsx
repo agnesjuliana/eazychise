@@ -1,38 +1,29 @@
 "use client";
 
-import { BackButton } from "@/components/ui/back-button";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import withAuth from "@/lib/withAuth";
+import HeaderPage from "@/components/header";
 import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 import {
   FileUploadResult,
   getUploadedFiles,
-  getUploadedFilePath,
   getSavedFiles,
 } from "@/utils/fileUtils";
 
-import { useState, ChangeEvent } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function TutorialAddPage() {
-  // State untuk menyimpan file dan nama file
-  const [tutorialFile, setTutorialFile] = useState<File | null>(null);
+  const router = useRouter();
+  
+  // State untuk menyimpan nama file dan path upload
   const [tutorialFileName, setTutorialFileName] = useState("");
   const [tutorialUploadPath, setTutorialUploadPath] = useState<string>("");
-  const [guidelineFile, setGuidelineFile] = useState<File | null>(null);
   const [guidelineFileName, setGuidelineFileName] = useState("");
   const [guidelineUploadPath, setGuidelineUploadPath] = useState<string>("");
-
-  const handleFileChange =
-    (setFile: (file: File | null) => void) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        setFile(file);
-      }
-    };
 
   const handleTutorialUploadComplete = (result: FileUploadResult | CloudinaryUploadResult) => {
     if (result.success) {
@@ -58,19 +49,13 @@ function TutorialAddPage() {
     // Get uploaded files dari sessionStorage dan localStorage
     const uploadedFiles = getUploadedFiles();
     const savedFiles = getSavedFiles();
-    const tutorialStoredPath = getUploadedFilePath(tutorialFile?.name || "");
-    const guidelineStoredPath = getUploadedFilePath(guidelineFile?.name || "");
 
     // Data untuk di-submit ke backend
     console.log("Submitting data:", {
-      tutorialFile,
       tutorialFileName,
       tutorialUploadPath,
-      tutorialStoredPath,
-      guidelineFile,
       guidelineFileName,
       guidelineUploadPath,
-      guidelineStoredPath,
       allUploadedFiles: uploadedFiles,
       allSavedFiles: savedFiles,
     });
@@ -84,28 +69,28 @@ function TutorialAddPage() {
   return (
     <div className={`min-h-screen bg-gray-50 flex justify-center`}>
       <div className="w-full max-w-md relative">
-        {/* Header Baru */}
-        <div className="relative">
-          {/* Komponen header utama Anda */}
+        {/* Header */}
+        <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-50 max-w-md mx-auto bg-gray-50 w-full">
           <HeaderPage title="Tambah Tutorial" />
-
-          {/* Tombol kembali yang "mengambang" di atas */}
           <button
             onClick={() => router.back()}
-            className="absolute left-6 top-1/2 -translate-y-14 text-white z-10" // Sesuaikan posisi jika perlu
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
           >
-            <ArrowLeft size={30} />
+            <ArrowLeft className="w-6 h-6" />
           </button>
         </div>
-        {/* Title */}
-        <div className="px-6 pt-4">
-          <h2 className="text-lg font-semibold">Pecel Madiun Bu Ati</h2>
-          <p className="text-xs text-[#6E7E9D]">
-            tambahkan tutorial maupun guideline untuk franchisemu!
-          </p>
-        </div>
-        {/* Form Content */}
-        <main className="p-6 space-y-6">
+        <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
+        
+        <div className="min-h-screen bg-gray-50">
+          {/* Title */}
+          <div className="px-6 pt-4">
+            <h2 className="text-lg font-semibold">Pecel Madiun Bu Ati</h2>
+            <p className="text-xs text-[#6E7E9D]">
+              tambahkan tutorial maupun guideline untuk franchisemu!
+            </p>
+          </div>
+          {/* Form Content */}
+          <main className="p-6 space-y-6">
           {/* Tutorial Section */}
           <div className="space-y-4">
             <CloudinaryUploader
@@ -164,6 +149,7 @@ function TutorialAddPage() {
             </Button>
           </div>
         </main>
+        </div>
       </div>
     </div>
   );

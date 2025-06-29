@@ -3,13 +3,8 @@
 import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
 import withAuth from "@/lib/withAuth";
-import CustomUploadFile from "@/components/CustomUploadFile";
-import {
-  FileUploadResult,
-  getUploadedFiles,
-  getUploadedFilePath,
-  getSavedFiles,
-} from "@/utils/fileUtils";
+import CloudinaryUploader from "@/components/CloudinaryUploader";
+import { CloudinaryUploadResult } from "@/lib/cloudinary";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
@@ -24,10 +19,8 @@ function TutorialEditPage() {
   const tutorialId = params?.id as string;
 
   const [tutorialName, setTutorialName] = useState("");
-  const [tutorialPath, setTutorialPath] = useState("");
   const [originalPath, setOriginalPath] = useState(""); // Store original path
-  const [newFile, setNewFile] = useState<File | null>(null);
-  const [newUploadPath, setNewUploadPath] = useState<string>("");
+  const [newUploadedUrl, setNewUploadedUrl] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -45,12 +38,14 @@ function TutorialEditPage() {
           
           if (tutorial) {
             setTutorialName(tutorial.name);
-            setTutorialPath(tutorial.path);
             setOriginalPath(tutorial.path); // Store original path
           } else {
             alert('Tutorial tidak ditemukan');
             router.push('/franchisor/training');
           }
+        } else {
+          alert('Gagal memuat data tutorial');
+          router.push('/franchisor/training');
         }
       } catch (error) {
         console.error('Error fetching tutorial:', error);
@@ -66,17 +61,10 @@ function TutorialEditPage() {
     }
   }, [tutorialId, router]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setNewFile(file);
-    }
-  };
-
-  const handleUploadComplete = (result: FileUploadResult) => {
-    if (result.success && result.path) {
-      setNewUploadPath(result.path);
-      console.log("New file uploaded to:", result.path);
+  const handleCloudinaryUpload = (result: CloudinaryUploadResult) => {
+    if (result.secure_url) {
+      setNewUploadedUrl(result.secure_url);
+      console.log("New file uploaded to Cloudinary:", result.secure_url);
     }
   };
 
@@ -92,15 +80,9 @@ function TutorialEditPage() {
       // Determine which path to use
       let finalPath = originalPath; // Default to original path
       
-      // If new file was uploaded, use the uploaded path
-      if (newUploadPath) {
-        finalPath = newUploadPath;
-      } else if (newFile) {
-        // If file selected but not uploaded yet, try to get from storage
-        const storedPath = getUploadedFilePath(newFile.name);
-        if (storedPath) {
-          finalPath = storedPath;
-        }
+      // If new file was uploaded to Cloudinary, use the new URL
+      if (newUploadedUrl) {
+        finalPath = newUploadedUrl;
       }
 
       const response = await fetch(`/api/tutorials/${tutorialId}`, {
@@ -241,18 +223,16 @@ function TutorialEditPage() {
                 <div>
                   <Label className="font-semibold">Upload File Baru (Opsional)</Label>
                   <div className="mt-1">
-                    <CustomUploadFile
+                    <CloudinaryUploader
                       id="tutorial-upload"
                       title="Upload Tutorial Baru"
-                      onFileChange={handleFileChange}
-                      fileName={newFile?.name || null}
-                      onUploadComplete={handleUploadComplete}
-                      maxSizeMB={15}
+                      onUploadComplete={handleCloudinaryUpload}
                       acceptedTypes={["pdf", "docx"]}
+                      maxSizeMB={15}
                     />
-                    {newUploadPath && (
+                    {newUploadedUrl && (
                       <p className="text-green-600 text-xs mt-2">
-                        ✅ File baru berhasil diupload: {newUploadPath}
+                        ✅ File baru berhasil diupload
                       </p>
                     )}
                     <p className="text-xs text-gray-500 mt-1">

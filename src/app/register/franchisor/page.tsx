@@ -232,6 +232,7 @@ function FranchisorRegisterPage() {
         materials: formData.materials,
         listing_highlights: highlights,
         listing_documents: documents,
+        status: ""
       },
     };
 
