@@ -253,10 +253,13 @@ function FranchisorAccountPage() {
 
   return (
     <FranchisorLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <HeaderPage title="PROFIL FRANCHISOR" />
-
+      {/* Fixed Header */}
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
+        <HeaderPage title="AKUN" />
+      </div>
+      {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
+      <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
+      <div className=" bg-gray-50">
         {/* Back Button */}
         <div className="w-full px-4 mt-4">
           <Button
