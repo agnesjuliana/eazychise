@@ -492,22 +492,19 @@ function FranchisorDocumentsPage() {
 
   return (
     <FranchisorLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+      {/* Header */}
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-50 max-w-md mx-auto bg-gray-50 w-full">
         <HeaderPage title="DOKUMEN FRANCHISE" />
-
-        {/* Back Button */}
-        <div className="w-full px-4 mt-4">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Kembali</span>
-          </Button>
-        </div>
-
+        <button
+          onClick={() => router.back()}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+      </div>
+      {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
+      <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
+      <div className="min-h-screen bg-gray-50">
         {/* Franchise Documents Content */}
         <div className="px-4 mt-4 space-y-6 pb-6">
           {/* Franchise Information */}

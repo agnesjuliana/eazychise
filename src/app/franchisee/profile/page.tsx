@@ -2,7 +2,6 @@
 
 import AppLayout from "@/components/app-layout";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/ui/back-button";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +12,18 @@ import {
 } from "@/components/ui/dialog";
 import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
 import withAuth from "@/lib/withAuth";
-import { callLogoutAPI, showSuccessToast, showErrorToast } from "@/lib/authUtils";
+import {
+  callLogoutAPI,
+  showSuccessToast,
+  showErrorToast,
+} from "@/lib/authUtils";
 import useAuthStore from "@/store/authStore";
 
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import HeaderPage from "@/components/header";
 
 function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -80,23 +84,22 @@ function ProfilePage() {
   }, [router]);
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    
+
     try {
       // Update store immediately for instant UI feedback
       logout();
-      
+
       // Show success toast immediately
       showSuccessToast("Berhasil logout");
-      
+
       // Close dialog
       setLogoutDialogOpen(false);
 
       // Call logout API in background (non-blocking)
       callLogoutAPI().catch(console.warn);
-      
+
       // Redirect immediately without delay
       router.replace("/login");
-      
     } catch (error) {
       showErrorToast("Gagal logout");
       console.error("Logout error:", error);
@@ -138,50 +141,14 @@ function ProfilePage() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Custom Header dengan Back Button Integrated */}
-        <div className="bg-[#EF5A5A] h-[162px] w-full relative rounded-b-[10px] flex items-center justify-center">
-          {/* Back Button di dalam header */}
-          <div className="absolute left-4 top-4">
-            <BackButton fallbackUrl="/franchisee/home" variant="ghost" size="sm" className="text-white hover:bg-white/20 border-white/30" />
-          </div>
-          
-          {/* Cloud decorations */}
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute -top-[20px] left-[80px]"
-          />
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute bottom-[45px] left-[0px]"
-          />
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute top-[20px] -right-[40px]"
-          />
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute bottom-[10px] right-[40px]"
-          />
-          
-          {/* Title */}
-          <h2 className="text-center text-white text-[24px] font-semibold font-poppins mt-4">
-            PROFILE
-          </h2>
-        </div>
+      {/* Fixed Header */}
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
+        <HeaderPage title="PROFILE" />
+      </div>
 
+      {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
+      <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
+      <div className="bg-gray-50">
         {/* Profile Content */}
         <div className="px-4 -mt-6 relative z-10 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}

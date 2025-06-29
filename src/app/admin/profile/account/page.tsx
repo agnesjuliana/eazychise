@@ -1,6 +1,5 @@
 "use client";
 
-import AppLayout from "@/components/app-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import withAuth from "@/lib/withAuth";
+import AdminLayout from "@/components/admin-layout";
 
 function AccountPage() {
   const router = useRouter();
@@ -131,7 +131,7 @@ function AccountPage() {
 
   if (loading) {
     return (
-      <AppLayout>
+      <AdminLayout>
         <div className="min-h-screen bg-gray-50">
           <HeaderPage title="AKUN" />
           <div className="flex items-center justify-center h-64">
@@ -141,16 +141,19 @@ function AccountPage() {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </AdminLayout>
     );
   }
 
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+    <AdminLayout>
+      {/* Fixed Header */}
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
         <HeaderPage title="AKUN" />
-
+      </div>
+      {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
+      <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
+      <div className=" bg-gray-50">
         {/* Back Button */}
         <div className="w-full px-4 mt-4">
           <Button
@@ -275,7 +278,7 @@ function AccountPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </AdminLayout>
   );
 }
 
