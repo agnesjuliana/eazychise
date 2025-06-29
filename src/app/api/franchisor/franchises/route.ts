@@ -15,7 +15,7 @@ export async function GET() {
   }
 
   try {
-    const franchise = await prisma.franchise_listings.findFirst({
+    const franchises = await prisma.franchise_listings.findMany({
       where: {
         franchisor_id: auth.user.id,
       },
@@ -38,17 +38,10 @@ export async function GET() {
       },
     });
 
-    if (!franchise) {
-      return NextResponse.json(
-        formatError({ message: "Franchise not found" }),
-        { status: 404 }
-      );
-    }
-
     return NextResponse.json(
       formatResponse({
-        message: "Success get franchise",
-        data: franchise,
+        message: "Success get franchises",
+        data: franchises,
       }),
       { status: 200 }
     );

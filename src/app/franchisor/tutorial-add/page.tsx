@@ -78,47 +78,18 @@ function TutorialAddPage() {
   return (
     <div className={`min-h-screen bg-gray-50 flex justify-center`}>
       <div className="w-full max-w-md relative">
-        {/* Custom Header dengan Back Button Integrated */}
-        <div className="bg-[#EF5A5A] h-[162px] w-full relative rounded-b-[10px] flex items-center justify-center">
-          {/* Back Button di dalam header */}
-          <div className="absolute left-4 top-4">
-            <BackButton fallbackUrl="/franchisor/home" variant="ghost" size="sm" className="text-white hover:bg-white/20 border-white/30" />
-          </div>
-          
-          {/* Cloud decorations */}
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute -top-[20px] left-[80px]"
-          />
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute bottom-[45px] left-[0px]"
-          />
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute top-[20px] -right-[40px]"
-          />
-          <Image
-            src="/image/cloud.png"
-            alt="Cloud Element"
-            width={62}
-            height={41}
-            className="absolute bottom-[10px] right-[40px]"
-          />
-          
-          {/* Title */}
-          <h2 className="text-center text-white text-[24px] font-semibold font-poppins mt-4">
-            Tambah Tutorial
-          </h2>
+        {/* Header Baru */}
+        <div className="relative">
+          {/* Komponen header utama Anda */}
+          <HeaderPage title="Tambah Tutorial" />
+
+          {/* Tombol kembali yang "mengambang" di atas */}
+          <button
+            onClick={() => router.back()}
+            className="absolute left-6 top-1/2 -translate-y-14 text-white z-10" // Sesuaikan posisi jika perlu
+          >
+            <ArrowLeft size={30} />
+          </button>
         </div>
         {/* Title */}
         <div className="px-6 pt-4">
