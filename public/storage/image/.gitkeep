@@ -1,0 +1,2 @@
+# This file ensures the image storage directory is included in git
+# Uploaded image files will be stored here

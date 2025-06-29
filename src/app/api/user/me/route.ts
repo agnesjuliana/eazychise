@@ -76,6 +76,7 @@ export async function GET() {
               id: true,
               type: true,
               name: true,
+              path: true,
             },
           },
           listings_highlights: {
@@ -240,7 +241,6 @@ export async function PUT(request: Request) {
             { status: 400 }
           );
         }
-
         updatedDetail = await prisma.franchisor_profiles.create({
           data: {
             user: {

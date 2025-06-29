@@ -1,41 +1,41 @@
 id,id_franchise,type,name,path
-f0d9a17a-94d3-42c2-9f7c-0e31e47cb712,5fd1c64a-b511-427a-9c54-c35888c499f4,PENDUKUNG,Brosur Ayam Geprek,brosur_ayam_geprek.pdf
-f0c76319-0992-4b7a-8ae1-09e2e5e9e7c4,5fd1c64a-b511-427a-9c54-c35888c499f4,GUIDELINES,Manual Ayam Geprek,manual_ayam_geprek.pdf
-ee3a89e9-0329-4f1e-8492-00bb2e8106b0,61986c4b-65c5-4123-b6db-b1ee95ebb104,PENDUKUNG,Brosur Bakso Beranak,brosur_bakso.pdf
-a5e99a6e-41c1-4e64-b344-3e51e1108ec0,61986c4b-65c5-4123-b6db-b1ee95ebb104,GUIDELINES,Manual Bakso Beranak,manual_bakso.pdf
-b0d570f3-f729-4a45-a57c-bb093dc26f63,932840ef-0174-4f41-90cc-3032c97f9194,PENDUKUNG,Brosur Kopi Keren,brosur_kopi.pdf
-ef91f7e9-502f-456d-b68e-786ad70a23e6,932840ef-0174-4f41-90cc-3032c97f9194,GUIDELINES,Manual Kopi Keren,manual_kopi.pdf
-76e3cccf-9c80-41b6-81c0-bc9c2df3d5f6,04244c54-dbea-4ec9-bbad-2f5f099efb8a,PENDUKUNG,Brosur Teh Manis,brosur_teh.pdf
-6b87e52c-ff1e-45a2-854f-030fe58570a6,04244c54-dbea-4ec9-bbad-2f5f099efb8a,GUIDELINES,Manual Teh Manis,manual_teh.pdf
-edb013c1-cf76-4dcb-8513-d38e8b99cf9e,1fc8e7d1-0697-4dcd-bc3b-47b945494fe9,PENDUKUNG,Brosur Pizza Mini,brosur_pizza.pdf
-c1813023-9461-4de8-b8be-cc2b46ae8452,1fc8e7d1-0697-4dcd-bc3b-47b945494fe9,GUIDELINES,Manual Pizza Mini,manual_pizza.pdf
-351d4341-c78d-4995-bab0-1bbd06b26f29,d7862ac8-64b6-47b6-848d-bf8ff2780c51,PENDUKUNG,Brosur Roti Bakar,brosur_roti.pdf
-ff4441c2-bbfd-470f-850e-4cf4c6b60126,d7862ac8-64b6-47b6-848d-bf8ff2780c51,GUIDELINES,Manual Roti Bakar,manual_roti.pdf
-99140b4c-2f2e-4cf8-a4c3-d0040c2a38bb,ba6b5728-26df-419b-a638-57c1783c6abb,PENDUKUNG,Brosur Dimsum,brosur_dimsum.pdf
-b6c4982f-44e0-4d35-b540-d9f5575271c6,ba6b5728-26df-419b-a638-57c1783c6abb,GUIDELINES,Manual Dimsum,manual_dimsum.pdf
-d90f135b-2184-4c10-b5ec-39e2140cf243,81e06ca3-ef8b-4a72-9d1d-0324fd381a71,PENDUKUNG,Brosur Es Krim,brosur_eskrim.pdf
-a7fc705f-3c32-4a2e-96ed-b57b9e9cf04a,81e06ca3-ef8b-4a72-9d1d-0324fd381a71,GUIDELINES,Manual Es Krim,manual_eskrim.pdf
-72b1f979-5a1c-4cfd-a820-999fc0dd4e6b,cdd78575-88ff-4a65-9f79-e8b1df513684,PENDUKUNG,Brosur Martabak,brosur_martabak.pdf
-578c8138-df09-4631-a01d-f5d1f902d010,cdd78575-88ff-4a65-9f79-e8b1df513684,GUIDELINES,Manual Martabak,manual_martabak.pdf
-b2c04b3f-6f4e-41ff-8f03-cfe0be66e014,aa74012b-9cf9-4a25-82ae-6bc93259b2b8,PENDUKUNG,Brosur Nasi Goreng,brosur_nasgor.pdf
-643187b6-c300-4e18-9db7-43f3fc943469,aa74012b-9cf9-4a25-82ae-6bc93259b2b8,GUIDELINES,Manual Nasi Goreng,manual_nasgor.pdf
-8d5c9ba4-92e1-44dc-8731-1aa0b83f227b,34adc732-7b08-47dd-a5d6-388aaf9f14ce,PENDUKUNG,Brosur Mie Pedas Gila,brosur_mie.pdf
-71cc0736-f187-42ee-a8f5-ef060a8dfb4f,34adc732-7b08-47dd-a5d6-388aaf9f14ce,GUIDELINES,Manual Mie Pedas Gila,manual_mie.pdf
-4980e4d9-9c1c-4b02-9f96-002a2904bc3e,c172fcb1-d209-4191-8d99-4d48cd9c2e98,PENDUKUNG,Brosur Sate Taichan,brosur_sate.pdf
-ef6b6547-b0a1-47b3-8c53-5036bc41524e,c172fcb1-d209-4191-8d99-4d48cd9c2e98,GUIDELINES,Manual Sate Taichan,manual_sate.pdf
-012ea328-5d99-4c8d-bb60-4935fc0870cb,a7598986-9fe8-4e80-b8f9-90ad3b9b633b,PENDUKUNG,Brosur Burger Lokal,brosur_burger.pdf
-fc7284e3-dae6-4a60-b775-dde215a14314,a7598986-9fe8-4e80-b8f9-90ad3b9b633b,GUIDELINES,Manual Burger Lokal,manual_burger.pdf
-96d78790-5e71-4f62-8c8c-478f0f643161,37355f8c-0aa2-4b01-9fb8-1d262a9d6fc1,PENDUKUNG,Brosur Kebab Turki,brosur_kebab.pdf
-190c3659-c1e1-4e3f-8a36-7cc51a238d5c,37355f8c-0aa2-4b01-9fb8-1d262a9d6fc1,GUIDELINES,Manual Kebab Turki,manual_kebab.pdf
-ad349b42-2d70-4236-9c7a-ef6f3efb82dc,21f6b229-d4ea-412d-b326-41c4a5625348,PENDUKUNG,Brosur Susu Murni Bar,brosur_susu.pdf
-d973f9c4-2a7f-4b83-a598-81b7edfd489e,21f6b229-d4ea-412d-b326-41c4a5625348,GUIDELINES,Manual Susu Murni Bar,manual_susu.pdf
-e0321c6c-b330-40df-9989-62e84f9aa8f6,73fd53c4-3ba5-4a6e-b66b-7597772c6f83,PENDUKUNG,Brosur Pempek Palembang,brosur_pempek.pdf
-4e9b3672-8504-46dc-ae36-bb0ec6c33d2f,73fd53c4-3ba5-4a6e-b66b-7597772c6f83,GUIDELINES,Manual Pempek Palembang,manual_pempek.pdf
-6a4c6603-6d85-4b2a-b33e-82067b0aa317,4da11120-0a16-492a-97eb-b67b08df6f94,PENDUKUNG,Brosur Sop Duren Banget,brosur_sop.pdf
-d7892a40-5c89-47fa-98e4-69d2f1a22b57,4da11120-0a16-492a-97eb-b67b08df6f94,GUIDELINES,Manual Sop Duren Banget,manual_sop.pdf
-3e92e3ec-5d62-4d0e-9b26-8b6b4e08edb4,6e2559f1-af72-4672-95b0-fd7cb1a51e85,PENDUKUNG,Brosur Spaghetti Asik,brosur_spaghetti.pdf
-05a9183a-65eb-43a1-9142-739fbba21c41,6e2559f1-af72-4672-95b0-fd7cb1a51e85,GUIDELINES,Manual Spaghetti Asik,manual_spaghetti.pdf
-86f416b7-bcbc-43e4-bf84-3104053dfc84,6d2be7c4-75e9-4acd-a704-25b9eb69d94a,PENDUKUNG,Brosur Ayam Bakar Cinta,brosur_ayam.pdf
-14aa343e-4bb4-4235-9f3f-18368e84b64b,6d2be7c4-75e9-4acd-a704-25b9eb69d94a,GUIDELINES,Manual Ayam Bakar Cinta,manual_ayam.pdf
-9be685bd-1e6f-40c7-982f-1ec0b9d0e529,9f38441e-9465-46d1-a135-3466bfead275,PENDUKUNG,Brosur Tahu Crispy,brosur_tahu.pdf
-b3a7e6a9-4769-4fc0-b13b-4ff4b1818ac1,9f38441e-9465-46d1-a135-3466bfead275,GUIDELINES,Manual Tahu Crispy,manual_tahu.pdf
+f0d9a17a-94d3-42c2-9f7c-0e31e47cb712,5fd1c64a-b511-427a-9c54-c35888c499f4,PENDUKUNG,Brosur Ayam Geprek,/files/dummy/dummy.pdf
+f0c76319-0992-4b7a-8ae1-09e2e5e9e7c4,5fd1c64a-b511-427a-9c54-c35888c499f4,GUIDELINES,Manual Ayam Geprek,/files/dummy/dummy.pdf
+ee3a89e9-0329-4f1e-8492-00bb2e8106b0,61986c4b-65c5-4123-b6db-b1ee95ebb104,PENDUKUNG,Brosur Bakso Beranak,/files/dummy/dummy.pdf
+a5e99a6e-41c1-4e64-b344-3e51e1108ec0,61986c4b-65c5-4123-b6db-b1ee95ebb104,GUIDELINES,Manual Bakso Beranak,/files/dummy/dummy.pdf
+b0d570f3-f729-4a45-a57c-bb093dc26f63,932840ef-0174-4f41-90cc-3032c97f9194,PENDUKUNG,Brosur Kopi Keren,/files/dummy/dummy.pdf
+ef91f7e9-502f-456d-b68e-786ad70a23e6,932840ef-0174-4f41-90cc-3032c97f9194,GUIDELINES,Manual Kopi Keren,/files/dummy/dummy.pdf
+76e3cccf-9c80-41b6-81c0-bc9c2df3d5f6,04244c54-dbea-4ec9-bbad-2f5f099efb8a,PENDUKUNG,Brosur Teh Manis,/files/dummy/dummy.pdf
+6b87e52c-ff1e-45a2-854f-030fe58570a6,04244c54-dbea-4ec9-bbad-2f5f099efb8a,GUIDELINES,Manual Teh Manis,/files/dummy/dummy.pdf
+edb013c1-cf76-4dcb-8513-d38e8b99cf9e,1fc8e7d1-0697-4dcd-bc3b-47b945494fe9,PENDUKUNG,Brosur Pizza Mini,/files/dummy/dummy.pdf
+c1813023-9461-4de8-b8be-cc2b46ae8452,1fc8e7d1-0697-4dcd-bc3b-47b945494fe9,GUIDELINES,Manual Pizza Mini,/files/dummy/dummy.pdf
+351d4341-c78d-4995-bab0-1bbd06b26f29,d7862ac8-64b6-47b6-848d-bf8ff2780c51,PENDUKUNG,Brosur Roti Bakar,/files/dummy/dummy.pdf
+ff4441c2-bbfd-470f-850e-4cf4c6b60126,d7862ac8-64b6-47b6-848d-bf8ff2780c51,GUIDELINES,Manual Roti Bakar,/files/dummy/dummy.pdf
+99140b4c-2f2e-4cf8-a4c3-d0040c2a38bb,ba6b5728-26df-419b-a638-57c1783c6abb,PENDUKUNG,Brosur Dimsum,/files/dummy/dummy.pdf
+b6c4982f-44e0-4d35-b540-d9f5575271c6,ba6b5728-26df-419b-a638-57c1783c6abb,GUIDELINES,Manual Dimsum,/files/dummy/dummy.pdf
+d90f135b-2184-4c10-b5ec-39e2140cf243,81e06ca3-ef8b-4a72-9d1d-0324fd381a71,PENDUKUNG,Brosur Es Krim,/files/dummy/dummy.pdf
+a7fc705f-3c32-4a2e-96ed-b57b9e9cf04a,81e06ca3-ef8b-4a72-9d1d-0324fd381a71,GUIDELINES,Manual Es Krim,/files/dummy/dummy.pdf
+72b1f979-5a1c-4cfd-a820-999fc0dd4e6b,cdd78575-88ff-4a65-9f79-e8b1df513684,PENDUKUNG,Brosur Martabak,/files/dummy/dummy.pdf
+578c8138-df09-4631-a01d-f5d1f902d010,cdd78575-88ff-4a65-9f79-e8b1df513684,GUIDELINES,Manual Martabak,/files/dummy/dummy.pdf
+b2c04b3f-6f4e-41ff-8f03-cfe0be66e014,aa74012b-9cf9-4a25-82ae-6bc93259b2b8,PENDUKUNG,Brosur Nasi Goreng,/files/dummy/dummy.pdf
+643187b6-c300-4e18-9db7-43f3fc943469,aa74012b-9cf9-4a25-82ae-6bc93259b2b8,GUIDELINES,Manual Nasi Goreng,/files/dummy/dummy.pdf
+8d5c9ba4-92e1-44dc-8731-1aa0b83f227b,34adc732-7b08-47dd-a5d6-388aaf9f14ce,PENDUKUNG,Brosur Mie Pedas Gila,/files/dummy/dummy.pdf
+71cc0736-f187-42ee-a8f5-ef060a8dfb4f,34adc732-7b08-47dd-a5d6-388aaf9f14ce,GUIDELINES,Manual Mie Pedas Gila,/files/dummy/dummy.pdf
+4980e4d9-9c1c-4b02-9f96-002a2904bc3e,c172fcb1-d209-4191-8d99-4d48cd9c2e98,PENDUKUNG,Brosur Sate Taichan,/files/dummy/dummy.pdf
+ef6b6547-b0a1-47b3-8c53-5036bc41524e,c172fcb1-d209-4191-8d99-4d48cd9c2e98,GUIDELINES,Manual Sate Taichan,/files/dummy/dummy.pdf
+012ea328-5d99-4c8d-bb60-4935fc0870cb,a7598986-9fe8-4e80-b8f9-90ad3b9b633b,PENDUKUNG,Brosur Burger Lokal,/files/dummy/dummy.pdf
+fc7284e3-dae6-4a60-b775-dde215a14314,a7598986-9fe8-4e80-b8f9-90ad3b9b633b,GUIDELINES,Manual Burger Lokal,/files/dummy/dummy.pdf
+96d78790-5e71-4f62-8c8c-478f0f643161,37355f8c-0aa2-4b01-9fb8-1d262a9d6fc1,PENDUKUNG,Brosur Kebab Turki,/files/dummy/dummy.pdf
+190c3659-c1e1-4e3f-8a36-7cc51a238d5c,37355f8c-0aa2-4b01-9fb8-1d262a9d6fc1,GUIDELINES,Manual Kebab Turki,/files/dummy/dummy.pdf
+ad349b42-2d70-4236-9c7a-ef6f3efb82dc,21f6b229-d4ea-412d-b326-41c4a5625348,PENDUKUNG,Brosur Susu Murni Bar,/files/dummy/dummy.pdf
+d973f9c4-2a7f-4b83-a598-81b7edfd489e,21f6b229-d4ea-412d-b326-41c4a5625348,GUIDELINES,Manual Susu Murni Bar,/files/dummy/dummy.pdf
+e0321c6c-b330-40df-9989-62e84f9aa8f6,73fd53c4-3ba5-4a6e-b66b-7597772c6f83,PENDUKUNG,Brosur Pempek Palembang,/files/dummy/dummy.pdf
+4e9b3672-8504-46dc-ae36-bb0ec6c33d2f,73fd53c4-3ba5-4a6e-b66b-7597772c6f83,GUIDELINES,Manual Pempek Palembang,/files/dummy/dummy.pdf
+6a4c6603-6d85-4b2a-b33e-82067b0aa317,4da11120-0a16-492a-97eb-b67b08df6f94,PENDUKUNG,Brosur Sop Duren Banget,/files/dummy/dummy.pdf
+d7892a40-5c89-47fa-98e4-69d2f1a22b57,4da11120-0a16-492a-97eb-b67b08df6f94,GUIDELINES,Manual Sop Duren Banget,/files/dummy/dummy.pdf
+3e92e3ec-5d62-4d0e-9b26-8b6b4e08edb4,6e2559f1-af72-4672-95b0-fd7cb1a51e85,PENDUKUNG,Brosur Spaghetti Asik,/files/dummy/dummy.pdf
+05a9183a-65eb-43a1-9142-739fbba21c41,6e2559f1-af72-4672-95b0-fd7cb1a51e85,GUIDELINES,Manual Spaghetti Asik,/files/dummy/dummy.pdf
+86f416b7-bcbc-43e4-bf84-3104053dfc84,6d2be7c4-75e9-4acd-a704-25b9eb69d94a,PENDUKUNG,Brosur Ayam Bakar Cinta,/files/dummy/dummy.pdf
+14aa343e-4bb4-4235-9f3f-18368e84b64b,6d2be7c4-75e9-4acd-a704-25b9eb69d94a,GUIDELINES,Manual Ayam Bakar Cinta,/files/dummy/dummy.pdf
+9be685bd-1e6f-40c7-982f-1ec0b9d0e529,9f38441e-9465-46d1-a135-3466bfead275,PENDUKUNG,Brosur Tahu Crispy,/files/dummy/dummy.pdf
+b3a7e6a9-4769-4fc0-b13b-4ff4b1818ac1,9f38441e-9465-46d1-a135-3466bfead275,GUIDELINES,Manual Tahu Crispy,/files/dummy/dummy.pdf
