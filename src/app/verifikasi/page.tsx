@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -47,6 +48,11 @@ function VerifikasiPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 py-10">
       <Card className="w-full max-w-sm text-center p-6 shadow-xl space-y-3 rounded-2xl border border-gray-200">
+        {/* Back Button di dalam card */}
+        <div className="flex justify-start mb-2">
+          <BackButton fallbackUrl="/login" variant="ghost" size="sm" />
+        </div>
+
         <div className="flex justify-center">
           <Image
             src="/image/auth/verifikasi.png"

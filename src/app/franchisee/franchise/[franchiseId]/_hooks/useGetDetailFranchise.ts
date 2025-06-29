@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // Types based on the API route structure
 interface FundingRequest {
@@ -74,82 +74,68 @@ interface FranchisePurchase {
 interface FranchiseDetailResponse {
   status: boolean;
   message: string;
-  data: FranchisePurchase;
+  data: Franchise; // Changed to Franchise since API returns franchise directly
 }
 
-interface UseQueryResult<T> {
-  data: T | undefined;
-  isLoading: boolean;
-  isError: boolean;
-  error: Error | null;
-  refetch: () => Promise<void>;
-}
-
-export const useGetDetailFranchise = (
-  franchiseId: string
-): UseQueryResult<Franchise> => {
-  const [data, setData] = useState<Franchise | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+// Custom hook that mimics useQuery behavior
+export const useGetDetailFranchise = (franchiseId: string) => {
+  const [data, setData] = useState<Franchise | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isError, setIsError] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchFranchiseDetail = async () => {
+  const fetchFranchiseDetail = useCallback(async () => {
+    if (!franchiseId) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setIsError(false);
       setError(null);
 
-      const url = `/api/franchises/${franchiseId}`;
+      const response = await axios.get<FranchiseDetailResponse>(
+        `/api/franchises/${franchiseId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await axios.get(url, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-control": "no-cache",
-          Pragma: "no-cache",
-        },
-      });
-
-      const result = response.data;
-
-      // Based on the debug output, the API returns the franchise data directly
-      if (result) {
-        setData(result);
+      // The API returns { status, message, data } where data contains the franchise
+      if (response.data.status && response.data.data) {
+        setData(response.data.data);
       } else {
-        throw new Error("Failed to fetch franchise detail");
+        throw new Error(
+          response.data.message || "Failed to fetch franchise details"
+        );
       }
     } catch (err) {
+      console.error("Error fetching franchise detail:", err);
       setIsError(true);
-      if (axios.isAxiosError(err)) {
-        setError(
-          new Error(
-            `Failed to fetch franchise detail: ${
-              err.response?.status || err.message
-            }`
-          )
-        );
-      } else {
-        setError(err instanceof Error ? err : new Error("Unknown error"));
-      }
-      setData(undefined);
+      setError(
+        err instanceof Error ? err : new Error("Unknown error occurred")
+      );
+      setData(null);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (franchiseId) {
-      fetchFranchiseDetail();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [franchiseId]);
 
+  // Fetch data when component mounts or franchiseId changes
+  useEffect(() => {
+    fetchFranchiseDetail();
+  }, [fetchFranchiseDetail]);
+
+  // Return object similar to useQuery
   return {
     data,
     isLoading,
     isError,
     error,
-    refetch: fetchFranchiseDetail,
+    refetch: fetchFranchiseDetail, // Allows manual refetch
   };
 };
 

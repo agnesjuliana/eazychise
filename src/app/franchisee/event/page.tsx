@@ -8,13 +8,13 @@ import HeaderPage from '@/components/header';
 import Image from 'next/image';
 import "react-day-picker/style.css";
 import { id } from 'date-fns/locale';
-import { Event } from '@/type/event';
+import { EventPayload } from '@/type/events';
 import { Loader2, Calendar } from 'lucide-react';
 
 function EventPage() {
   const [mounted, setMounted] = React.useState(false)
   const [today, setToday] = React.useState<Date | null>(null)
-  const [events, setEvents] = React.useState<Event[]>([]);
+  const [events, setEvents] = React.useState<EventPayload[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [eventDates, setEventDates] = React.useState<Date[]>([]);
   const [currentMonth, setCurrentMonth] = React.useState<Date>(new Date());
@@ -37,7 +37,7 @@ function EventPage() {
       // API returns status or success flag
       if (res.ok && (data.success || data.status)) {
         setEvents(data.data || []);
-        setEventDates((data.data || []).map((e: Event) => new Date(e.datetime)));
+        setEventDates((data.data || []).map((e: EventPayload) => new Date(e.datetime)));
       } else {
         console.error('Failed to fetch events:', data);
       }
@@ -49,16 +49,25 @@ function EventPage() {
   }
   
   // Utility formatters
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const formatDate = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   };
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const formatTime = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   };
-  const formatPrice = (price: number) => {
-    return price === 0 ? 'Gratis' : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+  const formatPrice = (price: string | number) => {
+    const priceNumber = typeof price === 'string' ? Number(price) : price;
+    return priceNumber === 0 ? 'Gratis' : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(priceNumber);
+  };
+
+  const getImageSrc = (imagePath: string) => {
+    if (!imagePath) return '/images/placeholder.png';
+    if (imagePath.startsWith('http') || imagePath.startsWith('/images/') || imagePath.startsWith('/storage/')) {
+      return imagePath;
+    }
+    return `/storage/image/${imagePath}`;
   };
 
   // update currentMonth when calendar month changes
@@ -294,45 +303,59 @@ function EventPage() {
         </div>
         </div>
 
-        {/* Events List - filtered by currentMonth */}
-        <div className='mx-4 space-y-4'>
+        {/* Events List - Simple card layout like admin */}
+        <div className='mx-4 space-y-3'>
           {loading ? (
             <div className="flex justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A]" />
             </div>
           ) : filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => (
-              <div key={event.id} className='bg-white rounded-lg p-4 flex items-center space-x-4 shadow-sm'>
-                {/* Event Image */}
-                <div className='w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden'>
-                  <Image
-                    src={event.image}
-                    alt={event.name}
-                    width={80}
-                    height={64}
-                    className='w-full h-full object-cover'
-                    onError={(e) => {
-                      // Fallback to gradient if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      target.nextElementSibling?.classList.remove('hidden');
-                    }}
-                  />
-                  {/* Fallback gradient */}
-                  <div className='w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden'>
-                    <span className='text-white font-bold text-lg'>
-                      {event.name.charAt(0)}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Event Details */}
-                <div className='flex-1 min-w-0'>
-                  <div className='flex items-start justify-between mb-2'>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Event Bulan Ini ({filteredEvents.length})
+              </h3>
+              {filteredEvents.map((event, index) => (
+                <div 
+                  key={event.id ?? index} 
+                  className='bg-white rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow'
+                  onClick={() => {
+                    // Open event image or details
+                    if (event.image) {
+                      window.open(getImageSrc(event.image), '_blank');
+                    }
+                  }}
+                >
+                  <div className="flex items-start space-x-4">
+                    {/* Event Image */}
+                    <div className='w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden'>
+                      <Image
+                        src={getImageSrc(event.image)}
+                        alt={event.name}
+                        width={80}
+                        height={64}
+                        className='w-full h-full object-cover'
+                        onError={(e) => {
+                          // Fallback to gradient if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                      {/* Fallback gradient */}
+                      <div className='w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden'>
+                        <span className='text-white font-bold text-lg'>
+                          {event.name.charAt(0)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Event Details */}
                     <div className='flex-1 min-w-0'>
                       <div className='flex items-center space-x-2 text-xs text-gray-500 mb-1'>
                         <Calendar className="w-3 h-3" />
-                        <span className='text-[#EF5A5A] font-medium'>{formatDate(event.datetime)}</span>
+                        <span className='text-[#EF5A5A] font-medium'>
+                          {formatDate(event.datetime)}
+                        </span>
                         <span>•</span>
                         <span>{formatTime(event.datetime)} WIB</span>
                       </div>
@@ -345,11 +368,15 @@ function EventPage() {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           ) : (
-            <div className="text-center text-gray-500 py-4">
-              Tidak ada acara yang ditemukan.
+            <div className="text-center text-gray-500 py-8">
+              <Calendar className="w-12 h-12 text-gray-400 mb-4 mx-auto" />
+              <p className="text-gray-500 mb-2">Tidak ada event di bulan ini</p>
+              <p className="text-sm text-gray-400">
+                Navigasi ke bulan lain untuk melihat event lainnya
+              </p>
             </div>
           )}
         </div>

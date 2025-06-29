@@ -10,30 +10,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Upload, Loader2, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Loader2, CalendarIcon } from 'lucide-react';
 import Image from 'next/image';
-import { CreateEventPayload } from '@/type/event';
-
-interface EventFormData {
-  name: string;
-  price: string;
-  datetime: string;
-  image: File | null;
-}
+import CustomUploadFile from '@/components/CustomUploadFile';
+import { EventPayload } from '@/type/events';
+import {
+  FileUploadResult,
+  getUploadedFiles,
+  getUploadedFilePath,
+  getSavedFiles,
+} from "@/utils/fileUtils";
 
 function AddEventPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState<EventFormData>({
+
+  const [formData, setFormData] = useState<EventPayload>({
     name: '',
     price: '',
-    datetime: '',
-    image: null,
+    datetime: new Date(), // Default to current time
+    image: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUploadPath, setImageUploadPath] = useState<string>("");
 
-  const handleInputChange = (field: keyof EventFormData, value: string) => {
+  const handleInputChange = (field: keyof EventPayload, value: string | number | Date) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -48,34 +50,40 @@ function AddEventPage() {
         toast.error('File harus berupa gambar');
         return;
       }
-      
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Ukuran file maksimal 5MB');
         return;
       }
-
-      setFormData(prev => ({
-        ...prev,
-        image: file
-      }));
-
+      setImageFile(file);
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+      setFormData(prev => ({
+        ...prev,
+        image: file.name // just store the name for now, update as needed
+      }));
+    }
+  };
+
+  const handleImageUploadComplete = (result: FileUploadResult) => {
+    if (result.success && result.path) {
+      setImageUploadPath(result.path);
+      console.log("Image uploaded to:", result.path);
     }
   };
 
   const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageUploadPath("");
     setFormData(prev => ({
       ...prev,
-      image: null
+      image: ''
     }));
-    setImagePreview(null);
-    
     // Reset file input
     const fileInput = document.getElementById('image-upload') as HTMLInputElement;
     if (fileInput) {
@@ -88,47 +96,63 @@ function AddEventPage() {
       toast.error('Nama event wajib diisi');
       return false;
     }
-
-    if (!formData.price.trim()) {
+    if (formData.price === undefined || formData.price === null || formData.price === '') {
       toast.error('Harga event wajib diisi');
       return false;
     }
-
-    const priceNumber = parseInt(formData.price);
-    if (isNaN(priceNumber) || priceNumber < 0) {
+    if (isNaN(Number(formData.price)) || Number(formData.price) < 0) {
       toast.error('Harga harus berupa angka positif');
       return false;
     }
-
-    if (!formData.datetime.trim()) {
+    if (!formData.datetime) {
       toast.error('Tanggal dan waktu event wajib diisi');
       return false;
     }
-
     if (!formData.image) {
       toast.error('Gambar event wajib diupload');
       return false;
     }
-
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) {
       return;
     }
-
     setLoading(true);
     try {
+      // Get uploaded files dari sessionStorage dan localStorage
+      const uploadedFiles = getUploadedFiles();
+      const savedFiles = getSavedFiles();
+      const imageStoredPath = getUploadedFilePath(imageFile?.name || "");
+
+      // Determine which path to use
+      let finalImagePath = '';
+      if (imageUploadPath) {
+        finalImagePath = imageUploadPath;
+      } else if (imageStoredPath) {
+        finalImagePath = imageStoredPath;
+      } else if (formData.image) {
+        finalImagePath = `/storage/image/${formData.image}`;
+      }
+
       // Prepare data for API
-      const eventData = {
+      const eventData: EventPayload = {
         name: formData.name.trim(),
-        price: parseInt(formData.price.trim()),
+        price: formData.price,
         datetime: formData.datetime,
-        image: formData.image ? `/images/events/${formData.image.name}` : '', // For now, use static path
+        image: finalImagePath,
       };
+
+      console.log("Submitting event data:", {
+        eventData,
+        imageFile,
+        imageUploadPath,
+        imageStoredPath,
+        allUploadedFiles: uploadedFiles,
+        allSavedFiles: savedFiles,
+      });
 
       // Call API to create event
       const response = await fetch('/api/events', {
@@ -139,18 +163,12 @@ function AddEventPage() {
         body: JSON.stringify(eventData),
         credentials: 'include',
       });
-
       const data = await response.json();
-
       if (!response.ok || !data.status) {
         throw new Error(data.message || data.error || 'Gagal menambahkan event');
       }
-
       toast.success('Event berhasil ditambahkan!');
-      
-      // Redirect to event management page
       router.push('/admin/event');
-
     } catch (error) {
       console.error('Error adding event:', error);
       toast.error(error instanceof Error ? error.message : 'Gagal menambahkan event');
@@ -165,13 +183,8 @@ function AddEventPage() {
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
         <HeaderPage title="Tambah Event" />
       </div>
-      
       {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
-      <div
-        style={{ height: '140px' }}
-        className="w-full bg-gray-50"
-      ></div>
-
+      <div style={{ height: '140px' }} className="w-full bg-gray-50"></div>
       {/* Konten Utama */}
       <div className="flex flex-col gap-4 w-full px-4 pb-10 pt-10">
         {/* Back Button - Dipindahkan ke dalam konten utama */}
@@ -185,7 +198,6 @@ function AddEventPage() {
             Kembali
           </Button>
         </div>
-
         {/* Content */}
         <div className="w-full">
         <Card className="p-6 shadow-md">
@@ -205,7 +217,6 @@ function AddEventPage() {
                 disabled={loading}
               />
             </div>
-
             {/* Event Price */}
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm font-medium text-gray-700">
@@ -226,7 +237,6 @@ function AddEventPage() {
                 Masukkan 0 jika event gratis
               </p>
             </div>
-
             {/* Event Date & Time */}
             <div className="space-y-2">
               <Label htmlFor="datetime" className="text-sm font-medium text-gray-700">
@@ -236,22 +246,28 @@ function AddEventPage() {
                 <Input
                   id="datetime"
                   type="datetime-local"
-                  value={formData.datetime}
-                  onChange={(e) => handleInputChange('datetime', e.target.value)}
+                  value={formData.datetime instanceof Date ? formData.datetime.toISOString().slice(0, 16) : ''}
+                  onChange={(e) => handleInputChange('datetime', new Date(e.target.value))}
                   className="w-full pl-10"
                   disabled={loading}
                 />
                 <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
             </div>
-
             {/* Event Image */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
                 Gambar Event <span className="text-red-500">*</span>
               </Label>
-              
-              {/* Image Preview */}
+              <CustomUploadFile
+                id="image-upload"
+                title="Upload Gambar Event"
+                onFileChange={handleImageChange}
+                fileName={imageFile?.name || null}
+                onUploadComplete={handleImageUploadComplete}
+                maxSizeMB={5}
+                acceptedTypes={["png", "jpg", "jpeg"]}
+              />
               {imagePreview && (
                 <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
                   <Image
@@ -272,36 +288,7 @@ function AddEventPage() {
                   </Button>
                 </div>
               )}
-
-              {/* Upload Area */}
-              {!imagePreview && (
-                <div className="w-full">
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    disabled={loading}
-                  />
-                  <Label
-                    htmlFor="image-upload"
-                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Klik untuk upload</span> atau drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, atau JPEG (Max. 5MB)
-                      </p>
-                    </div>
-                  </Label>
-                </div>
-              )}
             </div>
-
             {/* Submit Button */}
             <div className="pt-4">
               <Button
