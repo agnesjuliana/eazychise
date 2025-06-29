@@ -201,12 +201,17 @@ function DetailPage() {
   };
 
   // Format tanggal
-  const formatDate = (dateString: Date) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const formatDate = (dateInput: string | Date | undefined | null) => {
+    if (!dateInput) return "Tanggal tidak tersedia";
+
+    const date = new Date(dateInput);
+    return isNaN(date.getTime())
+      ? "Tanggal tidak valid"
+      : date.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
   };
 
   return (
@@ -277,7 +282,12 @@ function DetailPage() {
                   <Label className="text-xs text-gray-500">
                     Tanggal Pendaftaran
                   </Label>
-                  <p className="font-medium">{formatDate(user.createdAt)}</p>
+                  <p className="font-medium">
+                    {(() => {
+                      console.log("🧪 createdAt value:", user.createdAt);
+                      return formatDate(user.createdAt);
+                    })()}
+                  </p>
                 </div>
               </div>
             </div>

@@ -50,6 +50,9 @@ model users {
   profile_image String?
   role          Roles
 
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime? @updatedAt
+
   franchises          franchise_listings[]
   franchise_purchases franchise_purchases[]
   franchisor_profiles franchisor_profiles?
