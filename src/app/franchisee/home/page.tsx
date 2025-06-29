@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Bookmark, Filter, MapPin, Search } from "lucide-react";
+import { Bookmark, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -40,7 +40,6 @@ const formatRupiah = (price: string | number): string => {
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
   const [showAllFranchises, setShowAllFranchises] = useState(false);
 
   const {
@@ -104,21 +103,6 @@ function HomePage() {
               className="pl-10 bg-white border-gray-200"
             />
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowFilter(!showFilter)}
-            className="bg-white border-gray-200 relative"
-          >
-            <Filter className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="bg-white border-gray-200 relative"
-          >
-            <MapPin className="w-4 h-4" />
-          </Button>
         </div>
         {/* Popular Franchises Section */}
         <div className="flex items-center justify-between">
@@ -225,12 +209,6 @@ function HomePage() {
           <h2 className="text-lg font-semibold text-gray-900">
             Kategori Populer
           </h2>
-          <Button
-            variant="ghost"
-            className="text-orange-500 text-sm p-0 h-auto"
-          >
-            Lainnya
-          </Button>
         </div>
         {/* Category Pills */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
