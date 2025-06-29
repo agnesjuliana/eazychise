@@ -1,8 +1,8 @@
 "use client";
 
+import { Bell, FileText, GraduationCap, Home, User } from "lucide-react";
 import { ReactNode } from "react";
 import BottomNavbar from "./bottom-navbar";
-import { Bell, FileText, GraduationCap, Home, User } from "lucide-react";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -36,7 +36,7 @@ export default function AppLayout({
                 icon: FileText,
               },
               {
-                href: "/franchisor/tutorial-add",
+                href: "/franchisor/training",
                 label: "Training",
                 icon: GraduationCap,
               },
