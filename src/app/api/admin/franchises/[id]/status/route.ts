@@ -21,7 +21,7 @@ export async function PATCH(
     // Update franchise status
     const updatedFranchise = await prisma.franchise_listings.update({
       where: { id: franchiseId },
-      data: { confirmation_status: status },
+      data: { status: status },
       include: {
         franchisor: true,
       },
