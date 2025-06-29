@@ -94,9 +94,10 @@ function FranchisorAccountPage() {
             foto_diri: data.detail?.foto_diri || "",
           });
 
-          // Set franchise data if available
+          // Set franchise data if available (for reference only)
           if (data.franchise) {
-            // Franchise data is available but we don't need to store it in account page
+            // We have franchise data but this page only manages user account data
+            // Franchise data management is in the documents page
           } else {
             // No franchise found for this franchisor
             toast.info("Belum ada franchise yang terdaftar");
@@ -428,16 +429,24 @@ function FranchisorAccountPage() {
                         className="relative h-48 w-full md:w-3/4 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                       >
                         <Image
-                          src={(() => {
-                            const imageUrl = isEditingProfile
+                          src={
+                            (isEditingProfile
                               ? editUserData.ktp
-                              : userData.detail.ktp;
-                            return imageUrl?.startsWith("/") ||
-                              imageUrl?.startsWith("http://") ||
-                              imageUrl?.startsWith("https://")
-                              ? imageUrl
-                              : "/image/auth/login.png";
-                          })()}
+                              : userData.detail.ktp
+                            )?.startsWith("/") ||
+                            (isEditingProfile
+                              ? editUserData.ktp
+                              : userData.detail.ktp
+                            )?.startsWith("http://") ||
+                            (isEditingProfile
+                              ? editUserData.ktp
+                              : userData.detail.ktp
+                            )?.startsWith("https://")
+                              ? isEditingProfile
+                                ? editUserData.ktp
+                                : userData.detail.ktp
+                              : "/image/auth/login.png"
+                          }
                           alt="KTP"
                           width={400}
                           height={240}
@@ -514,7 +523,7 @@ function FranchisorAccountPage() {
                         </div>
                       )}
                     </div>
-                  ) : userData.detail.foto_diri || editUserData.foto_diri ? (
+                  ) : userData.detail.foto_diri ? (
                     <div className="mt-2">
                       <button
                         onClick={() =>
@@ -523,16 +532,24 @@ function FranchisorAccountPage() {
                         className="relative h-48 w-48 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                       >
                         <Image
-                          src={(() => {
-                            const imageUrl = isEditingProfile
+                          src={
+                            (isEditingProfile
                               ? editUserData.foto_diri
-                              : userData.detail.foto_diri;
-                            return imageUrl?.startsWith("/") ||
-                              imageUrl?.startsWith("http://") ||
-                              imageUrl?.startsWith("https://")
-                              ? imageUrl
-                              : "/image/auth/login.png";
-                          })()}
+                              : userData.detail.foto_diri
+                            )?.startsWith("/") ||
+                            (isEditingProfile
+                              ? editUserData.foto_diri
+                              : userData.detail.foto_diri
+                            )?.startsWith("http://") ||
+                            (isEditingProfile
+                              ? editUserData.foto_diri
+                              : userData.detail.foto_diri
+                            )?.startsWith("https://")
+                              ? isEditingProfile
+                                ? editUserData.foto_diri
+                                : userData.detail.foto_diri
+                              : "/image/auth/login.png"
+                          }
                           alt="Foto Diri Franchisor"
                           width={192}
                           height={192}
