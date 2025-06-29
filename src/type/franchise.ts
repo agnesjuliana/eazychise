@@ -37,6 +37,7 @@ export type FundingRequestPayload = {
 
 // Main Payload Type
 export type FranchiseUpdatePayload = {
+  category_id: string[];
   id: string;
   franchisor_id: string;
   name: string;

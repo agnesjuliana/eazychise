@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import AdminLayout from '@/components/admin-layout';
-import HeaderPage from '@/components/header';
-import withAuth from '@/lib/withAuth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Loader2, CalendarIcon } from 'lucide-react';
-import Image from 'next/image';
-import CustomUploadFile from '@/components/CustomUploadFile';
-import { EventPayload } from '@/type/events';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import AdminLayout from "@/components/admin-layout";
+import HeaderPage from "@/components/header";
+import withAuth from "@/lib/withAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Loader2, CalendarIcon } from "lucide-react";
+import Image from "next/image";
+import CustomUploadFile from "@/components/CustomUploadFile";
+import { EventPayload } from "@/type/events";
 import {
   FileUploadResult,
   getUploadedFiles,
@@ -21,26 +21,27 @@ import {
   getSavedFiles,
 } from "@/utils/fileUtils";
 
-
-
 function AddEventPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<EventPayload>({
-    name: '',
-    price: '',
+    name: "",
+    price: "",
     datetime: new Date(), // Default to current time
-    image: '',
+    image: "",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUploadPath, setImageUploadPath] = useState<string>("");
 
-  const handleInputChange = (field: keyof EventPayload, value: string | number | Date) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof EventPayload,
+    value: string | number | Date
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -48,13 +49,13 @@ function AddEventPage() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('File harus berupa gambar');
+      if (!file.type.startsWith("image/")) {
+        toast.error("File harus berupa gambar");
         return;
       }
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Ukuran file maksimal 5MB');
+        toast.error("Ukuran file maksimal 5MB");
         return;
       }
       setImageFile(file);
@@ -64,9 +65,9 @@ function AddEventPage() {
         setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        image: file.name // just store the name for now, update as needed
+        image: file.name, // just store the name for now, update as needed
       }));
     }
   };
@@ -82,36 +83,42 @@ function AddEventPage() {
     setImageFile(null);
     setImagePreview(null);
     setImageUploadPath("");
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      image: ''
+      image: "",
     }));
     // Reset file input
-    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      "image-upload"
+    ) as HTMLInputElement;
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
-      toast.error('Nama event wajib diisi');
+      toast.error("Nama event wajib diisi");
       return false;
     }
-    if (formData.price === undefined || formData.price === null || formData.price === '') {
-      toast.error('Harga event wajib diisi');
+    if (
+      formData.price === undefined ||
+      formData.price === null ||
+      formData.price === ""
+    ) {
+      toast.error("Harga event wajib diisi");
       return false;
     }
     if (isNaN(Number(formData.price)) || Number(formData.price) < 0) {
-      toast.error('Harga harus berupa angka positif');
+      toast.error("Harga harus berupa angka positif");
       return false;
     }
     if (!formData.datetime) {
-      toast.error('Tanggal dan waktu event wajib diisi');
+      toast.error("Tanggal dan waktu event wajib diisi");
       return false;
     }
     if (!formData.image) {
-      toast.error('Gambar event wajib diupload');
+      toast.error("Gambar event wajib diupload");
       return false;
     }
     return true;
@@ -130,7 +137,7 @@ function AddEventPage() {
       const imageStoredPath = getUploadedFilePath(imageFile?.name || "");
 
       // Determine which path to use
-      let finalImagePath = '';
+      let finalImagePath = "";
       if (imageUploadPath) {
         finalImagePath = imageUploadPath;
       } else if (imageStoredPath) {
@@ -157,23 +164,27 @@ function AddEventPage() {
       });
 
       // Call API to create event
-      const response = await fetch('/api/events', {
-        method: 'POST',
+      const response = await fetch("/api/events", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(eventData),
-        credentials: 'include',
+        credentials: "include",
       });
       const data = await response.json();
       if (!response.ok || !data.status) {
-        throw new Error(data.message || data.error || 'Gagal menambahkan event');
+        throw new Error(
+          data.message || data.error || "Gagal menambahkan event"
+        );
       }
-      toast.success('Event berhasil ditambahkan!');
-      router.push('/admin/event');
+      toast.success("Event berhasil ditambahkan!");
+      router.push("/admin/event");
     } catch (error) {
-      console.error('Error adding event:', error);
-      toast.error(error instanceof Error ? error.message : 'Gagal menambahkan event');
+      console.error("Error adding event:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Gagal menambahkan event"
+      );
     } finally {
       setLoading(false);
     }
@@ -186,7 +197,7 @@ function AddEventPage() {
         <HeaderPage title="Tambah Event" />
       </div>
       {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
-      <div style={{ height: '140px' }} className="w-full bg-gray-50"></div>
+      <div style={{ height: "140px" }} className="w-full bg-gray-50"></div>
       {/* Konten Utama */}
       <div className="flex flex-col gap-4 w-full px-4 pb-10 pt-10">
         {/* Back Button - Dipindahkan ke dalam konten utama */}
@@ -202,118 +213,133 @@ function AddEventPage() {
         </div>
         {/* Content */}
         <div className="w-full">
-        <Card className="p-6 shadow-md">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Event Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                Nama Event <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Masukkan nama event"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full"
-                disabled={loading}
-              />
-            </div>
-            {/* Event Price */}
-            <div className="space-y-2">
-              <Label htmlFor="price" className="text-sm font-medium text-gray-700">
-                Harga Event (Rp) <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="0"
-                value={formData.price}
-                onChange={(e) => handleInputChange('price', e.target.value)}
-                className="w-full"
-                min="0"
-                step="1"
-                disabled={loading}
-              />
-              <p className="text-xs text-gray-500">
-                Masukkan 0 jika event gratis
-              </p>
-            </div>
-            {/* Event Date & Time */}
-            <div className="space-y-2">
-              <Label htmlFor="datetime" className="text-sm font-medium text-gray-700">
-                Tanggal & Waktu <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
+          <Card className="p-6 shadow-md">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Event Name */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="name"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Nama Event <span className="text-red-500">*</span>
+                </Label>
                 <Input
-                  id="datetime"
-                  type="datetime-local"
-                  value={formData.datetime instanceof Date ? formData.datetime.toISOString().slice(0, 16) : ''}
-                  onChange={(e) => handleInputChange('datetime', new Date(e.target.value))}
-                  className="w-full pl-10"
+                  id="name"
+                  type="text"
+                  placeholder="Masukkan nama event"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="w-full"
                   disabled={loading}
                 />
-                <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
-            </div>
-            {/* Event Image */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
-                Gambar Event <span className="text-red-500">*</span>
-              </Label>
-              <CustomUploadFile
-                id="image-upload"
-                title="Upload Gambar Event"
-                onFileChange={handleImageChange}
-                fileName={imageFile?.name || null}
-                onUploadComplete={handleImageUploadComplete}
-                maxSizeMB={5}
-                acceptedTypes={["png", "jpg", "jpeg"]}
-              />
-              {imagePreview && (
-                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    fill
-                    className="object-cover"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={handleRemoveImage}
+              {/* Event Price */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="price"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Harga Event (Rp) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="0"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  className="w-full"
+                  min="0"
+                  step="1"
+                  disabled={loading}
+                />
+                <p className="text-xs text-gray-500">
+                  Masukkan 0 jika event gratis
+                </p>
+              </div>
+              {/* Event Date & Time */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="datetime"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Tanggal & Waktu <span className="text-red-500">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="datetime"
+                    type="datetime-local"
+                    value={
+                      formData.datetime instanceof Date
+                        ? formData.datetime.toISOString().slice(0, 16)
+                        : ""
+                    }
+                    onChange={(e) =>
+                      handleInputChange("datetime", new Date(e.target.value))
+                    }
+                    className="w-full pl-10"
                     disabled={loading}
-                  >
-                    Hapus
-                  </Button>
+                  />
+                  <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
-              )}
-            </div>
-            {/* Submit Button */}
-            <div className="pt-4">
-              <Button
-                type="submit"
-                className="w-full bg-[#EF5A5A] hover:bg-[#c84d4d] cursor-pointer"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Menambahkan Event...
-                  </>
-                ) : (
-                  'Tambah Event'
+              </div>
+              {/* Event Image */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Gambar Event <span className="text-red-500">*</span>
+                </Label>
+                <CustomUploadFile
+                  id="image-upload"
+                  title="Upload Gambar Event"
+                  onFileChange={handleImageChange}
+                  fileName={imageFile?.name || null}
+                  onUploadComplete={handleImageUploadComplete}
+                  maxSizeMB={5}
+                  acceptedTypes={["png", "jpg", "jpeg"]}
+                />
+                {imagePreview && (
+                  <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                      disabled={loading}
+                    >
+                      Hapus
+                    </Button>
+                  </div>
                 )}
-              </Button>
-            </div>
-          </form>
-        </Card>
+              </div>
+              {/* Submit Button */}
+              <div className="pt-4">
+                <Button
+                  type="submit"
+                  className="w-full bg-[#EF5A5A] hover:bg-[#c84d4d] cursor-pointer"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Menambahkan Event...
+                    </>
+                  ) : (
+                    "Tambah Event"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Card>
         </div>
       </div>
     </AdminLayout>
   );
 }
 
-export default withAuth(AddEventPage, 'ADMIN');
+export default withAuth(AddEventPage, "ADMIN");

@@ -138,6 +138,13 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       }
     }
 
+    if (f.category_id.length === 0) {
+      return NextResponse.json(
+        { error: "Franchise category is missing" },
+        { status: 400 }
+      );
+    }
+
     if (
       !Array.isArray(f.listing_documents) ||
       f.listing_documents.length === 0
@@ -200,6 +207,17 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
             equipment: body.equipment,
             materials: body.materials,
           },
+        });
+
+        await tx.category_franchise.deleteMany({
+          where: { franchise_id: franchise.id },
+        });
+
+        await tx.category_franchise.createMany({
+          data: body.category_id.map((category_id) => ({
+            franchise_id: franchise.id,
+            category_id,
+          })),
         });
 
         // Update listing_documents

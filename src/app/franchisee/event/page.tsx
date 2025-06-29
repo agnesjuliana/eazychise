@@ -1,19 +1,19 @@
 "use client";
 
-import * as React from "react"
-import AppLayout from '@/components/app-layout';
-import withAuth from '@/lib/withAuth';
-import { DayPicker } from "react-day-picker"
-import HeaderPage from '@/components/header';
-import Image from 'next/image';
+import * as React from "react";
+import AppLayout from "@/components/app-layout";
+import withAuth from "@/lib/withAuth";
+import { DayPicker } from "react-day-picker";
+import HeaderPage from "@/components/header";
+import Image from "next/image";
 import "react-day-picker/style.css";
-import { id } from 'date-fns/locale';
-import { EventPayload } from '@/type/events';
-import { Loader2, Calendar } from 'lucide-react';
+import { id } from "date-fns/locale";
+import { EventPayload } from "@/type/events";
+import { Loader2, Calendar } from "lucide-react";
 
 function EventPage() {
-  const [mounted, setMounted] = React.useState(false)
-  const [today, setToday] = React.useState<Date | null>(null)
+  const [mounted, setMounted] = React.useState(false);
+  const [today, setToday] = React.useState<Date | null>(null);
   const [events, setEvents] = React.useState<EventPayload[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [eventDates, setEventDates] = React.useState<Date[]>([]);
@@ -27,44 +27,66 @@ function EventPage() {
     setCurrentMonth(now);
     fetchEvents();
   }, []);
-  
+
   // Fetch events from database
   async function fetchEvents() {
     try {
       setLoading(true);
-      const res = await fetch('/api/events', { method: 'GET', credentials: 'include' });
+      const res = await fetch("/api/events", {
+        method: "GET",
+        credentials: "include",
+      });
       const data = await res.json();
       // API returns status or success flag
       if (res.ok && (data.success || data.status)) {
         setEvents(data.data || []);
-        setEventDates((data.data || []).map((e: EventPayload) => new Date(e.datetime)));
+        setEventDates(
+          (data.data || []).map((e: EventPayload) => new Date(e.datetime))
+        );
       } else {
-        console.error('Failed to fetch events:', data);
+        console.error("Failed to fetch events:", data);
       }
     } catch (err) {
-      console.error('Error fetching events:', err);
+      console.error("Error fetching events:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
-  
+
   // Utility formatters
   const formatDate = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
-    return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    return dateObj.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
   const formatTime = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
-    return dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    return dateObj.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
   const formatPrice = (price: string | number) => {
-    const priceNumber = typeof price === 'string' ? Number(price) : price;
-    return priceNumber === 0 ? 'Gratis' : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(priceNumber);
+    const priceNumber = typeof price === "string" ? Number(price) : price;
+    return priceNumber === 0
+      ? "Gratis"
+      : new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(priceNumber);
   };
 
   const getImageSrc = (imagePath: string) => {
-    if (!imagePath) return '/images/placeholder.png';
-    if (imagePath.startsWith('http') || imagePath.startsWith('/images/') || imagePath.startsWith('/storage/')) {
+    if (!imagePath) return "/images/placeholder.png";
+    if (
+      imagePath.startsWith("http") ||
+      imagePath.startsWith("/images/") ||
+      imagePath.startsWith("/storage/")
+    ) {
       return imagePath;
     }
     return `/storage/image/${imagePath}`;
@@ -77,9 +99,12 @@ function EventPage() {
 
   // Filter events by current calendar month
   const filteredEvents = React.useMemo(() => {
-    return events.filter(e => {
+    return events.filter((e) => {
       const d = new Date(e.datetime);
-      return d.getFullYear() === currentMonth.getFullYear() && d.getMonth() === currentMonth.getMonth();
+      return (
+        d.getFullYear() === currentMonth.getFullYear() &&
+        d.getMonth() === currentMonth.getMonth()
+      );
     });
   }, [events, currentMonth]);
 
@@ -89,40 +114,44 @@ function EventPage() {
       <AppLayout className="overflow-x-hidden">
         <div className="relative">
           <HeaderPage title="EVENT" />
-          
+
           {/* Skeleton/Loading state */}
-          <div className='mx-4 -mt-8 relative z-10'>
-            <div className='bg-white rounded-lg p-4 mb-6 shadow-lg border border-gray-100 animate-pulse'>
-              <div className='h-64 bg-gray-200 rounded'></div>
+          <div className="mx-4 -mt-8 relative z-10">
+            <div className="bg-white rounded-lg p-4 mb-6 shadow-lg border border-gray-100 animate-pulse">
+              <div className="h-64 bg-gray-200 rounded"></div>
             </div>
           </div>
-          
-          <div className='mx-4 space-y-4'>
+
+          <div className="mx-4 space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className='bg-white rounded-lg p-4 flex items-center space-x-4 shadow-sm animate-pulse'>
-                <div className='w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0'></div>
-                <div className='flex-1 space-y-2'>
-                  <div className='h-3 bg-gray-200 rounded w-1/3'></div>
-                  <div className='h-4 bg-gray-200 rounded w-3/4'></div>
-                  <div className='h-3 bg-gray-200 rounded w-1/4'></div>
+              <div
+                key={i}
+                className="bg-white rounded-lg p-4 flex items-center space-x-4 shadow-sm animate-pulse"
+              >
+                <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </AppLayout>
-    )
+    );
   }
   return (
     <AppLayout className="overflow-x-hidden">
       <div className="relative">
         <HeaderPage title="EVENT" />
-        
+
         {/* Calendar Section - Overlapping with header */}
-        <div className='mx-6 -mt-8 relative z-10'>
-          <div className='bg-white rounded-lg p-6 mb-6 shadow-lg border border-gray-100'>
-          <style dangerouslySetInnerHTML={{
-            __html: `
+        <div className="mx-6 -mt-8 relative z-10">
+          <div className="bg-white rounded-lg p-6 mb-6 shadow-lg border border-gray-100">
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
               /* Event dot styling */
               .event-dot::after {
                 content: '';
@@ -267,44 +296,45 @@ function EventPage() {
               .rdp-button_next {
                 pointer-events: auto !important;
               }
-            `
-          }} />
-          <div className='flex justify-center items-center'>
-            <DayPicker
-              month={currentMonth}
-              onMonthChange={handleMonthChange}
-              showOutsideDays
-              locale={id}
-              navLayout="after"
-              mode="single"
-              onSelect={() => {}} // Unclickable - tidak ada aksi untuk tanggal
-              className="mx-auto"
-              modifiers={{
-                event: eventDates,
-                ...(today && { today: [today] })
-              }}
-              modifiersStyles={{
-                today: {
-                  backgroundColor: '#EF5A5A',
-                  color: 'white',
-                  borderRadius: '50%',
-                  fontWeight: '600',
-                  border: 'none'
-                },
-                event: {
-                  position: 'relative'
-                }
-              }}
-              modifiersClassNames={{
-                event: 'event-dot'
+            `,
               }}
             />
+            <div className="flex justify-center items-center">
+              <DayPicker
+                month={currentMonth}
+                onMonthChange={handleMonthChange}
+                showOutsideDays
+                locale={id}
+                navLayout="after"
+                mode="single"
+                onSelect={() => {}} // Unclickable - tidak ada aksi untuk tanggal
+                className="mx-auto"
+                modifiers={{
+                  event: eventDates,
+                  ...(today && { today: [today] }),
+                }}
+                modifiersStyles={{
+                  today: {
+                    backgroundColor: "#EF5A5A",
+                    color: "white",
+                    borderRadius: "50%",
+                    fontWeight: "600",
+                    border: "none",
+                  },
+                  event: {
+                    position: "relative",
+                  },
+                }}
+                modifiersClassNames={{
+                  event: "event-dot",
+                }}
+              />
+            </div>
           </div>
-        </div>
         </div>
 
         {/* Events List - Simple card layout like admin */}
-        <div className='mx-4 space-y-3'>
+        <div className="mx-4 space-y-3">
           {loading ? (
             <div className="flex justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A]" />
@@ -315,54 +345,54 @@ function EventPage() {
                 Event Bulan Ini ({filteredEvents.length})
               </h3>
               {filteredEvents.map((event, index) => (
-                <div 
-                  key={event.id ?? index} 
-                  className='bg-white rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow'
+                <div
+                  key={event.id ?? index}
+                  className="bg-white rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => {
                     // Open event image or details
                     if (event.image) {
-                      window.open(getImageSrc(event.image), '_blank');
+                      window.open(getImageSrc(event.image), "_blank");
                     }
                   }}
                 >
                   <div className="flex items-start space-x-4">
                     {/* Event Image */}
-                    <div className='w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden'>
+                    <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
                       <Image
                         src={getImageSrc(event.image)}
                         alt={event.name}
                         width={80}
                         height={64}
-                        className='w-full h-full object-cover'
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                           // Fallback to gradient if image fails to load
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          target.nextElementSibling?.classList.remove('hidden');
+                          target.style.display = "none";
+                          target.nextElementSibling?.classList.remove("hidden");
                         }}
                       />
                       {/* Fallback gradient */}
-                      <div className='w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden'>
-                        <span className='text-white font-bold text-lg'>
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden">
+                        <span className="text-white font-bold text-lg">
                           {event.name.charAt(0)}
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Event Details */}
-                    <div className='flex-1 min-w-0'>
-                      <div className='flex items-center space-x-2 text-xs text-gray-500 mb-1'>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
                         <Calendar className="w-3 h-3" />
-                        <span className='text-[#EF5A5A] font-medium'>
+                        <span className="text-[#EF5A5A] font-medium">
                           {formatDate(event.datetime)}
                         </span>
                         <span>•</span>
                         <span>{formatTime(event.datetime)} WIB</span>
                       </div>
-                      <h3 className='font-semibold text-gray-900 text-sm leading-tight break-words mb-1'>
+                      <h3 className="font-semibold text-gray-900 text-sm leading-tight break-words mb-1">
                         {event.name}
                       </h3>
-                      <span className='text-[#EF5A5A] font-medium text-xs'>
+                      <span className="text-[#EF5A5A] font-medium text-xs">
                         {formatPrice(event.price)}
                       </span>
                     </div>
@@ -385,5 +415,4 @@ function EventPage() {
   );
 }
 
-export default withAuth(EventPage, 'FRANCHISEE');
-
+export default withAuth(EventPage, "FRANCHISEE");
