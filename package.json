@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "prisma:build": "npx prisma generate && tsc -p .",
+    "prisma:build": "npx prisma generate",
     "prisma:migrate": "dotenv -e .env.development -- npx prisma migrate dev --schema ./prisma/schema.prisma",
     "prisma:seed": "dotenv -e .env.development -- npx tsx ./prisma/seed.ts",
     "prisma:truncate": "dotenv -e .env.development -- npx tsx ./prisma/truncate.ts",
