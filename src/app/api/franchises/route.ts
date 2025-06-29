@@ -41,7 +41,6 @@ export async function POST(req: Request) {
     const newFranchise = await prisma.franchise_listings.create({
       data: {
         franchisor_id: user.id,
-        confirmation_status: "WAITING",
         name: data.name,
         price: data.price,
         image: data.image,
@@ -91,9 +90,6 @@ export async function GET(_req: Request) {
 
   try {
     const franchise = await prisma.franchise_listings.findMany({
-      where: {
-        confirmation_status: "ACCEPTED", // Only show approved franchises
-      },
       include: {
         franchisor: {
           select: {
@@ -122,11 +118,7 @@ export async function GET(_req: Request) {
       take: limit,
     });
 
-    const total = await prisma.franchise_listings.count({
-      where: {
-        confirmation_status: "ACCEPTED",
-      },
-    });
+    const total = await prisma.franchise_listings.count({});
 
     if (!franchise || franchise.length === 0) {
       return NextResponse.json(

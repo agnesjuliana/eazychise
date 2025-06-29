@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
 import { FranchisorRegistrationPayload } from "@/type/registration";
-import { ConfirmationStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -153,7 +152,6 @@ export async function POST(req: Request) {
         const franchise = await tx.franchise_listings.create({
           data: {
             franchisor_id: user.id,
-            confirmation_status: ConfirmationStatus.WAITING,
             name: franchise_data.name,
             price: franchise_data.price,
             image: franchise_data.image,

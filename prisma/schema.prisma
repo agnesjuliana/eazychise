@@ -103,7 +103,6 @@ model franchisor_profiles {
 model franchise_listings {
   id                  String  @id @default(uuid()) @db.Uuid
   franchisor_id       String  @db.Uuid
-  confirmation_status ConfirmationStatus
   name                String
   price               Decimal
   image               String
