@@ -18,11 +18,10 @@ type FranchisorDataPayload = {
 };
 
 type FranchiseDataPayload = {
-  category_id?: string[]; // Optional for now
+  category_id: string[]; // Required array for multiple categories
   name: string;
   price: number;
   image: string;
-  status?: string; // Add status property
   location: string;
   ownership_document: string;
   financial_statement: string;

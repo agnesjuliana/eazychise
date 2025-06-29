@@ -38,7 +38,6 @@ function FranchisorRegisterPage() {
     franchiseName: "",
     price: "",
     image: "",
-    status: "available",
     location: "",
     ownership_document: "",
     financial_statement: "",
@@ -47,6 +46,8 @@ function FranchisorRegisterPage() {
     equipment: "",
     materials: "",
   });
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const [highlights, setHighlights] = useState([
     { title: "", content: "" }
@@ -86,8 +87,8 @@ function FranchisorRegisterPage() {
         setError("");
       }
     } else if (currentStep === 3) {
-      if (!formData.franchiseName || !formData.price || !formData.location || !formData.foto_diri || !formData.image) {
-        setError("Informasi brand dan gambar wajib diisi");
+      if (!formData.franchiseName || !formData.price || !formData.location || !formData.foto_diri || !formData.image || selectedCategories.length === 0) {
+        setError("Informasi brand, gambar, dan kategori wajib diisi");
       } else {
         setError("");
       }
@@ -103,10 +104,18 @@ function FranchisorRegisterPage() {
         }
       }
     }
-  }, [formData, highlights, documents, currentStep]);
+  }, [formData, highlights, documents, currentStep, selectedCategories]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
   };
 
   const handleFileUpload = (field: string) => (result: FileUploadResult) => {
@@ -188,10 +197,10 @@ function FranchisorRegisterPage() {
         foto_diri: formData.foto_diri,
       },
       franchise_data: {
+        category_id: selectedCategories,
         name: formData.franchiseName,
         price: parseFloat(formData.price),
         image: formData.image,
-        status: "OPEN",
         location: formData.location,
         ownership_document: formData.ownership_document,
         financial_statement: formData.financial_statement,
@@ -201,7 +210,6 @@ function FranchisorRegisterPage() {
         materials: formData.materials,
         listing_highlights: highlights,
         listing_documents: documents,
-        category_id: [], // Default empty array, bisa diisi sesuai kebutuhan
       },
     };
 
@@ -411,6 +419,41 @@ function FranchisorRegisterPage() {
                 onChange={(e) => updateField("price", e.target.value)}
                 placeholder="Masukkan harga franchise"
               />
+            </div>
+
+            {/* Category Selection */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Kategori Franchise</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div 
+                  onClick={() => toggleCategory("fa3a59bb-b003-4c27-9497-c2f3e333cabc")}
+                  className={`p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                    selectedCategories.includes("fa3a59bb-b003-4c27-9497-c2f3e333cabc")
+                      ? "border-[#EF5A5A] bg-[#EF5A5A]/10 text-[#EF5A5A]"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🍽️</div>
+                    <div className="font-medium">Food</div>
+                  </div>
+                </div>
+                
+                <div 
+                  onClick={() => toggleCategory("a9c1ec53-5f65-4b67-b7f2-731e61a97a57")}
+                  className={`p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                    selectedCategories.includes("a9c1ec53-5f65-4b67-b7f2-731e61a97a57")
+                      ? "border-[#EF5A5A] bg-[#EF5A5A]/10 text-[#EF5A5A]"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🥤</div>
+                    <div className="font-medium">Beverage</div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">Pilih satu atau lebih kategori</p>
             </div>
 
             <div>

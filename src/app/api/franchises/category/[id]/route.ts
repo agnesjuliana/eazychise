@@ -70,6 +70,11 @@ export async function GET(
             email: true,
           },
         },
+        franchise_categories: {
+          include: {
+            category_rel: true,
+          },
+        },
       },
       orderBy: {
         [sort_by]: sort,
