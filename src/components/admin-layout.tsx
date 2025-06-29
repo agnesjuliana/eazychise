@@ -84,16 +84,14 @@ export default function AdminLayout({
             navItems={[
               {
                 href: "/admin",
-                label: "Manage Users",
+                label: "Admin Panel",
                 icon: Shield,
               },
-
               {
                 href: "/admin/event",
                 label: "Event",
                 icon: Calendar,
               },
-
               {
                 href: "/admin/profile",
                 label: "Profile",
