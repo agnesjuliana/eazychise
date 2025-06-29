@@ -640,6 +640,11 @@ function FranchiseDetail({
           <Button
             variant="outline"
             className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
+            onClick={() =>
+              router.push(
+                `/franchisee/franchise/${franchiseId}/request-funding`
+              )
+            }
           >
             Ajukan Modal
           </Button>

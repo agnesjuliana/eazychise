@@ -1,0 +1,682 @@
+"use client";
+import AppLayout from "@/components/app-layout";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import React, { useState, use, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import StepOne from "./components/StepOne";
+import { Progress } from "@/components/ui/progress";
+import StepTwo from "./components/StepTwo";
+import StepFour from "./components/StepFour";
+import StepFive from "./components/StepFive";
+import StepSix from "./components/StepSix";
+import StepEight from "./components/StepEight";
+import StepNine from "./components/StepNine";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Download } from "lucide-react";
+import CustomUploadFile from "@/components/CustomUploadFile";
+import withAuth from "@/lib/withAuth";
+import { User } from "@/type/user";
+import { PurchaseFranchisePayload } from "@/type/franchise";
+import { FileUploadResult } from "@/utils/fileUtils";
+import axios from "axios";
+import { toast } from "sonner";
+
+interface RequestFundingPageProps {
+  user?: User | null;
+  params: Promise<{ franchiseId: string }>;
+}
+
+// Form data interface
+interface FormData {
+  namaLengkap: string;
+  email: string;
+  alamatTempat: string;
+  noTelepon: string;
+  npwp: string;
+  alamatFranchise: string;
+}
+
+// Files interface
+interface Files {
+  scanKTP: File | null;
+  fotoDiri: File | null;
+  fotoFranchise: File | null;
+  mouFranchisor: File | null;
+  mouModal: File | null;
+}
+
+// File upload paths interface
+interface FilePaths {
+  scanKTP: string;
+  fotoDiri: string;
+  fotoFranchise: string;
+  mouFranchisor: string;
+  mouModal: string;
+}
+
+function RequestFundingPage({ user, params }: RequestFundingPageProps) {
+  const { franchiseId } = use(params);
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showConditionalSteps, setShowConditionalSteps] = useState(false);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [showSendDialog, setShowSendDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form state
+  const [formData, setFormData] = useState<FormData>({
+    namaLengkap: "",
+    email: "",
+    alamatTempat: "",
+    noTelepon: "",
+    npwp: "",
+    alamatFranchise: "",
+  });
+
+  const [files, setFiles] = useState<Files>({
+    scanKTP: null,
+    fotoDiri: null,
+    fotoFranchise: null,
+    mouFranchisor: null,
+    mouModal: null,
+  });
+
+  const [filePaths, setFilePaths] = useState<FilePaths>({
+    scanKTP: "",
+    fotoDiri: "",
+    fotoFranchise: "",
+    mouFranchisor: "",
+    mouModal: "",
+  });
+
+  // Pre-fill user data if available
+  React.useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        namaLengkap: user.name || "",
+        email: user.email || "",
+      }));
+    }
+  }, [user]);
+
+  const handleInputChange = useCallback(
+    (field: keyof FormData, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
+  const handleFileUpload = useCallback(
+    (field: keyof Files, file: File | null) => {
+      setFiles((prev) => ({ ...prev, [field]: file }));
+    },
+    []
+  );
+
+  const handleFileUploadComplete = useCallback(
+    (field: keyof FilePaths, result: FileUploadResult) => {
+      if (result.success && result.path) {
+        setFilePaths((prev) => ({ ...prev, [field]: result.path }));
+      }
+    },
+    []
+  );
+
+  const handleDownload = useCallback((documentType: string) => {
+    // Handle document download logic here
+    console.log(`Downloading ${documentType}`);
+    toast.info(`Mengunduh ${documentType}...`);
+  }, []);
+
+  const submitFundingRequest = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      // Use uploaded file paths or fallback to dummy files
+      const uploadedFiles = {
+        ktp: filePaths.scanKTP || "ktp_dummy.jpg",
+        foto_diri: filePaths.fotoDiri || "foto_diri_dummy.jpg",
+        foto_lokasi: filePaths.fotoFranchise || "foto_lokasi_dummy.jpg",
+        mou_franchisor: filePaths.mouFranchisor || "mou_franchisor_dummy.pdf",
+        mou_modal: filePaths.mouModal || "mou_modal_dummy.pdf",
+      };
+
+      // Prepare request payload matching the API structure
+      const payload: PurchaseFranchisePayload = {
+        purchase_type: "FUNDED",
+        confirmation_status: "WAITING",
+        payment_status: "PROCESSED",
+        funding_request: {
+          confirmation_status: "WAITING",
+          address: formData.alamatTempat,
+          phone_number: formData.noTelepon,
+          npwp: formData.npwp,
+          franchise_address: formData.alamatFranchise,
+          ktp: uploadedFiles.ktp,
+          foto_diri: uploadedFiles.foto_diri,
+          foto_lokasi: uploadedFiles.foto_lokasi,
+          mou_franchisor: uploadedFiles.mou_franchisor,
+          mou_modal: uploadedFiles.mou_modal,
+        },
+      };
+
+      // Submit to API
+      const response = await axios.post(
+        `/api/franchises/${franchiseId}/purchase`,
+        payload
+      );
+
+      if (response.data.status) {
+        toast.success("Permohonan pendanaan berhasil dikirim!");
+        return true;
+      } else {
+        throw new Error(response.data.message || "Failed to submit");
+      }
+    } catch (error: unknown) {
+      console.error("Submit error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Gagal mengirim permohonan";
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formData, filePaths, franchiseId]);
+
+  const handleNext = useCallback(() => {
+    if (currentStep === 3) {
+      // Show submit dialog for StepThree
+      setShowSubmitDialog(true);
+      return;
+    }
+
+    if (currentStep === 7) {
+      // Show send dialog for StepSeven
+      setShowSendDialog(true);
+      return;
+    }
+
+    if (currentStep === 8) {
+      // Progress to StepNine
+      setCurrentStep(currentStep + 1);
+      return;
+    }
+
+    if (currentStep === 9) {
+      // Navigate to franchisee home
+      router.push("/franchisee");
+      return;
+    }
+
+    // Normal progression
+    if (currentStep < 6) {
+      setCurrentStep(currentStep + 1);
+    } else if (currentStep === 6) {
+      // After step 6, check if conditional steps should be shown
+      setShowConditionalSteps(true);
+      setCurrentStep(7); // Jump to step 7 (conditional steps don't use progress bar)
+    } else if (showConditionalSteps) {
+      // Handle progression through conditional steps 7-9
+      if (currentStep < 9) {
+        setCurrentStep(currentStep + 1);
+      }
+    }
+  }, [currentStep, showConditionalSteps, router]);
+
+  const handleBack = useCallback(() => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  }, [currentStep]);
+
+  const handleSubmitConfirm = useCallback(async () => {
+    setShowSubmitDialog(false);
+
+    // Validate form data
+    if (
+      !formData.namaLengkap ||
+      !formData.alamatTempat ||
+      !formData.noTelepon ||
+      !formData.npwp ||
+      !formData.alamatFranchise
+    ) {
+      toast.error("Mohon lengkapi semua field yang wajib");
+      return;
+    }
+
+    if (!filePaths.scanKTP || !filePaths.fotoDiri || !filePaths.fotoFranchise) {
+      toast.error("Mohon upload semua dokumen yang diperlukan");
+      return;
+    }
+
+    const success = await submitFundingRequest();
+    if (success) {
+      setCurrentStep(currentStep + 1);
+    }
+  }, [formData, filePaths, currentStep, submitFundingRequest]);
+
+  const handleSendConfirm = useCallback(async () => {
+    setShowSendDialog(false);
+
+    if (!filePaths.mouFranchisor || !filePaths.mouModal) {
+      toast.error("Mohon upload kedua dokumen MoU yang telah ditandatangani");
+      return;
+    }
+
+    // In a real implementation, you might want to update the funding request
+    // with the signed MoU documents
+    toast.success("Dokumen MoU berhasil dikirim!");
+    setCurrentStep(currentStep + 1);
+  }, [filePaths, currentStep]);
+
+  // Integrated Form Component for Step 3
+  const StepThreeForm = useCallback(
+    () => (
+      <div className="mt-4 w-full space-y-6">
+        <h1 className="text-xl font-semibold text-black mb-6">
+          Formulir Pendaftaran
+        </h1>
+
+        <div className="space-y-4">
+          {/* Nama Lengkap */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="namaLengkap"
+              className="text-sm font-medium text-black"
+            >
+              Nama Lengkap
+            </Label>
+            <Input
+              id="namaLengkap"
+              placeholder="Dwiyanto Putra"
+              value={formData.namaLengkap}
+              onChange={(e) => handleInputChange("namaLengkap", e.target.value)}
+              className="bg-gray-100 border-none"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium text-black">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Dwiyanto28@email.com"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              className="bg-gray-100 border-none"
+            />
+          </div>
+
+          {/* Alamat Tempat Tinggal */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="alamatTempat"
+              className="text-sm font-medium text-black"
+            >
+              Alamat Tempat Tinggal
+            </Label>
+            <Input
+              id="alamatTempat"
+              placeholder="Jalan Aja Dulu"
+              value={formData.alamatTempat}
+              onChange={(e) =>
+                handleInputChange("alamatTempat", e.target.value)
+              }
+              className="bg-gray-100 border-none"
+            />
+          </div>
+
+          {/* No Telepon */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="noTelepon"
+              className="text-sm font-medium text-black"
+            >
+              No Telepon
+            </Label>
+            <Input
+              id="noTelepon"
+              placeholder="082327184928"
+              value={formData.noTelepon}
+              onChange={(e) => handleInputChange("noTelepon", e.target.value)}
+              className="bg-gray-100 border-none"
+            />
+          </div>
+
+          {/* NPWP */}
+          <div className="space-y-2">
+            <Label htmlFor="npwp" className="text-sm font-medium text-black">
+              NPWP
+            </Label>
+            <Input
+              id="npwp"
+              placeholder="XXXXXXXXXX"
+              value={formData.npwp}
+              onChange={(e) => handleInputChange("npwp", e.target.value)}
+              className="bg-gray-100 border-none"
+            />
+          </div>
+
+          {/* Alamat Lokasi Franchise */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="alamatFranchise"
+              className="text-sm font-medium text-black"
+            >
+              Alamat Lokasi Franchise
+            </Label>
+            <Input
+              id="alamatFranchise"
+              placeholder="Jalan Aja Dulu"
+              value={formData.alamatFranchise}
+              onChange={(e) =>
+                handleInputChange("alamatFranchise", e.target.value)
+              }
+              className="bg-gray-100 border-none"
+            />
+          </div>
+
+          {/* Scan KTP */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-black">Scan KTP</Label>
+            <CustomUploadFile
+              id="scan-ktp"
+              title="Upload Scan KTP"
+              onFileChange={(e) =>
+                handleFileUpload("scanKTP", e.target.files?.[0] || null)
+              }
+              fileName={files.scanKTP?.name || null}
+              onUploadComplete={(result) =>
+                handleFileUploadComplete("scanKTP", result)
+              }
+              maxSizeMB={5}
+              acceptedTypes={["png", "jpg", "jpeg"]}
+            />
+          </div>
+
+          {/* Upload Foto Diri */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-black">
+              Upload Foto Diri
+            </Label>
+            <CustomUploadFile
+              id="foto-diri"
+              title="Upload Foto Diri"
+              onFileChange={(e) =>
+                handleFileUpload("fotoDiri", e.target.files?.[0] || null)
+              }
+              fileName={files.fotoDiri?.name || null}
+              onUploadComplete={(result) =>
+                handleFileUploadComplete("fotoDiri", result)
+              }
+              maxSizeMB={5}
+              acceptedTypes={["png", "jpg", "jpeg"]}
+            />
+          </div>
+
+          {/* Upload Foto Lokasi Franchise */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-black">
+              Upload Foto Lokasi Franchise
+            </Label>
+            <CustomUploadFile
+              id="foto-franchise"
+              title="Upload Foto Lokasi Franchise"
+              onFileChange={(e) =>
+                handleFileUpload("fotoFranchise", e.target.files?.[0] || null)
+              }
+              fileName={files.fotoFranchise?.name || null}
+              onUploadComplete={(result) =>
+                handleFileUploadComplete("fotoFranchise", result)
+              }
+              maxSizeMB={5}
+              acceptedTypes={["png", "jpg", "jpeg"]}
+            />
+          </div>
+        </div>
+      </div>
+    ),
+    [
+      formData,
+      files,
+      handleInputChange,
+      handleFileUpload,
+      handleFileUploadComplete,
+    ]
+  );
+
+  // Integrated MOU Component for Step 7
+  const StepSevenForm = useCallback(
+    () => (
+      <div className="w-full space-y-6">
+        <h1 className="text-2xl font-bold text-black mb-6">
+          Tanda Tangan Perjanjian
+        </h1>
+
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700 leading-relaxed">
+            FundChise akan melindungi hak anda sebagai franchisee dan melindungi
+            hak franchisor. Tanda tangani dokumen perjanjian berikut untuk
+            kebaikan kedua pihak.
+          </p>
+
+          <p className="text-sm text-orange-500 font-medium">
+            Tanda tangan harus disertai materai Rp. 10.000
+          </p>
+
+          {/* Download Buttons */}
+          <div className="space-y-3">
+            <Button
+              onClick={() => handleDownload("MoU Franchisor")}
+              className="w-full bg-orange-400 hover:bg-orange-500 text-white flex items-center justify-center gap-2 py-3"
+            >
+              <Download className="w-4 h-4" />
+              Unduh Dokumen MoU Franchisor
+            </Button>
+
+            <Button
+              onClick={() => handleDownload("MoU Modal")}
+              className="w-full bg-orange-400 hover:bg-orange-500 text-white flex items-center justify-center gap-2 py-3"
+            >
+              <Download className="w-4 h-4" />
+              Unduh Dokumen MoU Modal
+            </Button>
+          </div>
+
+          {/* Upload MoU Franchisor */}
+          <div className="space-y-2 mt-8">
+            <Label className="text-sm font-medium text-black">
+              Upload Dokumen MoU Franchisor
+            </Label>
+            <CustomUploadFile
+              id="mou-franchisor"
+              title="Upload Dokumen MoU Franchisor"
+              onFileChange={(e) =>
+                handleFileUpload("mouFranchisor", e.target.files?.[0] || null)
+              }
+              fileName={files.mouFranchisor?.name || null}
+              onUploadComplete={(result) =>
+                handleFileUploadComplete("mouFranchisor", result)
+              }
+              maxSizeMB={10}
+              acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]}
+            />
+          </div>
+
+          {/* Upload MoU Modal */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-black">
+              Upload Dokumen MoU Modal
+            </Label>
+            <CustomUploadFile
+              id="mou-modal"
+              title="Upload Dokumen MoU Modal"
+              onFileChange={(e) =>
+                handleFileUpload("mouModal", e.target.files?.[0] || null)
+              }
+              fileName={files.mouModal?.name || null}
+              onUploadComplete={(result) =>
+                handleFileUploadComplete("mouModal", result)
+              }
+              maxSizeMB={10}
+              acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]}
+            />
+          </div>
+        </div>
+      </div>
+    ),
+    [files, handleFileUpload, handleFileUploadComplete, handleDownload]
+  );
+
+  const getButtonText = useCallback(() => {
+    switch (currentStep) {
+      case 3:
+        return "Submit";
+      case 4:
+      case 5:
+        return "Lihat Detail";
+      case 6:
+        return "Selanjutnya";
+      case 7:
+        return "Kirim";
+      case 8:
+        return "Kembali ke Home";
+      case 9:
+        return "Cek My Franchise";
+      default:
+        return "Selanjutnya";
+    }
+  }, [currentStep]);
+
+  const showBackButton = useCallback(() => {
+    return currentStep === 2 || currentStep === 3;
+  }, [currentStep]);
+
+  const renderCurrentStep = useCallback(() => {
+    switch (currentStep) {
+      case 1:
+        return <StepOne />;
+      case 2:
+        return <StepTwo />;
+      case 3:
+        return <StepThreeForm />;
+      case 4:
+        return <StepFour />;
+      case 5:
+        return <StepFive />;
+      case 6:
+        return <StepSix />;
+      case 7:
+        return <StepSevenForm />;
+      case 8:
+        return <StepEight />;
+      case 9:
+        return <StepNine />;
+      default:
+        return <StepOne />;
+    }
+  }, [currentStep, StepThreeForm, StepSevenForm]);
+
+  return (
+    <AppLayout showBottomNav={false} className="text-black">
+      <Button
+        variant="secondary"
+        size="icon"
+        className="size-8 mt-8 mb-2"
+        onClick={() => router.back()}
+      >
+        <ArrowLeft />
+      </Button>
+      <section className="mb-12 px-4 flex min-h-screen h-auto w-full items-center justify-start flex-col">
+        {/* Show progress bar only for steps 2-6, but map to progress steps 1-5 */}
+        {!showConditionalSteps && currentStep >= 2 && currentStep <= 6 && (
+          <Progress variant="steps" steps={5} currentStep={currentStep - 1} />
+        )}
+
+        {/* Render the current step */}
+        {renderCurrentStep()}
+
+        {/* Button Section */}
+        <div className="w-full flex gap-3 mt-6">
+          {showBackButton() && (
+            <Button variant="outline" className="flex-1" onClick={handleBack}>
+              Kembali
+            </Button>
+          )}
+          <Button
+            className={`${
+              showBackButton() ? "flex-1" : "w-full"
+            } bg-[#EF5A5A] hover:bg-[#e44d4d]`}
+            onClick={handleNext}
+            disabled={isLoading}
+          >
+            {getButtonText()}
+          </Button>
+        </div>
+
+        {/* Submit Dialog for StepThree */}
+        <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Konfirmasi Submit</AlertDialogTitle>
+              <AlertDialogDescription>
+                Apakah Anda yakin ingin mengirim formulir pendaftaran ini?
+                Pastikan semua data yang diisi sudah benar.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleSubmitConfirm}
+                className="bg-[#EF5A5A] hover:bg-[#e44d4d]"
+              >
+                Ya, Submit
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Send Dialog for StepSeven */}
+        <AlertDialog open={showSendDialog} onOpenChange={setShowSendDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Konfirmasi Kirim Dokumen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Apakah Anda yakin ingin mengirim dokumen MoU yang telah
+                ditandatangani? Pastikan dokumen sudah diisi dengan benar dan
+                dilengkapi materai.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleSendConfirm}
+                className="bg-[#EF5A5A] hover:bg-[#e44d4d]"
+              >
+                Ya, Kirim
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </section>
+    </AppLayout>
+  );
+}
+
+export default withAuth(RequestFundingPage, "FRANCHISEE");
