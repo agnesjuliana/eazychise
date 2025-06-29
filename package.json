@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "powershell -Command \"Remove-Item -Path .next -Recurse -Force -ErrorAction SilentlyContinue\" && npm run dev",
     "build": "next build",
+    "clean:cache": "powershell -ExecutionPolicy Bypass -File clean-cache.ps1",
     "prisma:build": "npx prisma generate",
     "prisma:migrate": "dotenv -e .env.development -- npx prisma migrate dev --schema ./prisma/schema.prisma",
     "prisma:seed": "dotenv -e .env.development -- npx tsx ./prisma/seed.ts",

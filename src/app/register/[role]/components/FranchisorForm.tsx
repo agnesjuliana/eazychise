@@ -166,6 +166,7 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
           sales_location: formData.sales_location,
           equipment: formData.equipment,
           materials: formData.materials,
+          category_id: ["fa3a59bb-b003-4c27-9497-c2f3e333cabc"],
           listing_documents: [], // Additional documents if any
           listing_highlights: highlights.filter(h => h.title && h.content),
         },

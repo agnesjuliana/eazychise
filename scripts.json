@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "dev": "next dev",
+    "dev:clean": "rm -rf .next && npm run dev",
+    "dev:fresh": "rm -rf .next && rm -rf node_modules/.cache && npm run dev",
+    "build": "next build",
+    "build:clean": "rm -rf .next && npm run build",
+    "prisma:build": "npx prisma generate",
+    "prisma:migrate": "dotenv -e .env.development -- npx prisma migrate dev --schema ./prisma/schema.prisma",
+    "prisma:seed": "dotenv -e .env.development -- npx tsx ./prisma/seed.ts",
+    "prisma:truncate": "dotenv -e .env.development -- npx tsx ./prisma/truncate.ts",
+    "prisma:format": "dotenv -e .env.development -- npx prisma format --schema ./prisma/schema.prisma",
+    "prisma:reset": "dotenv -e .env.development -- npx prisma migrate reset --force --skip-seed --schema ./prisma/schema.prisma",
+    "prisma:diff": "dotenv -e .env.development -- npx prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma",
+    "prisma:studio": "dotenv -e .env.development -- npx prisma studio --schema ./prisma/schema.prisma",
+    "start": "next start",
+    "lint": "next lint",
+    "clean": "rm -rf .next && rm -rf node_modules/.cache"
+  }
+}
