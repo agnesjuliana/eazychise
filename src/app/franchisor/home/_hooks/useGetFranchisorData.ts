@@ -92,7 +92,7 @@ interface UseQueryResult<T> {
 }
 
 // Helper function for retry logic
-const retryRequest = async (fn: () => Promise<any>, maxRetries = 3, delay = 1000): Promise<any> => {
+const retryRequest = async <T>(fn: () => Promise<T>, maxRetries = 3, delay = 1000): Promise<T> => {
   let lastError: Error;
   
   for (let i = 0; i < maxRetries; i++) {
@@ -100,6 +100,11 @@ const retryRequest = async (fn: () => Promise<any>, maxRetries = 3, delay = 1000
       return await fn();
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("Unknown error");
+      
+      // Don't retry on client errors (4xx) like auth failures or not found
+      if (axios.isAxiosError(error) && error.response?.status && error.response.status >= 400 && error.response.status < 500) {
+        throw lastError;
+      }
       
       if (i === maxRetries - 1) {
         throw lastError;

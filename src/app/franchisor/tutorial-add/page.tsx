@@ -3,7 +3,7 @@
 import { BackButton } from "@/components/ui/back-button";
 import Image from "next/image";
 import withAuth from "@/lib/withAuth";
-import CustomUploadFile from "@/components/CustomUploadFile";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 import {
   FileUploadResult,
   getUploadedFiles,
@@ -34,17 +34,23 @@ function TutorialAddPage() {
       }
     };
 
-  const handleTutorialUploadComplete = (result: FileUploadResult) => {
-    if (result.success && result.path) {
-      setTutorialUploadPath(result.path);
-      console.log("Tutorial uploaded to:", result.path);
+  const handleTutorialUploadComplete = (result: FileUploadResult | CloudinaryUploadResult) => {
+    if (result.success) {
+      const fileUrl = ('url' in result && result.url) ? result.url : result.path;
+      if (fileUrl) {
+        setTutorialUploadPath(fileUrl);
+        console.log("Tutorial uploaded to:", fileUrl);
+      }
     }
   };
 
-  const handleGuidelineUploadComplete = (result: FileUploadResult) => {
-    if (result.success && result.path) {
-      setGuidelineUploadPath(result.path);
-      console.log("Guideline uploaded to:", result.path);
+  const handleGuidelineUploadComplete = (result: FileUploadResult | CloudinaryUploadResult) => {
+    if (result.success) {
+      const fileUrl = ('url' in result && result.url) ? result.url : result.path;
+      if (fileUrl) {
+        setGuidelineUploadPath(fileUrl);
+        console.log("Guideline uploaded to:", fileUrl);
+      }
     }
   };
 
@@ -102,14 +108,13 @@ function TutorialAddPage() {
         <main className="p-6 space-y-6">
           {/* Tutorial Section */}
           <div className="space-y-4">
-            <CustomUploadFile
+            <CloudinaryUploader
               id="tutorial-upload"
               title="Tutorial"
-              onFileChange={handleFileChange(setTutorialFile)}
-              fileName={tutorialFile?.name || null}
               onUploadComplete={handleTutorialUploadComplete}
               maxSizeMB={15}
               acceptedTypes={["pdf", "docx"]}
+              currentUrl={tutorialUploadPath || ""}
             />
             <div>
               <Label htmlFor="tutorial-name" className="font-semibold">
@@ -127,14 +132,13 @@ function TutorialAddPage() {
 
           {/* Guideline Section */}
           <div className="space-y-4">
-            <CustomUploadFile
+            <CloudinaryUploader
               id="guideline-upload"
               title="Guideline"
-              onFileChange={handleFileChange(setGuidelineFile)}
-              fileName={guidelineFile?.name || null}
               onUploadComplete={handleGuidelineUploadComplete}
               maxSizeMB={10}
               acceptedTypes={["pdf", "docx"]}
+              currentUrl={guidelineUploadPath || ""}
             />
             <div>
               <Label htmlFor="guideline-name" className="font-semibold">

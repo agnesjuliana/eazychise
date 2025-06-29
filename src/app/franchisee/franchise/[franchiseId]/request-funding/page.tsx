@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download } from "lucide-react";
-import CustomUploadFile from "@/components/CustomUploadFile";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 import withAuth from "@/lib/withAuth";
 import { User } from "@/type/user";
 import { PurchaseFranchisePayload } from "@/type/franchise";
@@ -127,9 +127,12 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
   );
 
   const handleFileUploadComplete = useCallback(
-    (field: keyof FilePaths, result: FileUploadResult) => {
-      if (result.success && result.path) {
-        setFilePaths((prev) => ({ ...prev, [field]: result.path }));
+    (field: keyof FilePaths, result: FileUploadResult | CloudinaryUploadResult) => {
+      if (result.success) {
+        const fileUrl = ('url' in result && result.url) ? result.url : result.path;
+        if (fileUrl) {
+          setFilePaths((prev) => ({ ...prev, [field]: fileUrl }));
+        }
       }
     },
     []
@@ -395,18 +398,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
           {/* Scan KTP */}
           <div className="space-y-2">
             <Label className="text-sm font-medium text-black">Scan KTP</Label>
-            <CustomUploadFile
+            <CloudinaryUploader
               id="scan-ktp"
               title="Upload Scan KTP"
-              onFileChange={(e) =>
-                handleFileUpload("scanKTP", e.target.files?.[0] || null)
-              }
-              fileName={files.scanKTP?.name || null}
               onUploadComplete={(result) =>
                 handleFileUploadComplete("scanKTP", result)
               }
               maxSizeMB={5}
               acceptedTypes={["png", "jpg", "jpeg"]}
+              currentUrl={filePaths.scanKTP || ""}
             />
           </div>
 
@@ -415,18 +415,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
             <Label className="text-sm font-medium text-black">
               Upload Foto Diri
             </Label>
-            <CustomUploadFile
+            <CloudinaryUploader
               id="foto-diri"
               title="Upload Foto Diri"
-              onFileChange={(e) =>
-                handleFileUpload("fotoDiri", e.target.files?.[0] || null)
-              }
-              fileName={files.fotoDiri?.name || null}
               onUploadComplete={(result) =>
                 handleFileUploadComplete("fotoDiri", result)
               }
               maxSizeMB={5}
               acceptedTypes={["png", "jpg", "jpeg"]}
+              currentUrl={filePaths.fotoDiri || ""}
             />
           </div>
 
@@ -435,18 +432,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
             <Label className="text-sm font-medium text-black">
               Upload Foto Lokasi Franchise
             </Label>
-            <CustomUploadFile
+            <CloudinaryUploader
               id="foto-franchise"
               title="Upload Foto Lokasi Franchise"
-              onFileChange={(e) =>
-                handleFileUpload("fotoFranchise", e.target.files?.[0] || null)
-              }
-              fileName={files.fotoFranchise?.name || null}
               onUploadComplete={(result) =>
                 handleFileUploadComplete("fotoFranchise", result)
               }
               maxSizeMB={5}
               acceptedTypes={["png", "jpg", "jpeg"]}
+              currentUrl={filePaths.fotoFranchise || ""}
             />
           </div>
         </div>
@@ -504,18 +498,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
             <Label className="text-sm font-medium text-black">
               Upload Dokumen MoU Franchisor
             </Label>
-            <CustomUploadFile
+            <CloudinaryUploader
               id="mou-franchisor"
               title="Upload Dokumen MoU Franchisor"
-              onFileChange={(e) =>
-                handleFileUpload("mouFranchisor", e.target.files?.[0] || null)
-              }
-              fileName={files.mouFranchisor?.name || null}
               onUploadComplete={(result) =>
                 handleFileUploadComplete("mouFranchisor", result)
               }
               maxSizeMB={10}
               acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]}
+              currentUrl={filePaths.mouFranchisor || ""}
             />
           </div>
 
@@ -524,18 +515,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
             <Label className="text-sm font-medium text-black">
               Upload Dokumen MoU Modal
             </Label>
-            <CustomUploadFile
+            <CloudinaryUploader
               id="mou-modal"
               title="Upload Dokumen MoU Modal"
-              onFileChange={(e) =>
-                handleFileUpload("mouModal", e.target.files?.[0] || null)
-              }
-              fileName={files.mouModal?.name || null}
               onUploadComplete={(result) =>
                 handleFileUploadComplete("mouModal", result)
               }
               maxSizeMB={10}
               acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]}
+              currentUrl={filePaths.mouModal || ""}
             />
           </div>
         </div>
