@@ -15,6 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
       });
+      console.dir(data, { depth: null });
+      console.log(JSON.stringify(data, null, 2));
       res.status(200).json({ status: true, data });
     } catch (error) {
       console.error(error);

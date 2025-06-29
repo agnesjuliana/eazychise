@@ -11,8 +11,7 @@ import withAuth from "@/lib/withAuth";
 
 type FundingWithUser = {
   id: string;
-  confirmation_status: string;
-  status: "WAITING" | "ACCEPTED" | "REJECTED";
+  confirmation_status: "WAITING" | "ACCEPTED" | "REJECTED";
   purchase: {
     user: {
       id: string;
@@ -35,8 +34,10 @@ function AdminApprovePage() {
     try {
       const res = await fetch("/api/funding-request");
       const data = await res.json();
+      console.log("Fetched funding request data:", data.data); // Tambahkan ini
+
       if (data.status) {
-        setRequests(data.data);
+        setRequests(data.data as FundingWithUser[]); // ✅ Type casting
       } else {
         console.error("Failed to fetch funding request data:", data);
       }
@@ -53,7 +54,7 @@ function AdminApprovePage() {
 
   const userRender = React.useMemo(() => {
   return requests.filter(
-    (r) => r.purchase?.user && (r.purchase.user.status === status || status === "all")
+    (r) => r.purchase?.user && (r.confirmation_status === status || status === "all")
   );
 }, [requests, status]);
 
@@ -64,7 +65,7 @@ function AdminApprovePage() {
     <AdminLayout>
       {/* Header + Status Filter */}
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
-        <HeaderPage title="APPROVE FUNDING REQUEST" />
+        <HeaderPage title="Approve Funding Request" />
         <div className="flex w-full items-center px-1 bg-gray-50 justify-between border-t border-gray-200 pt-2">
           {["all", "WAITING", "ACCEPTED", "REJECTED"].map((val) => (
             <Button
@@ -116,16 +117,16 @@ function AdminApprovePage() {
                     <h3 className="text-lg font-semibold">{req.purchase.user.name}</h3>
                     <span
                     className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                        req.status === "WAITING"
+                        req.confirmation_status === "WAITING"
                         ? "bg-yellow-100 text-yellow-800"
-                        : req.status === "ACCEPTED"
+                        : req.confirmation_status === "ACCEPTED"
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                     >
-                    {req.status === "WAITING"
+                    {req.confirmation_status === "WAITING"
                         ? "Pending"
-                        : req.status === "ACCEPTED"
+                        : req.confirmation_status === "ACCEPTED"
                         ? "Approved"
                         : "Ditolak"}
                     </span>
