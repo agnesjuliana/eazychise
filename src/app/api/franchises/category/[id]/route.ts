@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole([
     Role.FRANCHISOR,
@@ -38,7 +38,7 @@ export async function GET(
       },
     };
 
-    const category_id = params.id;
+    const { id: category_id } = await params;
 
     const total_data = await prisma.franchise_listings.count({
       where: {

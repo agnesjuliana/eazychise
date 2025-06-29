@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(Role.ADMIN);
@@ -20,7 +20,7 @@ export async function PUT(
       });
     }
 
-    const id = params.id;
+    const { id } = await params;
     const body: EventPayload = await req.json();
 
     const existing = await prisma.events.findUnique({ where: { id } });
@@ -55,7 +55,7 @@ export async function PUT(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(Role.ADMIN);
@@ -66,7 +66,7 @@ export async function DELETE(
       });
     }
 
-    const id = params.id;
+    const { id } = await params;
 
     const event = await prisma.events.findUnique({ where: { id } });
     if (!event) {

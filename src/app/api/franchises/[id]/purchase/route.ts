@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole(Role.FRANCHISEE);
   if ("error" in auth) {
@@ -19,7 +19,7 @@ export async function POST(
   }
 
   // ✅ Extract params safely to avoid async warning
-  const franchiseId = params.id;
+  const { id: franchiseId } = await params;
   const body: PurchaseFranchisePayload = await req.json();
 
   const franchise = await prisma.franchise_listings.findUnique({
