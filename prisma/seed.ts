@@ -14,11 +14,6 @@ const parseCSV = (path: string) => {
   });
 };
 
-function encodeImage(path: string) {
-  const imageBuffer = readFileSync(path);
-  return imageBuffer.toString("base64");
-}
-
 async function seedUsers() {
   const users = parseCSV("prisma/seed/users.csv");
 
@@ -48,8 +43,6 @@ async function seedUsers() {
 async function seedProfiles() {
   try {
     const profiles = parseCSV("prisma/seed/franchisor_profiles.csv");
-    const ktp = encodeImage("prisma/seed/images/ktp.png");
-    const fotoDiri = encodeImage("prisma/seed/images/foto_diri.png");
 
     for (const profile of profiles) {
       const exists = await prisma.franchisor_profiles.findUnique({
@@ -60,8 +53,8 @@ async function seedProfiles() {
           data: {
             id: profile.id,
             user_id: profile.user_id,
-            ktp: ktp,
-            foto_diri: fotoDiri,
+            ktp: "/image/dummy/ktp.png",
+            foto_diri: "/image/dummy/foto_diri.png",
           },
         });
       }

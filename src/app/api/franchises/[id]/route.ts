@@ -92,6 +92,15 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
   const { id } = context.params;
   const body: FranchiseUpdatePayload = await req.json();
 
+  console.log("UPDATE FRANCHISE REQUEST:", {
+    id,
+    body: {
+      ...body,
+      listing_highlights: body.listing_highlights,
+      listing_documents: body.listing_documents,
+    },
+  });
+
   try {
     // Validate request body
     // Franchise data
@@ -152,12 +161,9 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
         );
     }
 
-    if (
-      !Array.isArray(f.listing_highlights) ||
-      f.listing_highlights.length === 0
-    ) {
+    if (!Array.isArray(f.listing_highlights)) {
       return NextResponse.json(
-        { error: "Franchise listing highlights are missing or invalid" },
+        { error: "Franchise listing highlights must be an array" },
         { status: 400 }
       );
     }
@@ -197,17 +203,17 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
         });
 
         // Update listing_documents
+        // First, delete all existing documents for this franchise
+        await tx.listing_documents.deleteMany({
+          where: { id_franchise: franchise.id },
+        });
+
+        // Then create all documents from the request
         const documents: ListingDocuments[] = [];
         for (const doc of body.listing_documents) {
           documents.push(
-            await tx.listing_documents.upsert({
-              where: { id: doc.id },
-              update: {
-                type: doc.type,
-                name: doc.name,
-                path: doc.path,
-              },
-              create: {
+            await tx.listing_documents.create({
+              data: {
                 id: doc.id,
                 id_franchise: franchise.id,
                 type: doc.type,
@@ -219,16 +225,17 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
         }
 
         // Update listing_highlights
+        // First, delete all existing highlights for this franchise
+        await tx.listings_highlights.deleteMany({
+          where: { id_franchise: franchise.id },
+        });
+
+        // Then create/update all highlights from the request
         const highlights: ListingHighlight[] = [];
         for (const highlight of body.listing_highlights) {
           highlights.push(
-            await tx.listings_highlights.upsert({
-              where: { id: highlight.id },
-              update: {
-                title: highlight.title,
-                content: highlight.content,
-              },
-              create: {
+            await tx.listings_highlights.create({
+              data: {
                 id: highlight.id,
                 id_franchise: franchise.id,
                 title: highlight.title,

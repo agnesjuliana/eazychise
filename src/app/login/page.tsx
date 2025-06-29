@@ -11,6 +11,12 @@ import Link from "next/link";
 import Image from "next/image";
 import withAuth from "@/lib/withAuth";
 import { Card } from "@/components/ui/card";
+import useAuthStore from "@/store/authStore";
+import {
+  callLoginAPI,
+  getUserRedirectPath,
+  showSuccessToast,
+} from "@/lib/authUtils";
 
 function LoginPage() {
   const router = useRouter();
@@ -18,6 +24,10 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get login action from auth store
+  const { useLogin } = useAuthStore;
+  const login = useLogin();
 
   const updateField = (field: string, value: string) => {
     setFormData((p) => ({ ...p, [field]: value }));
@@ -41,29 +51,19 @@ function LoginPage() {
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // ← make sure the cookie is saved
-        body: JSON.stringify(formData),
-      });
+      const data = await callLoginAPI(formData.email, formData.password);
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Login gagal");
-      } else {
-        setTimeout(() => {
-          const { role, status } = data.user;
+      // Update auth store immediately for seamless transition
+      login(data.user, data.token || "");
+      showSuccessToast("Login berhasil!");
 
-          if (role === "ADMIN") return router.push("/admin");
-          if (status === "WAITING") return router.push("/verifikasi");
-          if (role === "FRANCHISOR") return router.push("/franchisor/home");
-          if (role === "FRANCHISEE") return router.push("/franchisee/home");
-          router.push("/");
-        }, 1200);
-      }
-    } catch {
-      setError("Terjadi kesalahan jaringan");
+      // Redirect immediately without delay
+      const redirectPath = getUserRedirectPath(data.user);
+      router.replace(redirectPath);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Login gagal";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

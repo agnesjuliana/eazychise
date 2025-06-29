@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Loader2, Calendar, MapPin } from 'lucide-react';
 import Image from 'next/image';
-import { Event } from '@/type/event';
+import { EventPayload } from '@/type/events';
 
 function EventListPage() {
   const router = useRouter();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventPayload[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,30 +45,31 @@ function EventListPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
+  const formatDate = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('id-ID', {
+  const formatTime = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleTimeString('id-ID', {
       hour: '2-digit',
       minute: '2-digit',
     });
   };
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return 'Gratis';
+  const formatPrice = (price: string | number) => {
+    const priceNumber = typeof price === 'string' ? Number(price) : price;
+    if (priceNumber === 0) return 'Gratis';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(priceNumber);
   };
 
   return (
@@ -106,13 +107,13 @@ function EventListPage() {
           </div>
         ) : events.length > 0 ? (
           <div className="space-y-4">
-            {events.map((event) => (
-              <Card key={event.id} className="p-4 shadow-sm">
+            {events.map((event, index) => (
+              <Card key={event.id ?? index} className="p-4 shadow-sm">
                 <div className="flex items-start space-x-4">
                   {/* Event Image */}
                   <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
                     <Image
-                      src={event.image}
+                      src={event.image || '/images/default-event.png'} // Fallback image
                       alt={event.name}
                       width={80}
                       height={64}

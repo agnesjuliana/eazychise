@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Loader2, Calendar, Edit, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import { Event } from '@/type/event';
+import { EventPayload } from '@/type/events';
 import { toast } from 'sonner';
 
 function EventManagementPage() {
   const router = useRouter();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventPayload[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +34,8 @@ function EventManagementPage() {
 
       const data = await response.json();
 
+      
+
       if (response.ok && data.status) {
         setEvents(data.data || []);
       } else {
@@ -48,30 +50,31 @@ function EventManagementPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
+  const formatDate = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('id-ID', {
+  const formatTime = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleTimeString('id-ID', {
       hour: '2-digit',
       minute: '2-digit',
     });
   };
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return 'Gratis';
+  const formatPrice = (price: string | number) => {
+    const priceNumber = typeof price === 'string' ? Number(price) : price;
+    if (priceNumber === 0) return 'Gratis';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(priceNumber);
   };
 
   return (
@@ -110,8 +113,8 @@ function EventManagementPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Daftar Event ({events.length})
             </h3>
-            {events.map((event) => (
-              <Card key={event.id} className="p-4 shadow-sm">
+            {events.map((event, index) => (
+              <Card key={event.id ?? index} className="p-4 shadow-sm">
                 <div className="flex items-start space-x-4">
                   {/* Event Image */}
                   <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
@@ -161,8 +164,7 @@ function EventManagementPage() {
                       variant="outline"
                       className="p-2 h-8 w-8"
                       onClick={() => {
-                        // TODO: Implement edit functionality
-                        toast.info('Fitur edit akan segera tersedia');
+                        router.push(`/admin/event/edit/${(event as any).id || (event as any)._id}`);
                       }}
                     >
                       <Edit className="h-3 w-3" />
@@ -171,9 +173,24 @@ function EventManagementPage() {
                       size="sm"
                       variant="outline"
                       className="p-2 h-8 w-8 text-red-500 hover:text-red-700 hover:border-red-500"
-                      onClick={() => {
-                        // TODO: Implement delete functionality
-                        toast.info('Fitur hapus akan segera tersedia');
+                      onClick={async () => {
+                        if (confirm('Apakah Anda yakin ingin menghapus event ini?')) {
+                          try {
+                            const response = await fetch(`/api/events/${(event as any).id || (event as any)._id}`, {
+                              method: 'DELETE',
+                              credentials: 'include',
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.status) {
+                              toast.success('Event berhasil dihapus!');
+                              fetchEvents(); // Refresh list
+                            } else {
+                              toast.error('Gagal menghapus event');
+                            }
+                          } catch (error) {
+                            toast.error('Gagal menghapus event');
+                          }
+                        }
                       }}
                     >
                       <Trash2 className="h-3 w-3" />

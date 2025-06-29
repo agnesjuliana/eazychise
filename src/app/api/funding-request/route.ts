@@ -35,6 +35,22 @@ export async function GET(req: Request) {
 
     const fundingRequests = await prisma.funding_request.findMany({
       where,
+      include: {
+        purchase: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                status: true,
+                name: true,
+                email: true,
+                profile_image: true,
+                role: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { [sortBy]: sort },
       skip: (page - 1) * limit,
       take: limit,
@@ -52,10 +68,24 @@ export async function GET(req: Request) {
       filter_by: status,
     };
 
+    const response = fundingRequests.map((request) => ({
+      id: request.id,
+      purchaseId: request.purchase.id,
+      confirmationStatus: request.confirmation_status,
+      user: {
+        id: request.purchase.user.id,
+        status: request.purchase.user.status,
+        name: request.purchase.user.name,
+        email: request.purchase.user.email,
+        profileImage: request.purchase.user.profile_image,
+        role: request.purchase.user.role,
+      },
+    }));
+
     return NextResponse.json(
       formatResponse({
-        data: fundingRequests,
         message: "Successfully get all funding requests",
+        data: response,
         meta,
       }),
       { status: 200 }

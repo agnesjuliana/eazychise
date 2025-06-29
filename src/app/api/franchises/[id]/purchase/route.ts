@@ -22,6 +22,21 @@ export async function POST(
   const franchiseId = params.id;
   const body: PurchaseFranchisePayload = await req.json();
 
+  const franchise = await prisma.franchise_listings.findUnique({
+    where: { id: franchiseId },
+  });
+
+  if (!franchise) {
+    return NextResponse.json(formatError({ message: "Franchise not found" }), {
+      status: 404,
+    });
+  }
+
+  const admins = await prisma.users.findMany({
+    where: { role: Role.ADMIN },
+    select: { id: true },
+  });
+
   try {
     const { franchise_purchases, funding_request } = await prisma.$transaction(
       async (tx) => {
@@ -56,7 +71,53 @@ export async function POST(
               mou_modal: body.funding_request.mou_modal,
             },
           });
+
+          await tx.user_notifications.create({
+            data: {
+              user_id: auth.user.id,
+              title: "Permintaan Pendanaan Dikirim",
+              message: `Permintaan pendanaan untuk franchise ${franchise.name} telah dikirim.`,
+              type: "funding_request",
+              is_read: false,
+              sent_at: new Date(),
+            },
+          });
+
+          for (const admin of admins) {
+            await tx.user_notifications.create({
+              data: {
+                user_id: admin.id,
+                title: "Permintaan Pendanaan Baru",
+                message: `${auth.user.name} telah mengirim permintaan pendanaan untuk franchise ${franchise.name}.`,
+                type: "funding_request",
+                is_read: false,
+                sent_at: new Date(),
+              },
+            });
+          }
         }
+
+        await tx.user_notifications.create({
+          data: {
+            user_id: auth.user.id,
+            title: "Pembelian Franchise Berhasil",
+            message: `Anda telah berhasil melakukan pembelian franchise ${franchise.name}.`,
+            type: "purchase",
+            is_read: false,
+            sent_at: new Date(),
+          },
+        });
+
+        await tx.user_notifications.create({
+          data: {
+            user_id: franchise.franchisor_id,
+            title: "Pembelian Franchise Baru",
+            message: `${auth.user.name} telah melakukan pembelian franchise ${franchise.name}.`,
+            type: "purchase",
+            is_read: false,
+            sent_at: new Date(),
+          },
+        });
 
         return { franchise_purchases, funding_request };
       }

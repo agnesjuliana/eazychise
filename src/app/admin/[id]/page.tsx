@@ -17,11 +17,11 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-  CreditCard,
   FileText,
   MapPin,
   Package,
   Coffee,
+  Eye,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
@@ -57,6 +57,7 @@ function DetailPage() {
             id: string;
             type: string;
             name: string;
+            path: string;
           }>;
           listings_highlights: Array<{
             id: string;
@@ -104,6 +105,30 @@ function DetailPage() {
 
     // Default fallback
     return "/image/home/template-picture-franchise-food.png";
+  };
+
+  // Function to handle opening documents (like in documents page)
+  const handleOpenDocument = (url: string) => {
+    if (!url) {
+      toast.error("Dokumen tidak tersedia");
+      return;
+    }
+
+    // Process URL to ensure it's accessible
+    let processedUrl = url;
+
+    // Check if it's a valid URL format
+    if (
+      !url.startsWith("/") &&
+      !url.startsWith("http://") &&
+      !url.startsWith("https://")
+    ) {
+      // If it's just a filename, assume it's in uploads folder
+      processedUrl = `/uploads/${url}`;
+    }
+
+    // Open in new tab
+    window.open(processedUrl, "_blank", "noopener,noreferrer");
   };
 
   // Fetch data user
@@ -176,12 +201,17 @@ function DetailPage() {
   };
 
   // Format tanggal
-  const formatDate = (dateString: Date) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const formatDate = (dateInput: string | Date | undefined | null) => {
+    if (!dateInput) return "Tanggal tidak tersedia";
+
+    const date = new Date(dateInput);
+    return isNaN(date.getTime())
+      ? "Tanggal tidak valid"
+      : date.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
   };
 
   return (
@@ -252,7 +282,12 @@ function DetailPage() {
                   <Label className="text-xs text-gray-500">
                     Tanggal Pendaftaran
                   </Label>
-                  <p className="font-medium">{formatDate(user.createdAt)}</p>
+                  <p className="font-medium">
+                    {(() => {
+                      console.log("🧪 createdAt value:", user.createdAt);
+                      return formatDate(user.createdAt);
+                    })()}
+                  </p>
                 </div>
               </div>
             </div>
@@ -270,10 +305,22 @@ function DetailPage() {
 
                   {user.detail?.ktp && (
                     <div>
-                      <Label className="text-xs text-gray-500">NIK</Label>
-                      <div className="flex items-center">
-                        <CreditCard className="h-4 w-4 mr-1 text-gray-500" />
-                        <p className="font-medium">{user.detail.ktp}</p>
+                      <Label className="text-xs text-gray-500">KTP</Label>
+                      <div className="mt-2">
+                        <button
+                          onClick={() =>
+                            handleOpenDocument(user.detail?.ktp || "")
+                          }
+                          className="relative h-48 w-full md:w-3/4 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          <Image
+                            src={getSafeImageUrl(user.detail.ktp)}
+                            alt="KTP"
+                            width={600}
+                            height={300}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        </button>
                       </div>
                     </div>
                   )}
@@ -281,14 +328,21 @@ function DetailPage() {
                   {user.detail?.foto_diri && (
                     <div>
                       <Label className="text-xs text-gray-500">Foto Diri</Label>
-                      <div className="mt-2 relative h-48 w-48 border rounded-md overflow-hidden">
-                        <Image
-                          src={getSafeImageUrl(user.detail.foto_diri)}
-                          alt="Franchisor Image"
-                          width={600}
-                          height={400}
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
+                      <div className="mt-2">
+                        <button
+                          onClick={() =>
+                            handleOpenDocument(user.detail?.foto_diri || "")
+                          }
+                          className="relative h-48 w-48 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          <Image
+                            src={getSafeImageUrl(user.detail.foto_diri)}
+                            alt="Franchisor Image"
+                            width={600}
+                            height={400}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        </button>
                       </div>
                     </div>
                   )}
@@ -306,14 +360,21 @@ function DetailPage() {
                       <Label className="text-xs text-gray-500">
                         Foto Franchise
                       </Label>
-                      <div className="mt-2 relative h-60 w-full md:w-3/4 border rounded-md overflow-hidden">
-                        <Image
-                          src={getSafeImageUrl(user.franchise.image)}
-                          alt="Franchise Image"
-                          width={600}
-                          height={400}
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
+                      <div className="mt-2">
+                        <button
+                          onClick={() =>
+                            handleOpenDocument(user.franchise?.image || "")
+                          }
+                          className="relative h-60 w-full md:w-3/4 border rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          <Image
+                            src={getSafeImageUrl(user.franchise.image)}
+                            alt="Franchise Image"
+                            width={600}
+                            height={400}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        </button>
                       </div>
                     </div>
 
@@ -382,33 +443,54 @@ function DetailPage() {
                         Dokumen
                       </Label>
                       <div className="space-y-2">
-                        <a
-                          href={user.franchise.ownership_document}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:underline"
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          <span>Sertifikat Kepemilikan</span>
-                        </a>
-                        <a
-                          href={user.franchise.financial_statement}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:underline"
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          <span>Laporan Keuangan</span>
-                        </a>
-                        <a
-                          href={user.franchise.proposal}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:underline"
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          <span>Proposal</span>
-                        </a>
+                        <div className="flex items-center justify-between p-2 rounded hover:bg-blue-50">
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(
+                                user.franchise?.ownership_document || ""
+                              )
+                            }
+                            className="flex items-center text-left flex-1 text-blue-600 hover:underline"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            <span>Sertifikat Kepemilikan</span>
+                          </button>
+                          <div className="flex items-center space-x-2">
+                            <Eye className="h-4 w-4" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-2 rounded hover:bg-blue-50">
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(
+                                user.franchise?.financial_statement || ""
+                              )
+                            }
+                            className="flex items-center text-left flex-1 text-blue-600 hover:underline"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            <span>Laporan Keuangan</span>
+                          </button>
+                          <div className="flex items-center space-x-2">
+                            <Eye className="h-4 w-4" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-2 rounded hover:bg-blue-50">
+                          <button
+                            onClick={() =>
+                              handleOpenDocument(user.franchise?.proposal || "")
+                            }
+                            className="flex items-center text-left flex-1 text-blue-600 hover:underline"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            <span>Proposal</span>
+                          </button>
+                          <div className="flex items-center space-x-2">
+                            <Eye className="h-4 w-4" />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -424,10 +506,23 @@ function DetailPage() {
                               (doc, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center text-blue-600"
+                                  className="flex items-center justify-between p-2 rounded hover:bg-blue-50"
                                 >
-                                  <FileText className="h-4 w-4 mr-1" />
-                                  <span>{doc.name}</span>
+                                  <button
+                                    onClick={() => {
+                                      handleOpenDocument(doc.path);
+                                    }}
+                                    className="flex items-center text-left flex-1 text-blue-600 hover:underline"
+                                  >
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    <span>{doc.name}</span>
+                                    <span className="ml-2 text-xs text-gray-500">
+                                      ({doc.type})
+                                    </span>
+                                  </button>
+                                  <div className="flex items-center space-x-2">
+                                    <Eye className="h-4 w-4" />
+                                  </div>
                                 </div>
                               )
                             )}
