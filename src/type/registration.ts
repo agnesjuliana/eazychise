@@ -18,10 +18,10 @@ type FranchisorDataPayload = {
 };
 
 type FranchiseDataPayload = {
+  category_id: string[];
   name: string;
   price: number;
   image: string;
-  status: string;
   location: string;
   ownership_document: string;
   financial_statement: string;

@@ -29,7 +29,7 @@ export async function GET(
     const sort = searchParams.get("sort") || "asc";
     const sort_by = searchParams.get("sort_by") || "id";
 
-    const category_id = await params.id;
+    const category_id = params.id;
 
     const total_data = await prisma.franchise_listings.count({
       where: {
