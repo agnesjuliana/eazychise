@@ -86,7 +86,7 @@ function AdminApprovePage() {
               }`}
             >
               {val === "all"
-                ? "Semua"
+                ? "All"
                 : val === "WAITING"
                 ? "Pending"
                 : val === "ACCEPTED"
