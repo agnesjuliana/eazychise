@@ -153,7 +153,7 @@ function HomePage() {
                   className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
                 >
                   <Link
-                    href={`/franchisee/franchise/${franchise.id}`}
+                    href={`/franchisee/home/${franchise.id}`}
                     className="block"
                   >
                     <div className="relative">
@@ -270,7 +270,7 @@ function HomePage() {
                 className="p-0 overflow-hidden border-gray-200 relative group cursor-pointer hover:shadow-md transition-all duration-200"
               >
                 <Link
-                  href={`/franchisee/franchise/${franchise.id}`}
+                  href={`/franchisee/home/${franchise.id}`}
                   className="block"
                 >
                   <div className="flex">

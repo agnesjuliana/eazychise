@@ -2,69 +2,13 @@
 
 import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import withAuth from "@/lib/withAuth";
-import { ChevronDown, ChevronRight, Plus, FileText, Download, Settings } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 import { ListingDocument } from "@/type/tutorial";
-
-// Grouped tutorial data structure
-type TutorialCategory = {
-  id: string;
-  name: string;
-  description: string;
-  documents: ListingDocument[];
-};
-
-// Static tutorial categories data
-const staticTutorialCategories: TutorialCategory[] = [
-  {
-    id: "bakso-malang",
-    name: "Bakso Malang Cak Toha",
-    description: "Tutorial lengkap membuat bakso malang dengan resep rahasia Cak Toha",
-    documents: [
-      {
-        id: "doc-1",
-        name: "Resep Bakso Malang",
-        path: "/uploads/tutorial/bakso-malang-tutorial.md",
-        type: "GUIDELINES"
-      },
-      {
-        id: "doc-2", 
-        name: "Panduan Bumbu Bakso",
-        path: "/uploads/tutorial/bumbu-bakso.pdf",
-        type: "GUIDELINES"
-      }
-    ]
-  },
-  {
-    id: "soto-surabaya", 
-    name: "Soto Surabaya Original",
-    description: "Cara membuat soto surabaya dengan bumbu dan teknik yang tepat",
-    documents: [
-      {
-        id: "doc-3",
-        name: "Tutorial Soto Surabaya",
-        path: "/uploads/tutorial/soto-surabaya.pdf", 
-        type: "GUIDELINES"
-      }
-    ]
-  },
-  {
-    id: "pecel-madiun",
-    name: "Pecel Madiun Bu Ati", 
-    description: "Tutorial membuat pecel madiun dengan sambal pecel yang autentik",
-    documents: []
-  },
-  {
-    id: "es-teh-tarik",
-    name: "Es Teh Tarik Khas Medan",
-    description: "Teknik menarik teh dan tips membuat es teh yang sempurna", 
-    documents: []
-  },
-];
+import { FileText, Plus, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 function TutorialProduksiPage() {
   const router = useRouter();
@@ -74,24 +18,28 @@ function TutorialProduksiPage() {
 
   const fetchTutorials = async () => {
     try {
-      const response = await fetch('/api/tutorials');
+      const response = await fetch("/api/tutorials");
       const result = await response.json();
-      console.log('Fetched tutorials result:', result);
-      console.log('Result data:', result.data);
-      console.log('Result data length:', result.data?.length);
-      
-      if (result.success === true || result.status === true || result.status === 'success') {
+      console.log("Fetched tutorials result:", result);
+      console.log("Result data:", result.data);
+      console.log("Result data length:", result.data?.length);
+
+      if (
+        result.success === true ||
+        result.status === true ||
+        result.status === "success"
+      ) {
         const tutorialData = result.data || [];
-        console.log('Setting tutorials to:', tutorialData);
+        console.log("Setting tutorials to:", tutorialData);
         setTutorials(tutorialData);
       } else {
-        console.log('API call failed, setting empty array');
+        console.log("API call failed, setting empty array");
         setTutorials([]);
       }
     } catch (error) {
-      console.log('Error in fetch, setting empty array');
+      console.log("Error in fetch, setting empty array");
       setTutorials([]);
-      console.error('Error fetching tutorials:', error);
+      console.error("Error fetching tutorials:", error);
     } finally {
       setLoading(false);
     }
@@ -102,14 +50,17 @@ function TutorialProduksiPage() {
   }, []);
 
   const handleAddTutorial = () => {
-    router.push('/franchisor/training/add');
+    router.push("/franchisor/training/add");
   };
 
   const handleDocumentClick = (document: ListingDocument) => {
-    window.open(document.path, '_blank');
+    window.open(document.path, "_blank");
   };
 
-  const handleEditTutorial = (tutorial: ListingDocument, event: React.MouseEvent) => {
+  const handleEditTutorial = (
+    tutorial: ListingDocument,
+    event: React.MouseEvent
+  ) => {
     event.stopPropagation(); // Prevent card click
     router.push(`/franchisor/training/edit/${tutorial.id}`);
   };
@@ -131,7 +82,7 @@ function TutorialProduksiPage() {
         <div className="space-y-3">
           {tutorials && tutorials.length > 0 ? (
             tutorials.map((tutorial, idx) => {
-              const docName = tutorial?.name || `Dokumen ${idx+1}`;
+              const docName = tutorial?.name || `Dokumen ${idx + 1}`;
               const docPath = tutorial?.path || "";
               const docId = tutorial?.id || docPath || `tutorial-${idx}`;
               // Ambil hanya nama file dari path
@@ -140,7 +91,13 @@ function TutorialProduksiPage() {
                 <Card
                   key={docId}
                   className="overflow-hidden shadow-sm cursor-pointer hover:bg-gray-50 transition-colors border border-[#EF5A5A] rounded-xl flex items-center px-2 py-1"
-                  onClick={() => handleDocumentClick({ ...tutorial, name: docName, path: docPath })}
+                  onClick={() =>
+                    handleDocumentClick({
+                      ...tutorial,
+                      name: docName,
+                      path: docPath,
+                    })
+                  }
                   style={{ minHeight: 56 }}
                 >
                   <div className="flex items-center w-full">
@@ -148,8 +105,12 @@ function TutorialProduksiPage() {
                       <FileText className="w-6 h-6 text-[#EF5A5A]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-semibold text-gray-900 truncate">{docName}</p>
-                      <p className="text-xs text-gray-500 truncate">{fileNameOnly}</p>
+                      <p className="text-base font-semibold text-gray-900 truncate">
+                        {docName}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {fileNameOnly}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -211,4 +172,4 @@ function TutorialProduksiPage() {
   );
 }
 
-export default withAuth(TutorialProduksiPage, 'FRANCHISOR');
+export default withAuth(TutorialProduksiPage, "FRANCHISOR");

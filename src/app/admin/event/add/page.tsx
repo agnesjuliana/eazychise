@@ -1,7 +1,9 @@
 "use client";
 
 import AdminLayout from "@/components/admin-layout";
-import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
+import CloudinaryUploader, {
+  CloudinaryUploadResult,
+} from "@/components/CloudinaryUploader";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -85,7 +87,7 @@ function AddEventPage() {
     if (!validateForm()) {
       return;
     }
-    
+
     try {
       // Use Cloudinary URL if available
       const finalImagePath = imageUploadUrl || formData.image;
