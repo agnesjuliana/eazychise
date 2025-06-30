@@ -35,13 +35,6 @@ function TutorialAddPage() {
     }
   };
 
-  // const handleGuidelineUploadComplete = (result: FileUploadResult) => {
-  //   if (result.success && result.path) {
-  //     setGuidelineUploadPath(result.path);
-  //     console.log("Guideline uploaded to:", result.path);
-  //   }
-  // };
-
   const handleSubmit = async () => {
     // Get uploaded files dari sessionStorage dan localStorage
     const uploadedFiles = getUploadedFiles();

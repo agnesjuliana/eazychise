@@ -10,7 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -139,13 +145,13 @@ function ProfilePage() {
   ];
 
   return (
-    <AdminLayout>
+    <AdminLayout className="overflow-x-hidden">
       {/* Scrollable Header */}
       <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="PROFILE" />
       </div>
 
-      <div className="flex flex-col gap-4 bg-gray-50 w-full max-w-md mx-auto relative">
+      <div className="flex flex-col gap-4 bg-gray-50 mx-auto relative w-full">
         {/* Profile Content */}
         <div className="px-4 -mt-6 relative z-10 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}

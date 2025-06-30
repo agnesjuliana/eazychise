@@ -67,7 +67,7 @@ function NotificationPage() {
 
   
   return (
-    <AdminLayout>
+    <AdminLayout className="overflow-x-hidden">
       <HeaderPage title="Notifikasi" />
       <div className="px-4 py-6 space-y-4">
         {loading ? (

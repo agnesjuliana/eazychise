@@ -214,7 +214,7 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
 
   if (error || !purchase) {
     return (
-      <FranchisorLayout>
+      <FranchisorLayout className="overflow-x-hidden">
         <div className="relative">
           <HeaderPage title="Detail Applicant" />
           <button
