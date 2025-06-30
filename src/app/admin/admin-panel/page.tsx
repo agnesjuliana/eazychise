@@ -14,7 +14,7 @@ function AdminVerifyPage() {
   const [status, setStatus] = React.useState<string>("all");
   const [user, setUser] = React.useState<UserType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  
+
   React.useEffect(() => {
     const fetchAllUsers = async () => {
       setLoading(true);
@@ -96,11 +96,6 @@ function AdminVerifyPage() {
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
         {/* Custom Header dengan Back Button Integrated */}
         <div className="bg-[#EF5A5A] h-[162px] w-full relative rounded-b-[10px] flex items-center justify-center">
-          {/* Back Button di dalam header */}
-          <div className="absolute left-4 top-4">
-            <BackButton fallbackUrl="/" variant="ghost" size="sm" className="text-white hover:bg-white/20 border-white/30" />
-          </div>
-          
           {/* Cloud decorations - existing */}
           <Image
             src="/image/cloud.png"
@@ -130,14 +125,14 @@ function AdminVerifyPage() {
             height={41}
             className="absolute bottom-[10px] right-[40px]"
           />
-          
+
           {/* Title */}
           <div className="text-center text-white">
             <h1 className="text-xl font-bold">Admin Panel</h1>
             <p className="text-sm opacity-90">Verifikasi Akun</p>
           </div>
         </div>
-        
+
         {/* Role Filter */}
         <div className="flex w-full items-center px-2 bg-gray-50 justify-around">
           <Button
@@ -167,7 +162,7 @@ function AdminVerifyPage() {
             Franchisor
           </Button>
         </div>
-        
+
         {/* Status Filter */}
         <div className="flex w-full items-center px-1 bg-gray-50 justify-between border-t border-gray-200 pt-2">
           <Button
@@ -224,13 +219,13 @@ function AdminVerifyPage() {
           </Button>
         </div>
       </div>
-      
+
       {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
       <div
         style={{ height: `${headerHeight}px` }}
         className="w-full bg-gray-50"
       ></div>
-      
+
       {/* Konten Utama */}
       <div className="flex flex-col gap-4 w-full px-4 pb-10">
         <div className="flex flex-col gap-3 w-full ">
@@ -266,7 +261,7 @@ function AdminVerifyPage() {
                   </div>
                   <p className="text-sm text-gray-600">{u.email}</p>
                 </div>
-                <Link href={`/admin/${u.id}`}>
+                <Link href={`/admin/admin-panel/${u.id}`}>
                   <Button
                     variant="default"
                     size="sm"

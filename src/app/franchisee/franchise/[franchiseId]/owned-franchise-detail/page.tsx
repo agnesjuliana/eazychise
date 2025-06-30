@@ -1,12 +1,19 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import AppLayout from "@/components/app-layout";
 import withAuth from "@/lib/withAuth";
-import { ArrowLeft, Bookmark, Eye, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Bookmark,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  FileText,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Key, use, useState } from "react";
 import { toast } from "sonner";
-import { useGetDetailFranchise } from "./_hooks/useGetDetailFranchise";
+import { useGetDetailFranchise } from ".././_hooks/useGetDetailFranchise";
 
 function FranchiseDetail({
   params,
@@ -19,6 +26,9 @@ function FranchiseDetail({
   const [activeTab, setActiveTab] = useState<"tentang" | "syarat" | "keuangan">(
     "tentang"
   );
+  const [expandedDocTypes, setExpandedDocTypes] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const handleGoBack = () => {
     router.back();
@@ -70,6 +80,13 @@ function FranchiseDetail({
   const getDocumentDisplayName = (url: string) => {
     if (!url) return "Tidak ada file";
     return url.split("/").pop() || "Dokumen";
+  };
+
+  const toggleDocumentType = (docType: string) => {
+    setExpandedDocTypes((prev) => ({
+      ...prev,
+      [docType]: !prev[docType],
+    }));
   };
 
   if (isLoading) {
@@ -190,7 +207,7 @@ function FranchiseDetail({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AppLayout className="min-h-screen bg-gray-50">
       {/* Main Content */}
       <div className="p-4 max-w-md mx-auto">
         {/* Franchise Image */}
@@ -455,44 +472,82 @@ function FranchiseDetail({
                 {franchise?.listing_documents &&
                 franchise.listing_documents.length > 0 ? (
                   <div className="mt-4">
-                    <h4 className="font-semibold mb-2">Dokumen Pendukung:</h4>
-                    <div className="space-y-2">
-                      {franchise.listing_documents.map(
-                        (doc: {
-                          id: Key | null | undefined;
-                          type: string | null | undefined;
-                          name: string | null | undefined;
-                          path: string | null | undefined;
-                        }) => (
-                          <div
-                            key={doc.id}
-                            className="flex justify-between items-center text-sm"
-                          >
-                            <span className="text-gray-600">
-                              {renderDataWithFallback(
-                                doc.type,
-                                "Jenis dokumen"
-                              )}
-                              :
-                            </span>
+                    <h4 className="font-semibold mb-3">Dokumen Pendukung:</h4>
+
+                    {/* Group documents by type */}
+                    {(() => {
+                      type DocumentType = {
+                        id: Key | null | undefined;
+                        type: string | null | undefined;
+                        name: string | null | undefined;
+                        path: string | null | undefined;
+                      };
+
+                      const docsByType = franchise.listing_documents.reduce(
+                        (
+                          acc: { [key: string]: DocumentType[] },
+                          doc: DocumentType
+                        ) => {
+                          const type = doc.type || "OTHER";
+                          if (!acc[type]) acc[type] = [];
+                          acc[type].push(doc);
+                          return acc;
+                        },
+                        {}
+                      );
+
+                      return Object.entries(docsByType).map(
+                        ([docType, docs]) => (
+                          <div key={docType} className="mb-3">
+                            {/* Document Type Header */}
                             <button
-                              onClick={() => handleOpenDocument(doc.path || "")}
-                              className="flex items-center text-blue-500 hover:underline"
+                              onClick={() => toggleDocumentType(docType)}
+                              className="flex items-center justify-between w-full text-left py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                             >
-                              <FileText className="h-4 w-4 mr-1" />
-                              <span>
-                                {renderDataWithFallback(
-                                  doc.name ||
-                                    getDocumentDisplayName(doc.path || ""),
-                                  "Nama dokumen tidak tersedia"
-                                )}
+                              <span className="font-medium text-gray-700">
+                                {docType}: ({docs.length})
                               </span>
-                              <Eye className="h-4 w-4 ml-1" />
+                              {expandedDocTypes[docType] ? (
+                                <ChevronUp className="h-4 w-4 text-gray-500" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4 text-gray-500" />
+                              )}
                             </button>
+
+                            {/* Document List */}
+                            {expandedDocTypes[docType] && (
+                              <div className="mt-2 pl-3 space-y-2 border-l-2 border-gray-200">
+                                {docs.map((doc: DocumentType) => (
+                                  <div
+                                    key={doc.id}
+                                    className="flex justify-between items-center text-sm py-2 px-3 bg-white rounded-lg border hover:shadow-sm transition-shadow"
+                                  >
+                                    <button
+                                      onClick={() =>
+                                        handleOpenDocument(doc.path || "")
+                                      }
+                                      className="flex items-center text-blue-500 hover:underline w-full text-left"
+                                    >
+                                      <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                                      <span className="break-words overflow-hidden">
+                                        {renderDataWithFallback(
+                                          doc.name ||
+                                            getDocumentDisplayName(
+                                              doc.path || ""
+                                            ),
+                                          "Nama dokumen tidak tersedia"
+                                        )}
+                                      </span>
+                                      <Eye className="h-4 w-4 ml-2 flex-shrink-0" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )
-                      )}
-                    </div>
+                      );
+                    })()}
                   </div>
                 ) : (
                   <div className="mt-4 p-3 bg-gray-50 rounded-lg">
@@ -536,7 +591,7 @@ function FranchiseDetail({
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 mt-4">
-                    <div className="border-l-4 border-blue-500 pl-3">
+                    <div className="border-l-4 border-blue-500 pl-3 ">
                       <div className="font-semibold">
                         Dokumen Keuangan Tersedia:
                       </div>
@@ -547,17 +602,17 @@ function FranchiseDetail({
                               franchise?.financial_statement || ""
                             )
                           }
-                          className="flex items-center text-blue-600 hover:underline w-full text-left"
+                          className="flex items-start text-blue-600 hover:underline w-full text-left"
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          <span>
+                          <FileText className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <span className="break-words overflow-hidden">
                             Laporan Keuangan (
                             {getDocumentDisplayName(
                               franchise?.financial_statement || ""
                             )}
                             )
                           </span>
-                          <Eye className="h-4 w-4 ml-2" />
+                          <Eye className="h-4 w-4 ml-2 flex-shrink-0" />
                         </button>
                         <button
                           onClick={() =>
@@ -565,30 +620,30 @@ function FranchiseDetail({
                               franchise?.ownership_document || ""
                             )
                           }
-                          className="flex items-center text-blue-600 hover:underline w-full text-left"
+                          className="flex items-start text-blue-600 hover:underline w-full text-left"
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          <span>
+                          <FileText className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <span className="break-words overflow-hidden">
                             Dokumen Kepemilikan (
                             {getDocumentDisplayName(
                               franchise?.ownership_document || ""
                             )}
                             )
                           </span>
-                          <Eye className="h-4 w-4 ml-2" />
+                          <Eye className="h-4 w-4 ml-2 flex-shrink-0" />
                         </button>
                         <button
                           onClick={() =>
                             handleOpenDocument(franchise?.proposal || "")
                           }
-                          className="flex items-center text-blue-600 hover:underline w-full text-left"
+                          className="flex items-start text-blue-600 hover:underline w-full text-left"
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          <span>
+                          <FileText className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <span className="break-words overflow-hidden">
                             Proposal Bisnis (
                             {getDocumentDisplayName(franchise?.proposal || "")})
                           </span>
-                          <Eye className="h-4 w-4 ml-2" />
+                          <Eye className="h-4 w-4 ml-2 flex-shrink-0" />
                         </button>
                       </div>
                     </div>
@@ -634,21 +689,8 @@ function FranchiseDetail({
             </div>
           )}
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 mb-6">
-          <Button
-            variant="outline"
-            className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
-          >
-            Ajukan Modal
-          </Button>
-          <Button className="flex-1 bg-red-500 hover:bg-red-600 text-white">
-            Beli Sekarang
-          </Button>
-        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
 

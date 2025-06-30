@@ -30,7 +30,34 @@ export default function BottomNavbar({
 
   // Prevent hydration mismatch by not showing active state until mounted
   const getIsActive = (href: string) => {
-    return mounted ? pathname === href : false;
+    if (!mounted) return false;
+
+    // Check for exact match first
+    if (pathname === href) return true;
+
+    // Universal base path matching
+    // This will work for any nested routes:
+    //
+    // TEST CASES:
+    // ✅ href: "/franchisee/home", pathname: "/franchisee/home" -> true (exact match)
+    // ✅ href: "/franchisee/home", pathname: "/franchisee/home/detail" -> true (nested)
+    // ✅ href: "/franchisee/event", pathname: "/franchisee/event/123" -> true (nested)
+    // ✅ href: "/franchisee/franchise", pathname: "/franchisee/franchise/search" -> true (nested)
+    // ✅ href: "/franchisee/notification", pathname: "/franchisee/notification/unread" -> true (nested)
+    // ✅ href: "/franchisee/profile", pathname: "/franchisee/profile/account" -> true (nested)
+    // ✅ href: "/franchisor/franchise", pathname: "/franchisor/franchise/manage" -> true (nested)
+    // ✅ href: "/admin/users", pathname: "/admin/users/edit/123" -> true (nested)
+    // ❌ href: "/franchisee/home", pathname: "/franchisee/event" -> false (different base)
+    // ❌ href: "/franchisee/profile", pathname: "/franchisor/profile" -> false (different role)
+    // ❌ href: "/franchisee/event", pathname: "/franchisee/eventmanager" -> false (not a true nested path)
+
+    // Check if current pathname starts with the href (base path)
+    // This handles nested routes automatically
+    if (pathname.startsWith(href + "/")) {
+      return true;
+    }
+
+    return false;
   };
 
   return (
@@ -81,3 +108,44 @@ export default function BottomNavbar({
     </div>
   );
 }
+
+/**
+ * Universal active state checker for navigation items
+ *
+ * This function determines if a navigation item should be marked as active
+ * based on the current pathname. It supports both exact matches and nested routes.
+ *
+ * Logic:
+ * 1. Exact match: pathname === href
+ * 2. Nested route: pathname starts with href + "/"
+ *
+ * This approach works universally for any navigation structure:
+ * - Base routes: /franchisee/home, /franchisor/dashboard, /admin/users
+ * - Nested routes: /franchisee/profile/account, /franchisor/franchise/manage
+ * - Deep nesting: /admin/users/edit/123/permissions
+ *
+ * Example usage scenarios that this logic now supports:
+ *
+ * FOR FRANCHISEE:
+ * - When at "/franchisee/home" -> "Home" tab active
+ * - When at "/franchisee/home/detail/123" -> "Home" tab active
+ * - When at "/franchisee/event" -> "Event" tab active
+ * - When at "/franchisee/event/workshop/register" -> "Event" tab active
+ * - When at "/franchisee/franchise" -> "Franchise" tab active
+ * - When at "/franchisee/franchise/search?category=food" -> "Franchise" tab active
+ * - When at "/franchisee/notification" -> "Notification" tab active
+ * - When at "/franchisee/notification/unread" -> "Notification" tab active
+ * - When at "/franchisee/profile" -> "Profile" tab active
+ * - When at "/franchisee/profile/account" -> "Profile" tab active
+ * - When at "/franchisee/profile/documents" -> "Profile" tab active
+ * - When at "/franchisee/profile/help" -> "Profile" tab active
+ * - When at "/franchisee/profile/privacy" -> "Profile" tab active
+ *
+ * FOR FRANCHISOR & ADMIN:
+ * - Same logic applies with their respective base paths
+ * - "/franchisor/franchise/manage/123/edit" -> "Franchise" tab active
+ * - "/admin/users/permissions/role/edit" -> "Users" tab active
+ *
+ * @param href - The navigation item's href (base path)
+ * @returns boolean - Whether the navigation item should be active
+ */

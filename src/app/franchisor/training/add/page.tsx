@@ -1,20 +1,17 @@
 "use client";
 
 import HeaderPage from "@/components/header";
-
 import withAuth from "@/lib/withAuth";
-import CustomUploadFile from "@/components/CustomUploadFile";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 import {
   FileUploadResult,
   getUploadedFiles,
-  getUploadedFilePath,
   getSavedFiles,
 } from "@/utils/fileUtils";
 
-import { useState, ChangeEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,27 +20,17 @@ import FranchisorLayout from "@/components/franchisor-layout";
 function TutorialAddPage() {
   const router = useRouter();
 
-  // State untuk menyimpan file dan nama file
-  const [tutorialFile, setTutorialFile] = useState<File | null>(null);
+  // State untuk menyimpan nama file dan path upload
   const [tutorialFileName, setTutorialFileName] = useState("");
   const [tutorialUploadPath, setTutorialUploadPath] = useState<string>("");
-  const [guidelineFile, setGuidelineFile] = useState<File | null>(null);
-  const [guidelineFileName, setGuidelineFileName] = useState("");
-  const [guidelineUploadPath, setGuidelineUploadPath] = useState<string>("");
 
-  const handleFileChange =
-    (setFile: (file: File | null) => void) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        setFile(file);
+  const handleTutorialUploadComplete = (result: FileUploadResult | CloudinaryUploadResult) => {
+    if (result.success) {
+      const fileUrl = ('url' in result && result.url) ? result.url : result.path;
+      if (fileUrl) {
+        setTutorialUploadPath(fileUrl);
+        console.log("Tutorial uploaded to:", fileUrl);
       }
-    };
-
-  const handleTutorialUploadComplete = (result: FileUploadResult) => {
-    if (result.success && result.path) {
-      setTutorialUploadPath(result.path);
-      console.log("Tutorial uploaded to:", result.path);
     }
   };
 
@@ -58,32 +45,24 @@ function TutorialAddPage() {
     // Get uploaded files dari sessionStorage dan localStorage
     const uploadedFiles = getUploadedFiles();
     const savedFiles = getSavedFiles();
-    const tutorialStoredPath = getUploadedFilePath(tutorialFile?.name || "");
-    const guidelineStoredPath = getUploadedFilePath(guidelineFile?.name || "");
 
     // Data untuk di-submit ke backend
     console.log("Submitting data:", {
-      tutorialFile,
       tutorialFileName,
       tutorialUploadPath,
-      tutorialStoredPath,
-      guidelineFile,
-      guidelineFileName,
-      guidelineUploadPath,
-      guidelineStoredPath,
       allUploadedFiles: uploadedFiles,
       allSavedFiles: savedFiles,
     });
 
     // Submit tutorial (jika ada file dan nama)
-    if (tutorialFileName && (tutorialStoredPath)) {
+    if (tutorialFileName && tutorialUploadPath) {
       try {
         const res = await fetch("/api/tutorials", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: tutorialFileName,
-            path: tutorialStoredPath,
+            path: tutorialUploadPath,
             type: "GUIDELINES",
           }),
         });
@@ -94,29 +73,6 @@ function TutorialAddPage() {
         }
       } catch (err) {
         alert("Gagal submit tutorial: " + err);
-        return;
-      }
-    }
-
-    // Submit guideline (jika ada file dan nama)
-    if (guidelineFileName && (guidelineUploadPath || guidelineStoredPath)) {
-      try {
-        const res = await fetch("/api/tutorials", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: guidelineFileName,
-            path: guidelineUploadPath || guidelineStoredPath,
-            type: "GUIDELINES",
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          alert("Gagal menambah guideline: " + (data?.message || res.status));
-          return;
-        }
-      } catch (err) {
-        alert("Gagal submit guideline: " + err);
         return;
       }
     }
@@ -139,7 +95,6 @@ function TutorialAddPage() {
         </button>
       </div>
 
-      
       {/* Form Content */}
       <main className="p-6 space-y-6">
         {/* Tutorial Section */}
@@ -147,14 +102,13 @@ function TutorialAddPage() {
           <Label htmlFor="tutorial-name" className="font-semibold">
               Upload File
             </Label>
-          <CustomUploadFile
+          <CloudinaryUploader
             id="tutorial-upload"
             title="Tutorial"
-            onFileChange={handleFileChange(setTutorialFile)}
-            fileName={tutorialFile?.name || null}
             onUploadComplete={handleTutorialUploadComplete}
             maxSizeMB={15}
             acceptedTypes={["pdf", "docx"]}
+            currentUrl={tutorialUploadPath || ""}
           />
           <div>
             <Label htmlFor="tutorial-name" className="font-semibold">

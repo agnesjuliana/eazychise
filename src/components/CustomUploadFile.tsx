@@ -144,7 +144,7 @@ const CustomUploadFile = ({
             <div>
               <span className="text-[#EF5A5A] font-semibold">pilih</span>{" "}
               <span className="text-black font-semibold">
-                file untuk diupload
+                File untuk diupload
               </span>
             </div>
           )}

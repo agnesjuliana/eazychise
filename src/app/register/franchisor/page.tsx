@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
-import CustomUploadFile from "@/components/CustomUploadFile";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 import { FranchisorRegistrationPayload } from "@/type/registration";
 import { FileUploadResult } from "@/utils/fileUtils";
 import {
@@ -118,11 +118,22 @@ function FranchisorRegisterPage() {
     );
   };
 
-  const handleFileUpload = (field: string) => (result: FileUploadResult) => {
+  const handleFileUpload = (field: string) => (result: FileUploadResult | CloudinaryUploadResult) => {
     console.log("Upload result for field", field, ":", result);
-    if (result.success && result.path) {
-      updateField(field, result.path);
-      console.log("File uploaded successfully for", field, "path:", result.path);
+    if (result.success) {
+      let fileUrl: string | undefined;
+      
+      // Handle both CloudinaryUploadResult and FileUploadResult
+      if ('url' in result && result.url) {
+        fileUrl = result.url;
+      } else if ('path' in result && result.path) {
+        fileUrl = result.path;
+      }
+      
+      if (fileUrl) {
+        updateField(field, fileUrl);
+        console.log("File uploaded successfully for", field, "url:", fileUrl);
+      }
     } else {
       console.error("Upload failed for field", field, "error:", result.error);
     }
@@ -164,9 +175,20 @@ function FranchisorRegisterPage() {
     setDocuments(updated);
   };
 
-  const handleDocumentUpload = (index: number) => (result: FileUploadResult) => {
-    if (result.success && result.path) {
-      updateDocument(index, "path", result.path);
+  const handleDocumentUpload = (index: number) => (result: FileUploadResult | CloudinaryUploadResult) => {
+    if (result.success) {
+      let fileUrl: string | undefined;
+      
+      // Handle both CloudinaryUploadResult and FileUploadResult
+      if ('url' in result && result.url) {
+        fileUrl = result.url;
+      } else if ('path' in result && result.path) {
+        fileUrl = result.path;
+      }
+      
+      if (fileUrl) {
+        updateDocument(index, "path", fileUrl);
+      }
     }
   };
 
@@ -210,6 +232,7 @@ function FranchisorRegisterPage() {
         materials: formData.materials,
         listing_highlights: highlights,
         listing_documents: documents,
+        status: ""
       },
     };
 
@@ -312,73 +335,49 @@ function FranchisorRegisterPage() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="ktp-upload" className="text-sm font-medium">Scan KTP</Label>
-                <CustomUploadFile
+                <CloudinaryUploader
                   id="ktp-upload"
                   title="Pilih File KTP"
-                  onFileChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log("KTP file selected:", file.name);
-                    }
-                  }}
-                  fileName={null}
                   onUploadComplete={handleFileUpload("ktp")}
                   acceptedTypes={["jpg", "jpeg", "png", "pdf"]}
                   maxSizeMB={5}
+                  currentUrl={formData.ktp || ""}
                 />
               </div>
 
               <div>
                 <Label htmlFor="ownership-upload" className="text-sm font-medium">Bukti Kepemilikan</Label>
-                <CustomUploadFile
+                <CloudinaryUploader
                   id="ownership-upload"
                   title="Pilih File Bukti Kepemilikan"
-                  onFileChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log("Ownership file selected:", file.name);
-                    }
-                  }}
-                  fileName={null}
                   onUploadComplete={handleFileUpload("ownership_document")}
                   acceptedTypes={["pdf", "jpg", "jpeg", "png"]}
                   maxSizeMB={10}
+                  currentUrl={formData.ownership_document || ""}
                 />
               </div>
 
               <div>
                 <Label htmlFor="financial-upload" className="text-sm font-medium">Laporan Keuangan</Label>
-                <CustomUploadFile
+                <CloudinaryUploader
                   id="financial-upload"
                   title="Pilih File Laporan Keuangan"
-                  onFileChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log("Financial file selected:", file.name);
-                    }
-                  }}
-                  fileName={null}
                   onUploadComplete={handleFileUpload("financial_statement")}
                   acceptedTypes={["pdf", "jpg", "jpeg", "png"]}
                   maxSizeMB={10}
+                  currentUrl={formData.financial_statement || ""}
                 />
               </div>
 
               <div>
                 <Label htmlFor="proposal-upload" className="text-sm font-medium">Proposal</Label>
-                <CustomUploadFile
+                <CloudinaryUploader
                   id="proposal-upload"
                   title="Pilih File Proposal"
-                  onFileChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log("Proposal file selected:", file.name);
-                    }
-                  }}
-                  fileName={null}
                   onUploadComplete={handleFileUpload("proposal")}
                   acceptedTypes={["pdf", "jpg", "jpeg", "png"]}
                   maxSizeMB={10}
+                  currentUrl={formData.proposal || ""}
                 />
               </div>
             </div>
@@ -458,37 +457,25 @@ function FranchisorRegisterPage() {
 
             <div>
               <Label htmlFor="foto-diri-upload" className="text-sm font-medium">Foto Diri Pemilik</Label>
-              <CustomUploadFile
+              <CloudinaryUploader
                 id="foto-diri-upload"
                 title="Pilih Foto Diri"
-                onFileChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    console.log("Photo file selected:", file.name);
-                  }
-                }}
-                fileName={formData.foto_diri ? "Foto diri berhasil diupload" : null}
                 onUploadComplete={handleFileUpload("foto_diri")}
                 acceptedTypes={["jpg", "jpeg", "png"]}
                 maxSizeMB={5}
+                currentUrl={formData.foto_diri || ""}
               />
             </div>
 
             <div>
               <Label htmlFor="franchise-image-upload" className="text-sm font-medium">Gambar Brand/Produk</Label>
-              <CustomUploadFile
+              <CloudinaryUploader
                 id="franchise-image-upload"
                 title="Pilih Gambar Brand"
-                onFileChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    console.log("Brand image file selected:", file.name);
-                  }
-                }}
-                fileName={formData.image ? "Gambar brand berhasil diupload" : null}
                 onUploadComplete={handleFileUpload("image")}
                 acceptedTypes={["jpg", "jpeg", "png"]}
                 maxSizeMB={5}
+                currentUrl={formData.image || ""}
               />
             </div>
           </div>
@@ -627,13 +614,12 @@ function FranchisorRegisterPage() {
                     onChange={(e) => updateDocument(index, "name", e.target.value)}
                   />
                   
-                  <CustomUploadFile
+                  <CloudinaryUploader
                     id={`document-${index}-upload`}
                     title="Upload Dokumen"
-                    onFileChange={() => {}}
-                    fileName={document.path ? "Dokumen berhasil diupload" : null}
                     onUploadComplete={handleDocumentUpload(index)}
                     acceptedTypes={["pdf", "jpg", "jpeg", "png"]}
+                    currentUrl={document.path || ""}
                   />
                 </div>
               ))}

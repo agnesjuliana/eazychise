@@ -22,6 +22,7 @@ type FranchiseDataPayload = {
   name: string;
   price: number;
   image: string;
+  status: string;
   location: string;
   ownership_document: string;
   financial_statement: string;

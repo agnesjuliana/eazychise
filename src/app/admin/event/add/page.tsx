@@ -1,7 +1,9 @@
 "use client";
 
 import AdminLayout from "@/components/admin-layout";
-import CustomUploadFile from "@/components/CustomUploadFile";
+import CloudinaryUploader, {
+  CloudinaryUploadResult,
+} from "@/components/CloudinaryUploader";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,12 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import withAuth from "@/lib/withAuth";
 import { EventPayload } from "@/type/events";
-import {
-  FileUploadResult,
-  getSavedFiles,
-  getUploadedFilePath,
-  getUploadedFiles,
-} from "@/utils/fileUtils";
 import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -32,8 +28,7 @@ function AddEventPage() {
     datetime: new Date(), // Default to current time
     image: "",
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUploadPath, setImageUploadPath] = useState<string>("");
+  const [imageUploadUrl, setImageUploadUrl] = useState<string>("");
 
   const handleInputChange = (
     field: keyof EventPayload,
@@ -45,44 +40,21 @@ function AddEventPage() {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("File harus berupa gambar");
-        return;
-      }
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Ukuran file maksimal 5MB");
-        return;
-      }
-      setImageFile(file);
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleCloudinaryUpload = (result: CloudinaryUploadResult) => {
+    if (result.secure_url) {
+      setImageUploadUrl(result.secure_url);
+      setImagePreview(result.secure_url);
       setFormData((prev) => ({
         ...prev,
-        image: file.name,
+        image: result.secure_url || "",
       }));
-    }
-  };
-
-  const handleImageUploadComplete = (result: FileUploadResult) => {
-    if (result.success && result.path) {
-      setImageUploadPath(result.path);
-      console.log("Image uploaded to:", result.path);
+      console.log("Image uploaded to Cloudinary:", result.secure_url);
     }
   };
 
   const handleRemoveImage = () => {
-    setImageFile(null);
     setImagePreview(null);
-    setImageUploadPath("");
+    setImageUploadUrl("");
     setFormData((prev) => ({
       ...prev,
       image: "",
@@ -115,22 +87,10 @@ function AddEventPage() {
     if (!validateForm()) {
       return;
     }
-    // Get uploaded files dari sessionStorage dan localStorage
-    try {
-      // Get uploaded files dari sessionStorage dan localStorage
-      const uploadedFiles = getUploadedFiles();
-      const savedFiles = getSavedFiles();
-      const imageStoredPath = getUploadedFilePath(imageFile?.name || "");
 
-      // Determine which path to use
-      let finalImagePath = "";
-      if (imageUploadPath) {
-        finalImagePath = imageUploadPath;
-      } else if (imageStoredPath) {
-        finalImagePath = imageStoredPath;
-      } else if (formData.image) {
-        finalImagePath = `/storage/image/${formData.image}`;
-      }
+    try {
+      // Use Cloudinary URL if available
+      const finalImagePath = imageUploadUrl || formData.image;
 
       // Prepare data for API
       const eventData: EventPayload = {
@@ -142,11 +102,7 @@ function AddEventPage() {
 
       console.log("Submitting event data:", {
         eventData,
-        imageFile,
-        imageUploadPath,
-        imageStoredPath,
-        allUploadedFiles: uploadedFiles,
-        allSavedFiles: savedFiles,
+        imageUploadUrl,
       });
 
       // Call API to create event
@@ -273,14 +229,13 @@ function AddEventPage() {
                 <Label className="text-sm font-medium text-gray-700">
                   Gambar Event <span className="text-red-500">*</span>
                 </Label>
-                <CustomUploadFile
+                <CloudinaryUploader
                   id="image-upload"
                   title="Upload Gambar Event"
-                  onFileChange={handleImageChange}
-                  fileName={imageFile?.name || null}
-                  onUploadComplete={handleImageUploadComplete}
+                  onUploadComplete={handleCloudinaryUpload}
                   maxSizeMB={5}
                   acceptedTypes={["png", "jpg", "jpeg"]}
+                  currentUrl={imageUploadUrl}
                 />
                 {imagePreview && (
                   <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">

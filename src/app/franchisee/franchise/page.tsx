@@ -23,7 +23,7 @@ function OwnedFranchisePage() {
   const router = useRouter();
 
   const handleFranchiseClick = (franchiseId: string) => {
-    router.push(`/franchisee/franchise/${franchiseId}`);
+    router.push(`/franchisee/franchise/${franchiseId}/owned-franchise-detail`);
   };
 
   const LoadingState = () => (
@@ -151,7 +151,7 @@ function OwnedFranchisePage() {
     <AppLayout>
       {/* Header */}
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-50 max-w-md mx-auto bg-gray-50 w-full">
-        <HeaderPage title="FRANCHISE" />
+        <HeaderPage title="OWNED FRANCHISE" />
       </div>
       <div style={{ height: "162px" }} className="w-full bg-gray-50"></div>
 

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
-import CustomUploadFile from "@/components/CustomUploadFile";
+import CloudinaryUploader, { CloudinaryUploadResult } from "@/components/CloudinaryUploader";
 import { FranchisorRegistrationPayload } from "@/type/registration";
 import { FileUploadResult } from "@/utils/fileUtils";
 import {
@@ -93,10 +93,21 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
     }
   };
 
-  const handleFileUpload = (field: keyof typeof uploadedFiles, result: FileUploadResult) => {
-    if (result.success && result.path) {
-      setUploadedFiles(prev => ({ ...prev, [field]: result.path }));
-      setFormData(prev => ({ ...prev, [field]: result.path }));
+  const handleFileUpload = (field: keyof typeof uploadedFiles, result: FileUploadResult | CloudinaryUploadResult) => {
+    if (result.success) {
+      let fileUrl: string | undefined;
+      
+      // Handle both CloudinaryUploadResult and FileUploadResult
+      if ('url' in result && result.url) {
+        fileUrl = result.url;
+      } else if ('path' in result && result.path) {
+        fileUrl = result.path;
+      }
+      
+      if (fileUrl) {
+        setUploadedFiles(prev => ({ ...prev, [field]: fileUrl }));
+        setFormData(prev => ({ ...prev, [field]: fileUrl }));
+      }
     }
   };
 
@@ -108,7 +119,7 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
       case 2:
         return !!(uploadedFiles.ktp && uploadedFiles.foto_diri);
       case 3:
-        return !!(formData.franchiseName && formData.price && formData.location && formData.sales_location && formData.equipment && formData.materials && highlights.every(h => h.title && h.content));
+        return !!(formData.franchiseName && formData.price && formData.location && formData.sales_location && formData.equipment && formData.materials && uploadedFiles.image && highlights.every(h => h.title && h.content));
       case 4:
         return !!(uploadedFiles.ownership_document && uploadedFiles.financial_statement && uploadedFiles.proposal);
       default:
@@ -166,6 +177,7 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
           sales_location: formData.sales_location,
           equipment: formData.equipment,
           materials: formData.materials,
+          category_id: ["fa3a59bb-b003-4c27-9497-c2f3e333cabc"],
           listing_documents: [], // Additional documents if any
           listing_highlights: highlights.filter(h => h.title && h.content),
         },
@@ -269,24 +281,22 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-center mb-6">Upload Dokumen Identitas</h2>
             
-            <CustomUploadFile
+            <CloudinaryUploader
               id="ktp"
               title="Upload KTP"
-              onFileChange={() => {}}
-              fileName={uploadedFiles.ktp}
               onUploadComplete={(result) => handleFileUpload('ktp', result)}
               acceptedTypes={['jpg', 'jpeg', 'png']}
               maxSizeMB={5}
+              currentUrl={uploadedFiles.ktp || ""}
             />
 
-            <CustomUploadFile
+            <CloudinaryUploader
               id="foto_diri"
               title="Upload Foto Diri"
-              onFileChange={() => {}}
-              fileName={uploadedFiles.foto_diri}
               onUploadComplete={(result) => handleFileUpload('foto_diri', result)}
               acceptedTypes={['jpg', 'jpeg', 'png']}
               maxSizeMB={5}
+              currentUrl={uploadedFiles.foto_diri || ""}
             />
           </div>
         );
@@ -357,6 +367,19 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
               />
             </div>
 
+            {/* Upload Gambar Franchise */}
+            <div className="space-y-2">
+              <Label>Gambar Franchise</Label>
+              <CloudinaryUploader
+                id="franchise_image"
+                title="Upload Gambar Franchise"
+                onUploadComplete={(result) => handleFileUpload('image', result)}
+                acceptedTypes={['jpg', 'jpeg', 'png']}
+                maxSizeMB={5}
+                currentUrl={uploadedFiles.image || ""}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label>Keunggulan Franchise</Label>
               {highlights.map((highlight, index) => (
@@ -404,31 +427,28 @@ export default function FranchisorForm({ onSuccess }: FranchisorFormProps) {
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-center mb-6">Upload Dokumen Bisnis</h2>
             
-            <CustomUploadFile
+            <CloudinaryUploader
               id="ownership_document"
               title="Dokumen Kepemilikan"
-              onFileChange={() => {}}
-              fileName={uploadedFiles.ownership_document}
               onUploadComplete={(result) => handleFileUpload('ownership_document', result)}
               acceptedTypes={['pdf', 'doc', 'docx']}
+              currentUrl={uploadedFiles.ownership_document || ""}
             />
 
-            <CustomUploadFile
+            <CloudinaryUploader
               id="financial_statement"
               title="Laporan Keuangan"
-              onFileChange={() => {}}
-              fileName={uploadedFiles.financial_statement}
               onUploadComplete={(result) => handleFileUpload('financial_statement', result)}
               acceptedTypes={['pdf', 'doc', 'docx']}
+              currentUrl={uploadedFiles.financial_statement || ""}
             />
 
-            <CustomUploadFile
+            <CloudinaryUploader
               id="proposal"
               title="Proposal Bisnis"
-              onFileChange={() => {}}
-              fileName={uploadedFiles.proposal}
               onUploadComplete={(result) => handleFileUpload('proposal', result)}
               acceptedTypes={['pdf', 'doc', 'docx']}
+              currentUrl={uploadedFiles.proposal || ""}
             />
           </div>
         );

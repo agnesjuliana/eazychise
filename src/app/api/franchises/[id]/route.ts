@@ -26,7 +26,7 @@ export async function GET(
     });
   }
 
-  const { id: franchiseId } = params;
+  const { id: franchiseId } = await params;
 
   try {
     const franchise = await prisma.franchise_listings.findUnique({
@@ -89,7 +89,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
     });
   }
 
-  const { id } = context.params;
+  const { id } = await context.params;
   const body: FranchiseUpdatePayload = await req.json();
 
   console.log("UPDATE FRANCHISE REQUEST:", {
@@ -138,7 +138,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       }
     }
 
-    if (f.category_id.length === 0) {
+    if (f.category_id && f.category_id.length === 0) {
       return NextResponse.json(
         { error: "Franchise category is missing" },
         { status: 400 }
@@ -213,12 +213,15 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
           where: { franchise_id: franchise.id },
         });
 
-        await tx.category_franchise.createMany({
-          data: body.category_id.map((category_id) => ({
-            franchise_id: franchise.id,
-            category_id,
-          })),
-        });
+        // Only update categories if provided
+        if (body.category_id && body.category_id.length > 0) {
+          await tx.category_franchise.createMany({
+            data: body.category_id.map((category_id) => ({
+              franchise_id: franchise.id,
+              category_id,
+            })),
+          });
+        }
 
         // Update listing_documents
         // First, delete all existing documents for this franchise

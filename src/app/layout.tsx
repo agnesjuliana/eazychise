@@ -12,6 +12,10 @@ const poppins = Poppins({
   variable: "--font-poppins", // ini akan menjadi class CSS
 });
 
+export const viewport = {
+  themeColor: "#3b82f6",
+};
+
 export const metadata = {
   title: "EazyChise - Franchisee/Franchisor Platform",
   description: "Platform terbaik untuk franchisee dan franchisor di Indonesia",
@@ -21,7 +25,6 @@ export const metadata = {
     apple: "/favicon.svg",
   },
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

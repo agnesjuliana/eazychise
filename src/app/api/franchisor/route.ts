@@ -22,9 +22,17 @@ export async function GET() {
     });
 
     if (!franchise) {
+      // Return zero counts if no franchise found instead of 404
       return NextResponse.json(
-        formatError({ message: "Franchise not found" }),
-        { status: 404 }
+        formatResponse({
+          message: "No franchise found",
+          data: {
+            accepted: 0,
+            waiting: 0,
+            rejected: 0,
+          },
+        }),
+        { status: 200 }
       );
     }
 

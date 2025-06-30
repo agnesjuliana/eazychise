@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { status } = await req.json();
-    const franchiseId = params.id;
+    const { id: franchiseId } = await params;
 
     if (!status || !["ACCEPTED", "REJECTED"].includes(status)) {
       return NextResponse.json(
@@ -21,7 +21,7 @@ export async function PATCH(
     // Update franchise status
     const updatedFranchise = await prisma.franchise_listings.update({
       where: { id: franchiseId },
-      data: { confirmation_status: status },
+      data: { status: status },
       include: {
         franchisor: true,
       },

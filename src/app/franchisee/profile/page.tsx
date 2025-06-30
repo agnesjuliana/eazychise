@@ -10,7 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  FileText,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import withAuth from "@/lib/withAuth";
 import {
   callLogoutAPI,
@@ -122,6 +129,7 @@ function ProfilePage() {
       label: "Akun",
       href: "/franchisee/profile/account",
     },
+
     {
       icon: HelpCircle,
       label: "Bantuan",
@@ -141,16 +149,14 @@ function ProfilePage() {
 
   return (
     <AppLayout>
-      {/* Fixed Header */}
-      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="PROFILE" />
       </div>
 
-      {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
-      <div style={{ height: "180px" }} className="w-full bg-gray-50"></div>
       <div className="bg-gray-50">
         {/* Profile Content */}
-        <div className="px-4 -mt-6 relative z-10 flex flex-col items-center gap-4 w-full">
+        <div className="px-4 pt-4 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}
           <div className="bg-white rounded-lg p-4 shadow-sm w-full">
             <div className="flex items-center justify-between gap-4">

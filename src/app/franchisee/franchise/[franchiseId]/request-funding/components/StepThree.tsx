@@ -1,10 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, Plus } from "lucide-react";
-import { useState } from "react";
+import { Plus } from "lucide-react";
+import { useState, useCallback } from "react";
 
 export default function StepThree() {
   const [formData, setFormData] = useState({
@@ -22,13 +21,13 @@ export default function StepThree() {
     fotoFranchise: null as File | null,
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const handleFileUpload = (field: string, file: File | null) => {
+  const handleFileUpload = useCallback((field: string, file: File | null) => {
     setFiles((prev) => ({ ...prev, [field]: file }));
-  };
+  }, []);
 
   return (
     <div className="mt-4 w-full space-y-6">

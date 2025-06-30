@@ -7,7 +7,7 @@ import { ConfirmationStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: Request, context: { params: { id: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireRole(Role.ADMIN);
 
@@ -17,7 +17,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       });
     }
 
-    const id = context.params.id;
+    const { id } = await context.params;
 
     const funding_request = await prisma.funding_request.findUnique({
       where: { id },
@@ -82,7 +82,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(Role.ADMIN);
@@ -93,8 +93,9 @@ export async function PATCH(
       });
     }
 
+    const { id } = await params;
     const funding_request = await prisma.funding_request.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!funding_request) {
