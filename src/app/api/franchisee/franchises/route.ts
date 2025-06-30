@@ -46,6 +46,8 @@ export async function GET(_req: Request) {
           select: {
             id: true,
             confirmation_status: true,
+            mou_franchisor: true,
+            mou_modal: true,
           },
         },
       },
