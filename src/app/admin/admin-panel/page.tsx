@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/ui/back-button";
 import { User as UserType } from "@/type/user";
 import React from "react";
 import { Loader2 } from "lucide-react";

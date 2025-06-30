@@ -257,7 +257,7 @@ export default function withAuth<T extends object>(
               redirectOnce("/franchisor/home");
               break;
             case Role.ADMIN:
-              redirectOnce("/admin");
+              redirectOnce("/admin/admin-panel");
               break;
           }
         }
@@ -308,7 +308,7 @@ export default function withAuth<T extends object>(
                 redirectOnce("/franchisor/home");
                 break;
               case Role.ADMIN:
-                redirectOnce("/admin");
+                redirectOnce("/admin/admin-panel");
                 break;
             }
           }
@@ -327,7 +327,7 @@ export default function withAuth<T extends object>(
               redirectOnce("/franchisor/home");
               break;
             case Role.ADMIN:
-              redirectOnce("/admin");
+              redirectOnce("/admin/admin-panel");
               break;
           }
         }

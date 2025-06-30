@@ -5,6 +5,7 @@ import HeaderPage from "@/components/header";
 import { Phone, Mail, ChevronRight } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import withAuth from "@/lib/withAuth";
+import { toast } from "sonner";
 
 function HelpPage() {
   const faqItems = [
@@ -92,7 +93,7 @@ function HelpPage() {
                     } else if (option.title === "Email") {
                       window.open("mailto:support@eazychise.com");
                     } else {
-                      alert("Fitur live chat akan segera tersedia");
+                      toast.info("Fitur live chat akan segera tersedia");
                     }
                   }}
                 >

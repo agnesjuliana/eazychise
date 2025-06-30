@@ -187,14 +187,14 @@ function DetailPage() {
         toast.success(
           `Akun berhasil ${action === "ACCEPTED" ? "disetujui" : "ditolak"}`
         );
-        router.push("/admin");
+        router.push("/admin/admin-panel");
         router.refresh();
       } else {
-        alert(data.message || "Gagal melakukan tindakan");
+        toast.error(data.message || "Gagal melakukan tindakan");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Terjadi kesalahan saat melakukan tindakan");
+      toast.error("Terjadi kesalahan saat melakukan tindakan");
     } finally {
       setActionLoading(false);
     }

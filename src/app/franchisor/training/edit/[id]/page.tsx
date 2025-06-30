@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ListingDocument } from "@/type/tutorial";
+import { toast } from "sonner";
 
 function TutorialEditPage() {
   const router = useRouter();
@@ -40,16 +41,16 @@ function TutorialEditPage() {
             setTutorialName(tutorial.name);
             setOriginalPath(tutorial.path); // Store original path
           } else {
-            alert('Tutorial tidak ditemukan');
+            toast.error('Tutorial tidak ditemukan');
             router.push('/franchisor/training');
           }
         } else {
-          alert('Gagal memuat data tutorial');
+          toast.error('Gagal memuat data tutorial');
           router.push('/franchisor/training');
         }
       } catch (error) {
         console.error('Error fetching tutorial:', error);
-        alert('Gagal memuat data tutorial');
+        toast.error('Gagal memuat data tutorial');
         router.push('/franchisor/training');
       } finally {
         setLoading(false);
@@ -70,7 +71,7 @@ function TutorialEditPage() {
 
   const handleUpdate = async () => {
     if (!tutorialName) {
-      alert("Nama tutorial harus diisi!");
+      toast.error("Nama tutorial harus diisi!");
       return;
     }
 
@@ -100,14 +101,14 @@ function TutorialEditPage() {
       const result = await response.json();
 
       if (response.ok && result.status == true) {
-        alert("Tutorial berhasil diupdate!");
+        toast.success("Tutorial berhasil diupdate!");
         router.push('/franchisor/training');
       } else {
-        alert("Error: " + (result.message || 'Gagal mengupdate tutorial'));
+        toast.error("Error: " + (result.message || 'Gagal mengupdate tutorial'));
       }
     } catch (error) {
       console.error("Error updating tutorial:", error);
-      alert("Terjadi kesalahan saat mengupdate data");
+      toast.error("Terjadi kesalahan saat mengupdate data");
     } finally {
       setIsSubmitting(false);
     }
@@ -128,14 +129,14 @@ function TutorialEditPage() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert("Tutorial berhasil dihapus!");
+        toast.success("Tutorial berhasil dihapus!");
         router.push('/franchisor/training');
       } else {
-        alert("Error: " + (result.message || 'Gagal menghapus tutorial'));
+        toast.error("Error: " + (result.message || 'Gagal menghapus tutorial'));
       }
     } catch (error) {
       console.error("Error deleting tutorial:", error);
-      alert("Terjadi kesalahan saat menghapus data");
+      toast.error("Terjadi kesalahan saat menghapus data");
     } finally {
       setIsDeleting(false);
     }

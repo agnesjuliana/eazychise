@@ -50,7 +50,7 @@ export const callLoginAPI = async (email: string, password: string) => {
  */
 export const getUserRedirectPath = (user: User): string => {
   if (user.role === "ADMIN") {
-    return "/admin";
+    return "/admin/admin-panel";
   }
   
   if (user.status === "WAITING") {
