@@ -25,16 +25,37 @@ export async function POST(req: Request) {
       );
     }
 
+    const admins = await prisma.users.findMany({
+      where: {
+        role: "ADMIN",
+      },
+    });
+
     const hashedPassword = await hash(password, 10);
 
-    const user = await prisma.users.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: "FRANCHISEE",
-        status: "WAITING", // Default status for new users
-      },
+    const { user } = await prisma.$transaction(async (tx) => {
+      const user = await prisma.users.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role: "FRANCHISEE",
+          status: "WAITING", // Default status for new users
+        },
+      });
+
+      await tx.user_notifications.createMany({
+        data: admins.map((admin) => ({
+          user_id: admin.id,
+          title: "New Franchisee Registered",
+          message: `${user.name} telah melakukan registrasi sebagai franchisee dan sedang menunggu konfirmasi.`,
+          type: "new_user",
+          is_read: false,
+          sent_at: new Date(),
+        })),
+      });
+
+      return { user };
     });
 
     return NextResponse.json({ success: true, id: user.id }, { status: 201 });

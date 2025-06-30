@@ -125,6 +125,12 @@ export async function POST(req: Request) {
       );
     }
 
+    const admins = await prisma.users.findMany({
+      where: {
+        role: "ADMIN",
+      },
+    });
+
     const hashedPassword = await hash(body.password, 10);
 
     const { user, profile, franchise, highlights, documents } =
@@ -208,6 +214,17 @@ export async function POST(req: Request) {
             })
           );
         }
+
+        await tx.user_notifications.createMany({
+          data: admins.map((admin) => ({
+            user_id: admin.id,
+            title: "New Franchisor Registered",
+            message: `${user.name} telah melakukan registrasi sebagai franchisor dan sedang menunggu konfirmasi.`,
+            type: "new_user",
+            is_read: false,
+            sent_at: new Date(),
+          })),
+        });
 
         return { user, profile, franchise, highlights, documents };
       });
