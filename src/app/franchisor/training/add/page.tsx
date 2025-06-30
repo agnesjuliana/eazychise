@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FranchisorLayout from "@/components/franchisor-layout";
+import { toast } from "sonner";
 
 function TutorialAddPage() {
   const router = useRouter();
@@ -68,16 +69,16 @@ function TutorialAddPage() {
         });
         const data = await res.json();
         if (!res.ok) {
-          alert("Gagal menambah tutorial: " + (data?.message || res.status));
+          toast.error("Gagal menambah tutorial: " + (data?.message || res.status));
           return;
         }
       } catch (err) {
-        alert("Gagal submit tutorial: " + err);
+        toast.error("Gagal submit tutorial: " + err);
         return;
       }
     }
 
-    alert("Data berhasil disubmit dan tutorial berhasil ditambahkan!");
+    toast.success("Data berhasil disubmit dan tutorial berhasil ditambahkan!");
     router.push('/franchisor/training');
   };
 
