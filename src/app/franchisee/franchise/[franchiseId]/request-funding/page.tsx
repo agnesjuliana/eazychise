@@ -2,7 +2,7 @@
 import AppLayout from "@/components/app-layout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import React, { useState, use, useCallback } from "react";
+import React, { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import StepOne from "./components/StepOne";
 import { Progress } from "@/components/ui/progress";
@@ -11,7 +11,6 @@ import StepFour from "./components/StepFour";
 import StepFive from "./components/StepFive";
 import StepSix from "./components/StepSix";
 import StepEight from "./components/StepEight";
-import StepNine from "./components/StepNine";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,24 +45,104 @@ interface FormData {
   noTelepon: string;
   npwp: string;
   alamatFranchise: string;
+  ktp: string;
+  foto_diri: string;
+  foto_franchise: string;
+  mou_franchisor: string;
+  mou_modal: string;
 }
 
-// Files interface
-interface Files {
-  scanKTP: File | null;
-  fotoDiri: File | null;
-  fotoFranchise: File | null;
-  mouFranchisor: File | null;
-  mouModal: File | null;
+// StepThreeForm dan StepSevenForm sebagai komponen function di luar komponen utama
+type StepFormProps = {
+  formData: FormData;
+  handleInputChange: (field: keyof FormData, value: string) => void;
+  handleFileUpload: (field: keyof FormData) => (result: FileUploadResult | CloudinaryUploadResult) => void;
+};
+function StepThreeForm({ formData, handleInputChange, handleFileUpload }: StepFormProps) {
+  return (
+    <div className="mt-4 w-full space-y-6">
+      <h1 className="text-xl font-semibold text-black mb-6">Formulir Pendaftaran</h1>
+      <div className="space-y-4">
+        {/* Nama Lengkap */}
+        <div className="space-y-2">
+          <Label htmlFor="namaLengkap" className="text-sm font-medium text-black">Nama Lengkap</Label>
+          <Input id="namaLengkap" placeholder="Dwiyanto Putra" value={formData.namaLengkap} onChange={e => handleInputChange("namaLengkap", e.target.value)} className="bg-gray-100 border-none" />
+        </div>
+        {/* Email */}
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium text-black">Email</Label>
+          <Input id="email" type="email" placeholder="Dwiyanto28@email.com" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} className="bg-gray-100 border-none" />
+        </div>
+        {/* Alamat Tempat Tinggal */}
+        <div className="space-y-2">
+          <Label htmlFor="alamatTempat" className="text-sm font-medium text-black">Alamat Tempat Tinggal</Label>
+          <Input id="alamatTempat" placeholder="Jalan Aja Dulu" value={formData.alamatTempat} onChange={e => handleInputChange("alamatTempat", e.target.value)} className="bg-gray-100 border-none" />
+        </div>
+        {/* No Telepon */}
+        <div className="space-y-2">
+          <Label htmlFor="noTelepon" className="text-sm font-medium text-black">No Telepon</Label>
+          <Input id="noTelepon" placeholder="082327184928" value={formData.noTelepon} onChange={e => handleInputChange("noTelepon", e.target.value)} className="bg-gray-100 border-none" />
+        </div>
+        {/* NPWP */}
+        <div className="space-y-2">
+          <Label htmlFor="npwp" className="text-sm font-medium text-black">NPWP</Label>
+          <Input id="npwp" placeholder="XXXXXXXXXX" value={formData.npwp} onChange={e => handleInputChange("npwp", e.target.value)} className="bg-gray-100 border-none" />
+        </div>
+        {/* Alamat Lokasi Franchise */}
+        <div className="space-y-2">
+          <Label htmlFor="alamatFranchise" className="text-sm font-medium text-black">Alamat Lokasi Franchise</Label>
+          <Input id="alamatFranchise" placeholder="Jalan Aja Dulu" value={formData.alamatFranchise} onChange={e => handleInputChange("alamatFranchise", e.target.value)} className="bg-gray-100 border-none" />
+        </div>
+        {/* Scan KTP */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-black">Scan KTP</Label>
+          <CloudinaryUploader key={formData.ktp} id="scan-ktp" title="Upload Scan KTP" onUploadComplete={handleFileUpload("ktp")} currentUrl={formData.ktp || ""} maxSizeMB={5} acceptedTypes={["png", "jpg", "jpeg"]} />
+        </div>
+        {/* Upload Foto Diri */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-black">Upload Foto Diri</Label>
+          <CloudinaryUploader key={formData.foto_diri} id="foto-diri" title="Upload Foto Diri" onUploadComplete={handleFileUpload("foto_diri")} currentUrl={formData.foto_diri || ""} maxSizeMB={5} acceptedTypes={["png", "jpg", "jpeg"]} />
+        </div>
+        {/* Upload Foto Lokasi Franchise */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-black">Upload Foto Lokasi Franchise</Label>
+          <CloudinaryUploader key={formData.foto_franchise} id="foto-franchise" title="Upload Foto Lokasi Franchise" onUploadComplete={handleFileUpload("foto_franchise")} currentUrl={formData.foto_franchise || ""} maxSizeMB={5} acceptedTypes={["png", "jpg", "jpeg"]} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
-// File upload paths interface
-interface FilePaths {
-  scanKTP: string;
-  fotoDiri: string;
-  fotoFranchise: string;
-  mouFranchisor: string;
-  mouModal: string;
+type StepSevenFormProps = {
+  formData: FormData;
+  handleFileUpload: (field: keyof FormData) => (result: FileUploadResult | CloudinaryUploadResult) => void;
+  handleDownload: (type: string) => void;
+};
+function StepSevenForm({ formData, handleFileUpload, handleDownload }: StepSevenFormProps) {
+  return (
+    <div className="w-full space-y-6">
+      <h1 className="text-2xl font-bold text-black mb-6">Tanda Tangan Perjanjian</h1>
+      <div className="space-y-4">
+        <p className="text-sm text-gray-700 leading-relaxed">FundChise akan melindungi hak anda sebagai franchisee dan melindungi hak franchisor. Tanda tangani dokumen perjanjian berikut untuk kebaikan kedua pihak.</p>
+        <p className="text-sm text-orange-500 font-medium">Tanda tangan harus disertai materai Rp. 10.000</p>
+        {/* Download Buttons */}
+        <div className="space-y-3">
+          <Button onClick={() => handleDownload("MoU Franchisor")} className="w-full bg-orange-400 hover:bg-orange-500 text-white flex items-center justify-center gap-2 py-3"><Download className="w-4 h-4" />Unduh Dokumen MoU Franchisor</Button>
+          <Button onClick={() => handleDownload("MoU Modal")} className="w-full bg-orange-400 hover:bg-orange-500 text-white flex items-center justify-center gap-2 py-3"><Download className="w-4 h-4" />Unduh Dokumen MoU Modal</Button>
+        </div>
+        {/* Upload MoU Franchisor */}
+        <div className="space-y-2 mt-8">
+          <Label className="text-sm font-medium text-black">Upload Dokumen MoU Franchisor</Label>
+          <CloudinaryUploader key={formData.mou_franchisor} id="mou-franchisor" title="Upload Dokumen MoU Franchisor" onUploadComplete={handleFileUpload("mou_franchisor")} currentUrl={formData.mou_franchisor || ""} maxSizeMB={10} acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]} />
+        </div>
+        {/* Upload MoU Modal */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-black">Upload Dokumen MoU Modal</Label>
+          <CloudinaryUploader key={formData.mou_modal} id="mou-modal" title="Upload Dokumen MoU Modal" onUploadComplete={handleFileUpload("mou_modal")} currentUrl={formData.mou_modal || ""} maxSizeMB={10} acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function RequestFundingPage({ user, params }: RequestFundingPageProps) {
@@ -83,22 +162,11 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     noTelepon: "",
     npwp: "",
     alamatFranchise: "",
-  });
-
-  const [files, setFiles] = useState<Files>({
-    scanKTP: null,
-    fotoDiri: null,
-    fotoFranchise: null,
-    mouFranchisor: null,
-    mouModal: null,
-  });
-
-  const [filePaths, setFilePaths] = useState<FilePaths>({
-    scanKTP: "",
-    fotoDiri: "",
-    fotoFranchise: "",
-    mouFranchisor: "",
-    mouModal: "",
+    ktp: "",
+    foto_diri: "",
+    foto_franchise: "",
+    mou_franchisor: "",
+    mou_modal: "",
   });
 
   // Pre-fill user data if available
@@ -112,52 +180,29 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     }
   }, [user]);
 
-  const handleInputChange = useCallback(
-    (field: keyof FormData, value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    },
-    []
-  );
+  // Handler input
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+  // Handler upload file
+  const handleFileUpload = (field: keyof FormData) => (result: FileUploadResult | CloudinaryUploadResult) => {
+    if (result.success) {
+      let fileUrl: string | undefined;
+      if ('url' in result && result.url) fileUrl = result.url;
+      else if ('path' in result && result.path) fileUrl = result.path;
+      if (fileUrl) setFormData(prev => ({ ...prev, [field]: fileUrl }));
+    }
+  };
 
-  const handleFileUpload = useCallback(
-    (field: keyof Files, file: File | null) => {
-      setFiles((prev) => ({ ...prev, [field]: file }));
-    },
-    []
-  );
-
-  const handleFileUploadComplete = useCallback(
-    (field: keyof FilePaths, result: FileUploadResult | CloudinaryUploadResult) => {
-      if (result.success) {
-        const fileUrl = ('url' in result && result.url) ? result.url : result.path;
-        if (fileUrl) {
-          setFilePaths((prev) => ({ ...prev, [field]: fileUrl }));
-        }
-      }
-    },
-    []
-  );
-
-  const handleDownload = useCallback((documentType: string) => {
+  const handleDownload = (documentType: string) => {
     // Handle document download logic here
     console.log(`Downloading ${documentType}`);
     toast.info(`Mengunduh ${documentType}...`);
-  }, []);
+  };
 
-  const submitFundingRequest = useCallback(async () => {
+  const submitFundingRequest = async () => {
     try {
       setIsLoading(true);
-
-      // Use uploaded file paths or fallback to dummy files
-      const uploadedFiles = {
-        ktp: filePaths.scanKTP || "ktp_dummy.jpg",
-        foto_diri: filePaths.fotoDiri || "foto_diri_dummy.jpg",
-        foto_lokasi: filePaths.fotoFranchise || "foto_lokasi_dummy.jpg",
-        mou_franchisor: filePaths.mouFranchisor || "mou_franchisor_dummy.pdf",
-        mou_modal: filePaths.mouModal || "mou_modal_dummy.pdf",
-      };
-
-      // Prepare request payload matching the API structure
       const payload: PurchaseFranchisePayload = {
         purchase_type: "FUNDED",
         confirmation_status: "WAITING",
@@ -168,11 +213,11 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
           phone_number: formData.noTelepon,
           npwp: formData.npwp,
           franchise_address: formData.alamatFranchise,
-          ktp: uploadedFiles.ktp,
-          foto_diri: uploadedFiles.foto_diri,
-          foto_lokasi: uploadedFiles.foto_lokasi,
-          mou_franchisor: uploadedFiles.mou_franchisor,
-          mou_modal: uploadedFiles.mou_modal,
+          ktp: formData.ktp || "ktp_dummy.jpg",
+          foto_diri: formData.foto_diri || "foto_diri_dummy.jpg",
+          foto_lokasi: formData.foto_franchise || "foto_lokasi_dummy.jpg",
+          mou_franchisor: formData.mou_franchisor || "mou_franchisor_dummy.pdf",
+          mou_modal: formData.mou_modal || "mou_modal_dummy.pdf",
         },
       };
 
@@ -197,9 +242,9 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [formData, filePaths, franchiseId]);
+  };
 
-  const handleNext = useCallback(() => {
+  const handleNext = () => {
     if (currentStep === 3) {
       // Show submit dialog for StepThree
       setShowSubmitDialog(true);
@@ -220,7 +265,7 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
 
     if (currentStep === 9) {
       // Navigate to franchisee home
-      router.push("/franchisee");
+      router.push("/franchisee/franchise");
       return;
     }
 
@@ -237,15 +282,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
         setCurrentStep(currentStep + 1);
       }
     }
-  }, [currentStep, showConditionalSteps, router]);
+  };
 
-  const handleBack = useCallback(() => {
+  const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
-  }, [currentStep]);
+  };
 
-  const handleSubmitConfirm = useCallback(async () => {
+  const handleSubmitConfirm = async () => {
     setShowSubmitDialog(false);
 
     // Validate form data
@@ -260,7 +305,7 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       return;
     }
 
-    if (!filePaths.scanKTP || !filePaths.fotoDiri || !filePaths.fotoFranchise) {
+    if (!formData.ktp || !formData.foto_diri || !formData.foto_franchise) {
       toast.error("Mohon upload semua dokumen yang diperlukan");
       return;
     }
@@ -269,12 +314,12 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     if (success) {
       setCurrentStep(currentStep + 1);
     }
-  }, [formData, filePaths, currentStep, submitFundingRequest]);
+  };
 
-  const handleSendConfirm = useCallback(async () => {
+  const handleSendConfirm = async () => {
     setShowSendDialog(false);
 
-    if (!filePaths.mouFranchisor || !filePaths.mouModal) {
+    if (!formData.mou_franchisor || !formData.mou_modal) {
       toast.error("Mohon upload kedua dokumen MoU yang telah ditandatangani");
       return;
     }
@@ -283,256 +328,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     // with the signed MoU documents
     toast.success("Dokumen MoU berhasil dikirim!");
     setCurrentStep(currentStep + 1);
-  }, [filePaths, currentStep]);
+  };
 
   // Integrated Form Component for Step 3
-  const StepThreeForm = useCallback(
-    () => (
-      <div className="mt-4 w-full space-y-6">
-        <h1 className="text-xl font-semibold text-black mb-6">
-          Formulir Pendaftaran
-        </h1>
+  // Adding key console logs to help debug the file upload issue
+  React.useEffect(() => {
+    console.log("Current uploaded files state:", formData);
+  }, [formData]);
 
-        <div className="space-y-4">
-          {/* Nama Lengkap */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="namaLengkap"
-              className="text-sm font-medium text-black"
-            >
-              Nama Lengkap
-            </Label>
-            <Input
-              id="namaLengkap"
-              placeholder="Dwiyanto Putra"
-              value={formData.namaLengkap}
-              onChange={(e) => handleInputChange("namaLengkap", e.target.value)}
-              className="bg-gray-100 border-none"
-            />
-          </div>
-
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-black">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Dwiyanto28@email.com"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              className="bg-gray-100 border-none"
-            />
-          </div>
-
-          {/* Alamat Tempat Tinggal */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="alamatTempat"
-              className="text-sm font-medium text-black"
-            >
-              Alamat Tempat Tinggal
-            </Label>
-            <Input
-              id="alamatTempat"
-              placeholder="Jalan Aja Dulu"
-              value={formData.alamatTempat}
-              onChange={(e) =>
-                handleInputChange("alamatTempat", e.target.value)
-              }
-              className="bg-gray-100 border-none"
-            />
-          </div>
-
-          {/* No Telepon */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="noTelepon"
-              className="text-sm font-medium text-black"
-            >
-              No Telepon
-            </Label>
-            <Input
-              id="noTelepon"
-              placeholder="082327184928"
-              value={formData.noTelepon}
-              onChange={(e) => handleInputChange("noTelepon", e.target.value)}
-              className="bg-gray-100 border-none"
-            />
-          </div>
-
-          {/* NPWP */}
-          <div className="space-y-2">
-            <Label htmlFor="npwp" className="text-sm font-medium text-black">
-              NPWP
-            </Label>
-            <Input
-              id="npwp"
-              placeholder="XXXXXXXXXX"
-              value={formData.npwp}
-              onChange={(e) => handleInputChange("npwp", e.target.value)}
-              className="bg-gray-100 border-none"
-            />
-          </div>
-
-          {/* Alamat Lokasi Franchise */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="alamatFranchise"
-              className="text-sm font-medium text-black"
-            >
-              Alamat Lokasi Franchise
-            </Label>
-            <Input
-              id="alamatFranchise"
-              placeholder="Jalan Aja Dulu"
-              value={formData.alamatFranchise}
-              onChange={(e) =>
-                handleInputChange("alamatFranchise", e.target.value)
-              }
-              className="bg-gray-100 border-none"
-            />
-          </div>
-
-          {/* Scan KTP */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-black">Scan KTP</Label>
-            <CloudinaryUploader
-              id="scan-ktp"
-              title="Upload Scan KTP"
-              onUploadComplete={(result) =>
-                handleFileUploadComplete("scanKTP", result)
-              }
-              maxSizeMB={5}
-              acceptedTypes={["png", "jpg", "jpeg"]}
-              currentUrl={filePaths.scanKTP || ""}
-            />
-          </div>
-
-          {/* Upload Foto Diri */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-black">
-              Upload Foto Diri
-            </Label>
-            <CloudinaryUploader
-              id="foto-diri"
-              title="Upload Foto Diri"
-              onUploadComplete={(result) =>
-                handleFileUploadComplete("fotoDiri", result)
-              }
-              maxSizeMB={5}
-              acceptedTypes={["png", "jpg", "jpeg"]}
-              currentUrl={filePaths.fotoDiri || ""}
-            />
-          </div>
-
-          {/* Upload Foto Lokasi Franchise */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-black">
-              Upload Foto Lokasi Franchise
-            </Label>
-            <CloudinaryUploader
-              id="foto-franchise"
-              title="Upload Foto Lokasi Franchise"
-              onUploadComplete={(result) =>
-                handleFileUploadComplete("fotoFranchise", result)
-              }
-              maxSizeMB={5}
-              acceptedTypes={["png", "jpg", "jpeg"]}
-              currentUrl={filePaths.fotoFranchise || ""}
-            />
-          </div>
-        </div>
-      </div>
-    ),
-    [
-      formData,
-      files,
-      handleInputChange,
-      handleFileUpload,
-      handleFileUploadComplete,
-    ]
-  );
-
-  // Integrated MOU Component for Step 7
-  const StepSevenForm = useCallback(
-    () => (
-      <div className="w-full space-y-6">
-        <h1 className="text-2xl font-bold text-black mb-6">
-          Tanda Tangan Perjanjian
-        </h1>
-
-        <div className="space-y-4">
-          <p className="text-sm text-gray-700 leading-relaxed">
-            FundChise akan melindungi hak anda sebagai franchisee dan melindungi
-            hak franchisor. Tanda tangani dokumen perjanjian berikut untuk
-            kebaikan kedua pihak.
-          </p>
-
-          <p className="text-sm text-orange-500 font-medium">
-            Tanda tangan harus disertai materai Rp. 10.000
-          </p>
-
-          {/* Download Buttons */}
-          <div className="space-y-3">
-            <Button
-              onClick={() => handleDownload("MoU Franchisor")}
-              className="w-full bg-orange-400 hover:bg-orange-500 text-white flex items-center justify-center gap-2 py-3"
-            >
-              <Download className="w-4 h-4" />
-              Unduh Dokumen MoU Franchisor
-            </Button>
-
-            <Button
-              onClick={() => handleDownload("MoU Modal")}
-              className="w-full bg-orange-400 hover:bg-orange-500 text-white flex items-center justify-center gap-2 py-3"
-            >
-              <Download className="w-4 h-4" />
-              Unduh Dokumen MoU Modal
-            </Button>
-          </div>
-
-          {/* Upload MoU Franchisor */}
-          <div className="space-y-2 mt-8">
-            <Label className="text-sm font-medium text-black">
-              Upload Dokumen MoU Franchisor
-            </Label>
-            <CloudinaryUploader
-              id="mou-franchisor"
-              title="Upload Dokumen MoU Franchisor"
-              onUploadComplete={(result) =>
-                handleFileUploadComplete("mouFranchisor", result)
-              }
-              maxSizeMB={10}
-              acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]}
-              currentUrl={filePaths.mouFranchisor || ""}
-            />
-          </div>
-
-          {/* Upload MoU Modal */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-black">
-              Upload Dokumen MoU Modal
-            </Label>
-            <CloudinaryUploader
-              id="mou-modal"
-              title="Upload Dokumen MoU Modal"
-              onUploadComplete={(result) =>
-                handleFileUploadComplete("mouModal", result)
-              }
-              maxSizeMB={10}
-              acceptedTypes={["pdf", "doc", "docx", "png", "jpg", "jpeg"]}
-              currentUrl={filePaths.mouModal || ""}
-            />
-          </div>
-        </div>
-      </div>
-    ),
-    [files, handleFileUpload, handleFileUploadComplete, handleDownload]
-  );
-
-  const getButtonText = useCallback(() => {
+  const getButtonText = () => {
     switch (currentStep) {
       case 3:
         return "Submit";
@@ -550,20 +354,29 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       default:
         return "Selanjutnya";
     }
-  }, [currentStep]);
+  };
 
-  const showBackButton = useCallback(() => {
+  const showBackButton = () => {
     return currentStep === 2 || currentStep === 3;
-  }, [currentStep]);
+  };
 
-  const renderCurrentStep = useCallback(() => {
+  function StepNineRedirect() {
+    const router = useRouter();
+    React.useEffect(() => {
+      router.push("/franchisee/franchise");
+    }, [router]);
+    return null;
+  }
+
+  // Render step
+  const renderCurrentStep = () => {
     switch (currentStep) {
       case 1:
         return <StepOne />;
       case 2:
         return <StepTwo />;
       case 3:
-        return <StepThreeForm />;
+        return <StepThreeForm formData={formData} handleInputChange={handleInputChange} handleFileUpload={handleFileUpload} />;
       case 4:
         return <StepFour />;
       case 5:
@@ -571,15 +384,15 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       case 6:
         return <StepSix />;
       case 7:
-        return <StepSevenForm />;
+        return <StepSevenForm formData={formData} handleFileUpload={handleFileUpload} handleDownload={handleDownload} />;
       case 8:
         return <StepEight />;
       case 9:
-        return <StepNine />;
+        return <StepNineRedirect />;
       default:
         return <StepOne />;
     }
-  }, [currentStep, StepThreeForm, StepSevenForm]);
+  };
 
   return (
     <AppLayout showBottomNav={false} className="text-black">
