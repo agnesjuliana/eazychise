@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import BottomNavbar from "./bottom-navbar";
-import { DollarSign, Calendar, Shield, User as UserIcon } from "lucide-react";
+import { Bell, DollarSign, Calendar, Shield, User as UserIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -98,10 +98,16 @@ export default function AdminLayout({
                 icon: Calendar,
               },
               {
+                href: "/admin/notification",
+                label: "Notification",
+                icon: Bell,
+              },
+              {
                 href: "/admin/profile",
                 label: "Profile",
                 icon: UserIcon,
               },
+              
               
             ]}
             onNavClick={handleNavClick}
