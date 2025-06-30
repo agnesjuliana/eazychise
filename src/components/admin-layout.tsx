@@ -83,11 +83,10 @@ export default function AdminLayout({
           <BottomNavbar
             navItems={[
               {
-                href: "/admin",
-                label: "Manage Users",
+                href: "/admin/admin-panel",
+                label: "Admin Panel",
                 icon: Shield,
               },
-
               {
                 href: "/admin/fund-req",
                 label: "Fund Requests",
@@ -98,7 +97,6 @@ export default function AdminLayout({
                 label: "Event",
                 icon: Calendar,
               },
-
               {
                 href: "/admin/profile",
                 label: "Profile",

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -72,6 +73,11 @@ function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 py-10">
       <Card className="w-full max-w-sm p-6 shadow-xl rounded-2xl border">
+        {/* Back Button di dalam card */}
+        <div className="flex justify-start mb-2">
+          <BackButton fallbackUrl="/start" variant="ghost" size="sm" />
+        </div>
+
         <div className="flex justify-center mb-4">
           <Image
             src="/image/auth/login.png"

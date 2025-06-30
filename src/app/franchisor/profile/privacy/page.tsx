@@ -2,29 +2,25 @@
 
 import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/ui/back-button";
 import withAuth from "@/lib/withAuth";
 
 function PrivacyPolicyPage() {
-  const router = useRouter();
-
   return (
     <FranchisorLayout className="overflow-x-hidden">
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
+        <HeaderPage title="KEBIJAKAN PRIVASI" />
+      </div>
+
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="relative">
-          <HeaderPage title="KEBIJAKAN PRIVASI" />
-          <button
-            onClick={() => router.back()}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
+        {/* Back Button */}
+        <div className="px-4 pt-4">
+          <BackButton fallbackUrl="/franchisor/profile" />
         </div>
 
         {/* Content */}
-        <div className="px-4 -mt-6 relative z-10 pb-8">
+        <div className="px-4 mt-3 relative z-10 pb-8">
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="space-y-6">
               {/* Introduction */}

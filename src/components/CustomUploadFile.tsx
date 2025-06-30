@@ -1,7 +1,6 @@
 import { ChangeEvent, useState } from "react";
-import { FileUp, Upload, Check, Loader2 } from "lucide-react";
+import { FileUp, Check, Loader2, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { uploadFileToServer, FileUploadResult } from "@/utils/fileUtils";
 
 interface CustomUploadFileProps {
@@ -25,10 +24,10 @@ const CustomUploadFile = ({
 }: CustomUploadFileProps) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
-  const [uploadResult, setUploadResult] = useState<FileUploadResult | null>(
-    null
-  );
+  const [uploadResult, setUploadResult] = useState<FileUploadResult | null>(null);
   const [validationError, setValidationError] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
 
   // File validation functions
   const validateFileSize = (file: File): boolean => {
@@ -49,7 +48,7 @@ const CustomUploadFile = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  // Enhanced file change handler with validation
+  // File change handler with validation (no auto-upload)
   const handleFileChangeWithValidation = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -57,8 +56,12 @@ const CustomUploadFile = ({
     setValidationError("");
     setIsUploaded(false);
     setUploadResult(null);
+    setSelectedFileName("");
+    setSelectedFile(null);
 
     if (file) {
+      setSelectedFileName(file.name);
+
       // Validate file size
       if (!validateFileSize(file)) {
         setValidationError(
@@ -68,6 +71,7 @@ const CustomUploadFile = ({
         );
         // Clear the input
         event.target.value = "";
+        setSelectedFileName("");
         return;
       }
 
@@ -80,38 +84,41 @@ const CustomUploadFile = ({
         );
         // Clear the input
         event.target.value = "";
+        setSelectedFileName("");
         return;
       }
 
-      // If validation passes, call the original handler
+      // If validation passes, store the file and call the original handler
+      setSelectedFile(file);
       onFileChange(event);
     }
   };
 
-  const handleUpload = async () => {
-    const fileInput = document.getElementById(id) as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-
-    if (!file) return;
+  // Manual upload handler
+  const handleManualUpload = async () => {
+    if (!selectedFile) {
+      setValidationError("Tidak ada file yang dipilih");
+      return;
+    }
 
     setIsUploading(true);
-    setIsUploaded(false);
+    setValidationError("");
 
     try {
-      const result = await uploadFileToServer(file);
-
+      const result = await uploadFileToServer(selectedFile);
       setUploadResult(result);
 
       if (result.success) {
         setIsUploaded(true);
         onUploadComplete?.(result);
+        console.log("Manual upload successful:", result);
       } else {
-        alert(`Upload failed: ${result.error}`);
+        setValidationError(`Upload gagal: ${result.error}`);
       }
     } catch (error) {
-      alert(
-        "Upload failed: " +
-          (error instanceof Error ? error.message : "Unknown error")
+      setValidationError(
+        "Upload gagal: " +
+        (error instanceof Error ? error.message : "Unknown error")
       );
     } finally {
       setIsUploading(false);
@@ -129,15 +136,15 @@ const CustomUploadFile = ({
           className="cursor-pointer flex flex-col items-center justify-center"
         >
           <FileUp className="w-8 h-8 mb-1" />
-          {fileName ? (
+          {fileName || selectedFileName ? (
             <span className="text-sm font-semibold text-gray-800">
-              {fileName}
+              {isUploaded ? "File berhasil diupload" : (fileName || selectedFileName)}
             </span>
           ) : (
             <div>
               <span className="text-[#EF5A5A] font-semibold">pilih</span>{" "}
               <span className="text-black font-semibold">
-                file untuk diupload
+                File untuk diupload
               </span>
             </div>
           )}
@@ -153,6 +160,20 @@ const CustomUploadFile = ({
           accept={acceptedTypes.map((type) => `.${type}`).join(",")}
         />
 
+        {/* Manual Upload Button */}
+        {selectedFile && !isUploaded && !isUploading && (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={handleManualUpload}
+              className="w-full bg-[#EF5A5A] text-white py-2 px-4 rounded-lg font-semibold hover:bg-[#d94545] transition-colors flex items-center justify-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Upload File
+            </button>
+          </div>
+        )}
+
         {/* Validation Error */}
         {validationError && (
           <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
@@ -164,44 +185,19 @@ const CustomUploadFile = ({
         {isUploading && (
           <div className="mt-4 flex flex-col items-center">
             <Loader2 className="w-8 h-8 animate-spin text-[#EF5A5A]" />
-            <p className="text-xs text-gray-600 mt-2">Uploading...</p>
+            <p className="text-xs text-gray-600 mt-2">Mengupload file...</p>
           </div>
         )}
 
-        {/* Upload Button */}
-        <div className="mt-4">
-          <Button
-            onClick={handleUpload}
-            disabled={
-              !fileName || isUploading || isUploaded || !!validationError
-            }
-            className={`
-              ${
-                isUploaded
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-[#EF5A5A] hover:bg-[#d94a4a]"
-              } 
-              text-white text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed
-            `}
-          >
-            {isUploading ? (
-              <>
-                <Upload className="w-4 h-4 mr-2" />
-                Uploading...
-              </>
-            ) : isUploaded ? (
-              <>
-                <Check className="w-4 h-4 mr-2" />
-                Uploaded
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 mr-2" />
-                Upload
-              </>
-            )}
-          </Button>
-        </div>
+        {/* Upload Success Message */}
+        {isUploaded && !isUploading && (
+          <div className="mt-4 flex flex-col items-center">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <Check className="w-5 h-5 text-white" />
+            </div>
+            <p className="text-xs text-green-600 mt-2 font-medium">File berhasil diupload!</p>
+          </div>
+        )}
 
         {/* Upload Result */}
         {uploadResult && uploadResult.success && (

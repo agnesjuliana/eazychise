@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth-api";
 import { Role } from "@/type/user";
-import { formatResponse, formatError } from "@/utils/response";
+import { formatError, formatResponse } from "@/utils/response";
+import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -24,21 +24,54 @@ export async function GET(_req: Request) {
       where: {
         user_id: auth.user.id,
       },
+      include: {
+        franchise: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            image: true,
+            status: true,
+            location: true,
+            franchisor: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+        funding_request: {
+          select: {
+            id: true,
+            confirmation_status: true,
+          },
+        },
+      },
       skip: skip,
       take: limit,
+      orderBy: {
+        paid_at: "desc",
+      },
     });
 
-    if (!purchases || purchases.length === 0) {
-      return NextResponse.json(
-        formatError({ message: "Franchises not found" }),
-        { status: 404 }
-      );
-    }
+    const total = await prisma.franchise_purchases.count({
+      where: {
+        user_id: auth.user.id,
+      },
+    });
 
     return NextResponse.json(
       formatResponse({
-        message: "Success get franchises",
+        message: "Success get owned franchises",
         data: purchases,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       }),
       { status: 200 }
     );

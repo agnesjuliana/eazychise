@@ -23,6 +23,7 @@ enum ConfirmationStatus {
   REJECTED
   WAITING
   ACCEPTED
+  INTERVIEW
 }
 
 enum PaymentStatus {
@@ -50,6 +51,9 @@ model users {
   profile_image String?
   role          Roles
 
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime? @updatedAt
+
   franchises          franchise_listings[]
   franchise_purchases franchise_purchases[]
   franchisor_profiles franchisor_profiles?
@@ -62,7 +66,7 @@ model franchise_purchases {
   user_id             String             @db.Uuid
   franchise_id        String             @db.Uuid
   purchase_type       PurchaseType
-  confirmation_status ConfirmationStatus
+  confirmation_status Status
   payment_status      PaymentStatus
   paid_at             DateTime?
 
@@ -100,7 +104,6 @@ model franchisor_profiles {
 model franchise_listings {
   id                  String  @id @default(uuid()) @db.Uuid
   franchisor_id       String  @db.Uuid
-  confirmation_status ConfirmationStatus
   name                String
   price               Decimal
   image               String

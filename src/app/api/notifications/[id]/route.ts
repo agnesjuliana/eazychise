@@ -5,7 +5,7 @@ import { formatResponse, formatError } from "@/utils/response";
 
 const prisma = new PrismaClient();
 
-export async function GET({ params }: { params: { id: string } }) {
+export async function GET({ params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getSessionUser();
     if (!user) {
@@ -17,7 +17,7 @@ export async function GET({ params }: { params: { id: string } }) {
       );
     }
 
-    const id = params.id;
+    const { id } = await params;
 
     const notification = await prisma.user_notifications.findUnique({
       where: {
@@ -46,7 +46,7 @@ export async function GET({ params }: { params: { id: string } }) {
   }
 }
 
-export async function PATCH({ params }: { params: { id: string } }) {
+export async function PATCH({ params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getSessionUser();
     if (!user) {
@@ -58,7 +58,7 @@ export async function PATCH({ params }: { params: { id: string } }) {
       );
     }
 
-    const id = params.id;
+    const { id } = await params;
 
     await prisma.user_notifications.update({
       where: {

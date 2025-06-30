@@ -56,6 +56,7 @@ export async function GET(
               id: true,
               type: true,
               name: true,
+              path: true,
             },
           },
           listings_highlights: {
@@ -77,6 +78,7 @@ export async function GET(
         email: user?.email,
         role: user?.role,
         status: user?.status,
+        createdAt: user?.createdAt?.toISOString(),
         detail:
           user?.role === "FRANCHISOR"
             ? {

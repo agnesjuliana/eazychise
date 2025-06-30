@@ -44,7 +44,6 @@ export async function POST(req: Request) {
       ["name", f.name],
       ["price", f.price],
       ["image", f.image],
-      ["status", f.status],
       ["location", f.location],
       ["ownership_document", f.ownership_document],
       ["financial_statement", f.financial_statement],
@@ -61,6 +60,13 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
+    }
+
+    if (body.franchise_data.category_id.length === 0) {
+      return NextResponse.json(
+        { error: "Franchise category is missing" },
+        { status: 400 }
+      );
     }
 
     if (
@@ -146,11 +152,10 @@ export async function POST(req: Request) {
         const franchise = await tx.franchise_listings.create({
           data: {
             franchisor_id: user.id,
-            confirmation_status: "WAITING",
             name: franchise_data.name,
             price: franchise_data.price,
             image: franchise_data.image,
-            status: franchise_data.status,
+            status: "OPEN",
             location: franchise_data.location,
             ownership_document: franchise_data.ownership_document,
             financial_statement: franchise_data.financial_statement,
@@ -159,6 +164,13 @@ export async function POST(req: Request) {
             equipment: franchise_data.equipment,
             materials: franchise_data.materials,
           },
+        });
+
+        await tx.category_franchise.createMany({
+          data: body.franchise_data.category_id.map((category_id) => ({
+            franchise_id: franchise.id,
+            category_id,
+          })),
         });
 
         const highlights: Awaited<

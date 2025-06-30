@@ -10,7 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  FileText,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -121,7 +128,16 @@ function ProfilePage() {
       label: "Akun",
       href: "/admin/profile/account",
     },
-
+    {
+      icon: HelpCircle,
+      label: "Bantuan",
+      href: "/admin/profile/help",
+    },
+    {
+      icon: Shield,
+      label: "Kebijakan privasi",
+      href: "/admin/profile/privacy",
+    },
     {
       icon: LogOut,
       label: "Keluar",
@@ -131,10 +147,12 @@ function ProfilePage() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="PROFILE" />
+      </div>
 
+      <div className="flex flex-col gap-4 bg-gray-50 w-full max-w-md mx-auto relative">
         {/* Profile Content */}
         <div className="px-4 -mt-6 relative z-10 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}

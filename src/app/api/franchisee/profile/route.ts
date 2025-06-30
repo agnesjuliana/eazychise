@@ -225,6 +225,7 @@ export async function PUT(request: Request) {
 
       updatedProfile = await prisma.funding_request.create({
         data: {
+          confirmation_status: "WAITING",
           purchase_id: purchase.id,
           address: address.trim(),
           phone_number: phone_number.trim(),

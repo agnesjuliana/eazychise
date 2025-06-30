@@ -5,7 +5,8 @@ import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, User, Mail, Edit3, Save, X } from "lucide-react";
+import { User, Mail, Edit3, Save, X } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -140,20 +141,14 @@ export default function AccountPage() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="AKUN" />
-
+      </div>
+      <div className=" bg-gray-50">
         {/* Back Button */}
         <div className="w-full px-4 mt-4">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Kembali</span>
-          </Button>
+          <BackButton fallbackUrl="/franchisee/profile" />
         </div>
 
         {/* Profile Content */}

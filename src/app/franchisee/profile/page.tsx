@@ -1,7 +1,6 @@
 "use client";
 
 import AppLayout from "@/components/app-layout";
-import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,15 +10,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  FileText,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import withAuth from "@/lib/withAuth";
-import { callLogoutAPI, showSuccessToast, showErrorToast } from "@/lib/authUtils";
+import {
+  callLogoutAPI,
+  showSuccessToast,
+  showErrorToast,
+} from "@/lib/authUtils";
 import useAuthStore from "@/store/authStore";
 
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import HeaderPage from "@/components/header";
 
 function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -80,23 +91,22 @@ function ProfilePage() {
   }, [router]);
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    
+
     try {
       // Update store immediately for instant UI feedback
       logout();
-      
+
       // Show success toast immediately
       showSuccessToast("Berhasil logout");
-      
+
       // Close dialog
       setLogoutDialogOpen(false);
 
       // Call logout API in background (non-blocking)
       callLogoutAPI().catch(console.warn);
-      
+
       // Redirect immediately without delay
       router.replace("/login");
-      
     } catch (error) {
       showErrorToast("Gagal logout");
       console.error("Logout error:", error);
@@ -119,6 +129,7 @@ function ProfilePage() {
       label: "Akun",
       href: "/franchisee/profile/account",
     },
+
     {
       icon: HelpCircle,
       label: "Bantuan",
@@ -138,12 +149,14 @@ function ProfilePage() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="PROFILE" />
+      </div>
 
+      <div className="bg-gray-50">
         {/* Profile Content */}
-        <div className="px-4 -mt-6 relative z-10 flex flex-col items-center gap-4 w-full">
+        <div className="px-4 pt-4 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}
           <div className="bg-white rounded-lg p-4 shadow-sm w-full">
             <div className="flex items-center justify-between gap-4">

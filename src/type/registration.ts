@@ -18,6 +18,7 @@ type FranchisorDataPayload = {
 };
 
 type FranchiseDataPayload = {
+  category_id: string[]; // Required array for multiple categories
   name: string;
   price: number;
   image: string;

@@ -1,10 +1,28 @@
 import type { NextConfig } from "next";
 
-const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true, // ✅ tambahkan ini
+const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
   },
-  // konfigurasi lain di sini...
-}
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  // Webpack configuration for better development experience
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // Improve watch performance on Windows
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
+};
 
 export default nextConfig;

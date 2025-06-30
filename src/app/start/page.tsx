@@ -4,12 +4,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { BackButton } from "@/components/ui/back-button";
 import withAuth from "@/lib/withAuth";
 
 function StartPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-10">
       <Card className="max-w-sm w-full text-center space-y-6 p-6 shadow-xl rounded-2xl border border-gray-200">
+        {/* Back Button di dalam card */}
+        <div className="flex justify-start">
+          <BackButton fallbackUrl="/" variant="ghost" size="sm" />
+        </div>
+
         <div className="flex justify-center">
           <Image
             src="/image/auth/start.png"

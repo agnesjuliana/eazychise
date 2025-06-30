@@ -33,6 +33,7 @@ export async function GET() {
                 name: true,
                 email: true,
                 profile_image: true,
+                role: true,
               },
             },
             funding_request: {
@@ -60,16 +61,10 @@ export async function GET() {
       purchase.push(...item.purchases);
     }
 
-    if (!purchase || purchase.length === 0) {
-      return NextResponse.json(
-        formatError({ message: "Purchases not found" }),
-        { status: 404 }
-      );
-    }
-
+    // Return empty array if no purchases found instead of 404
     return NextResponse.json(
       formatResponse({
-        message: "Success get purchases",
+        message: purchase.length > 0 ? "Success get purchases" : "No purchases found",
         data: purchase,
       }),
       { status: 200 }

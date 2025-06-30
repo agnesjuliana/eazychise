@@ -7,7 +7,7 @@ import { CreateTutorialPayload } from "@/type/tutorial";
 
 const prisma = new PrismaClient();
 
-export async function PUT(req: Request, context: { params: { id: string } }) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {
@@ -22,7 +22,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
     });
   }
 
-  const tutorialId = context.params.id;
+  const { id: tutorialId } = await context.params;
   const body = (await req.json()) as Partial<CreateTutorialPayload>;
 
   try {
@@ -82,7 +82,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
 
 export async function DELETE(
   _req: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
@@ -98,7 +98,7 @@ export async function DELETE(
     });
   }
 
-  const tutorialId = context.params.id;
+  const { id: tutorialId } = await context.params;
 
   try {
     const franchise = await prisma.franchise_listings.findFirst({

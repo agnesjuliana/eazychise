@@ -51,8 +51,11 @@ next-env.d.ts
 docker/
 /prisma/migrations
 
-# Uploaded files
-/public/storage/image/*
-/public/storage/file/*
+# Uploaded files (now using Cloudinary)
+/public/storage/
+/public/uploads/
 !/public/storage/image/.gitkeep
 !/public/storage/file/.gitkeep
+
+# Cloudinary cache
+.cloudinary/

@@ -2,13 +2,11 @@
 
 import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
-import { ArrowLeft, Phone, Mail, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/ui/back-button";
+import { Phone, Mail, ChevronRight } from "lucide-react";
 import withAuth from "@/lib/withAuth";
 
 function HelpPage() {
-  const router = useRouter();
-
   const faqItems = [
     {
       question: "Bagaimana cara menambahkan listing franchise baru?",
@@ -65,20 +63,19 @@ function HelpPage() {
 
   return (
     <FranchisorLayout className="overflow-x-hidden">
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="relative">
-          <HeaderPage title="BANTUAN" />
-          <button
-            onClick={() => router.back()}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-        </div>
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
+        <HeaderPage title="BANTUAN" />
+      </div>
 
+      <div className="min-h-screen bg-gray-50">
+        {/* Back Button */}
+        <div className="px-4 pt-4">
+          <BackButton fallbackUrl="/franchisor/profile" />
+        </div>
+        
         {/* Content */}
-        <div className="px-4 -mt-6 relative z-10 pb-8 space-y-4">
+        <div className="px-4 mt-3 relative z-10 pb-8 space-y-4">
           {/* Quick Actions */}
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">

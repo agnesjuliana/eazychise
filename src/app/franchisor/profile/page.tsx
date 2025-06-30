@@ -1,7 +1,6 @@
 "use client";
 
 import FranchisorLayout from "@/components/franchisor-layout";
-import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,6 +29,7 @@ import {
   showErrorToast,
 } from "@/lib/authUtils";
 import useAuthStore from "@/store/authStore";
+import HeaderPage from "@/components/header";
 
 function ProfilePage() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -153,12 +153,14 @@ function ProfilePage() {
 
   return (
     <FranchisorLayout className="overflow-x-hidden">
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+      {/* Scrollable Header */}
+      <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="PROFILE" />
+      </div>
 
+      <div className="bg-gray-50">
         {/* Profile Content */}
-        <div className="px-4 -mt-6 relative z-10 flex flex-col items-center gap-4 w-full">
+        <div className="px-4 pt-4 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}
           <div className="bg-white rounded-lg p-4 shadow-sm w-full">
             <div className="flex items-center justify-between gap-4">

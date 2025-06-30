@@ -7,7 +7,7 @@ import { ConfirmationStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: Request, context: { params: { id: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {
@@ -15,7 +15,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
     });
   }
 
-  const id = context.params.id;
+  const { id } = await context.params;
 
   try {
     const purchase = await prisma.franchise_purchases.findUnique({
@@ -23,7 +23,15 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       include: {
         franchise: {
           select: {
+            id: true,
             franchisor_id: true,
+            name: true,
+            price: true,
+            image: true,
+            location: true,
+            status: true,
+            equipment: true,
+            materials: true,
           },
         },
         user: {
@@ -32,6 +40,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
             name: true,
             email: true,
             profile_image: true,
+            role: true,
           },
         },
         funding_request: {
@@ -65,9 +74,6 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       );
     }
 
-    // Delete franchise data
-    delete (purchase as { franchise?: typeof purchase.franchise }).franchise;
-
     return NextResponse.json(
       formatResponse({
         message: "Success get purchase",
@@ -86,7 +92,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(Role.FRANCHISOR);
@@ -97,8 +103,9 @@ export async function PATCH(
       });
     }
 
+    const { id } = await params;
     const franchise_purchases = await prisma.franchise_purchases.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         franchise: {
           select: {

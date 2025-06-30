@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole([
     Role.FRANCHISOR,
@@ -28,8 +28,17 @@ export async function GET(
     const per_page = parseInt(searchParams.get("per_page") || "10");
     const sort = searchParams.get("sort") || "asc";
     const sort_by = searchParams.get("sort_by") || "id";
+    const filter_value = searchParams.get("filter_value") || "";
+    const filter_by = searchParams.get("filter_by") || "name";
 
-    const category_id = params.slug;
+    const filter = {
+      [filter_by]: {
+        contains: filter_value,
+        mode: "insensitive",
+      },
+    };
+
+    const { id: category_id } = await params;
 
     const total_data = await prisma.franchise_listings.count({
       where: {
@@ -38,6 +47,7 @@ export async function GET(
             category_id,
           },
         },
+        ...filter,
       },
     });
 
@@ -50,6 +60,7 @@ export async function GET(
             category_id,
           },
         },
+        ...filter,
       },
       include: {
         franchisor: {
@@ -57,6 +68,11 @@ export async function GET(
             id: true,
             name: true,
             email: true,
+          },
+        },
+        franchise_categories: {
+          include: {
+            category_rel: true,
           },
         },
       },
