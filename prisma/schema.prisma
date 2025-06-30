@@ -23,6 +23,7 @@ enum ConfirmationStatus {
   REJECTED
   WAITING
   ACCEPTED
+  INTERVIEW
 }
 
 enum PaymentStatus {
@@ -65,7 +66,7 @@ model franchise_purchases {
   user_id             String             @db.Uuid
   franchise_id        String             @db.Uuid
   purchase_type       PurchaseType
-  confirmation_status ConfirmationStatus
+  confirmation_status Status
   payment_status      PaymentStatus
   paid_at             DateTime?
 

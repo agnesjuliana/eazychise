@@ -6,7 +6,7 @@ import { formatResponse, formatError } from "@/utils/response";
 
 const prisma = new PrismaClient();
 
-export async function GET(_req: Request) {
+export async function GET() {
   const auth = await requireRole([
     Role.FRANCHISOR,
     Role.FRANCHISEE,
