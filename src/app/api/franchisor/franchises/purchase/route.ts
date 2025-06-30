@@ -33,6 +33,7 @@ export async function GET() {
                 name: true,
                 email: true,
                 profile_image: true,
+                role: true,
               },
             },
             funding_request: {

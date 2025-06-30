@@ -23,7 +23,15 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
       include: {
         franchise: {
           select: {
+            id: true,
             franchisor_id: true,
+            name: true,
+            price: true,
+            image: true,
+            location: true,
+            status: true,
+            equipment: true,
+            materials: true,
           },
         },
         user: {
@@ -32,6 +40,7 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
             name: true,
             email: true,
             profile_image: true,
+            role: true,
           },
         },
         funding_request: {
@@ -64,9 +73,6 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
         { status: 403 }
       );
     }
-
-    // Delete franchise data
-    delete (purchase as { franchise?: typeof purchase.franchise }).franchise;
 
     return NextResponse.json(
       formatResponse({

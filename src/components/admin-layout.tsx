@@ -83,7 +83,7 @@ export default function AdminLayout({
           <BottomNavbar
             navItems={[
               {
-                href: "/admin",
+                href: "/admin/admin-panel",
                 label: "Admin Panel",
                 icon: Shield,
               },
