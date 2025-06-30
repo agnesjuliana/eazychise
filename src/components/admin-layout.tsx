@@ -84,12 +84,12 @@ export default function AdminLayout({
             navItems={[
               {
                 href: "/admin/admin-panel",
-                label: "Admin Panel",
+                label: "Admin",
                 icon: Shield,
               },
               {
                 href: "/admin/fund-req",
-                label: "Fund Requests",
+                label: "Fund",
                 icon: DollarSign,
               },
               {
@@ -99,7 +99,7 @@ export default function AdminLayout({
               },
               {
                 href: "/admin/notification",
-                label: "Notification",
+                label: "Notif",
                 icon: Bell,
               },
               {
@@ -107,8 +107,6 @@ export default function AdminLayout({
                 label: "Profile",
                 icon: UserIcon,
               },
-              
-              
             ]}
             onNavClick={handleNavClick}
           />
