@@ -594,7 +594,12 @@ function FranchiseDetail({
           >
             Ajukan Modal
           </Button>
-          <Button className="flex-1 bg-red-500 hover:bg-red-600 text-white">
+          <Button
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+            onClick={() =>
+              router.push(`/franchisee/franchise/${franchiseId}/purchase`)
+            }
+          >
             Beli Sekarang
           </Button>
         </div>
