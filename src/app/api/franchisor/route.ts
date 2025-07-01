@@ -17,7 +17,8 @@ export async function GET() {
   try {
     const franchise = await prisma.franchise_listings.findFirst({
       where: {
-        franchisor_id: auth.user.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        franchisor_id: (auth.user as any).id,
       },
     });
 

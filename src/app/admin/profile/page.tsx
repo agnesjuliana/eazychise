@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   User,
-  FileText,
   HelpCircle,
   Shield,
   LogOut,

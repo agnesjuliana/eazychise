@@ -6,8 +6,6 @@ import withAuth from "@/lib/withAuth";
 
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
-  ArrowRight,
   User,
   Clock,
   CheckCircle,

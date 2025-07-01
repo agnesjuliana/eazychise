@@ -5,7 +5,10 @@ import { formatResponse, formatError } from "@/utils/response";
 
 const prisma = new PrismaClient();
 
-export async function GET({ params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const user = await getSessionUser();
     if (!user) {
@@ -46,7 +49,10 @@ export async function GET({ params }: { params: Promise<{ id: string }> }) {
   }
 }
 
-export async function PATCH({ params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const user = await getSessionUser();
     if (!user) {

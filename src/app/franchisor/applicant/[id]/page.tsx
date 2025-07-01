@@ -74,7 +74,7 @@ interface PurchaseDetail {
   } | null;
 }
 
-function ApplicantDetailPage({ params }: { params: { id: string } }) {
+function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [purchase, setPurchase] = useState<PurchaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,8 +91,9 @@ function ApplicantDetailPage({ params }: { params: { id: string } }) {
     const fetchData = async () => {
       try {
         setLoading(true);
+        const { id } = await params;
         const response = await fetch(
-          `/api/franchisor/franchises/purchase/${params.id}`
+          `/api/franchisor/franchises/purchase/${id}`
         );
         const data = await response.json();
 
@@ -114,7 +115,7 @@ function ApplicantDetailPage({ params }: { params: { id: string } }) {
     };
 
     fetchData();
-  }, [params.id]);
+  }, [params]);
 
   const handleActionClick = (status: "ACCEPTED" | "REJECTED") => {
     setPendingAction(status);
@@ -126,8 +127,9 @@ function ApplicantDetailPage({ params }: { params: { id: string } }) {
 
     try {
       setUpdating(true);
+      const { id } = await params;
       const response = await fetch(
-        `/api/franchisor/franchises/purchase/${params.id}`,
+        `/api/franchisor/franchises/purchase/${id}`,
         {
           method: "PATCH",
           headers: {

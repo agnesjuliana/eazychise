@@ -40,7 +40,7 @@ export type Roles = "ADMIN" | "FRANCHISOR" | "FRANCHISEE";
 // Access control by role (single or array)
 export async function requireRole(
   allowedRoles: Roles[] | Roles
-): Promise<{ user: any } | { error: string; status: number }> {
+): Promise<{ user: unknown } | { error: string; status: number }> {
   const user = await getSessionUser();
 
   if (!user) {

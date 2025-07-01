@@ -282,8 +282,10 @@ export async function PUT(
     }
 
     if (
-      auth.user.role === Role.FRANCHISEE &&
-      funding_request.purchase.user_id != auth.user.id
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (auth.user as any).role === Role.FRANCHISEE &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      funding_request.purchase.user_id != (auth.user as any).id
     ) {
       return NextResponse.json(
         formatError({ message: "Unauthorized access" }),

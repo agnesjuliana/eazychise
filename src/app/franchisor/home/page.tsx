@@ -13,8 +13,7 @@ import {
 import withAuth from "@/lib/withAuth";
 import Image from "next/image";
 import { useFranchisorFranchise, useFranchisorPurchases, useFranchisorStats } from "./_hooks/useGetFranchisorData";
-import { useMemo } from "react";
-import { RefreshCw, AlertCircle, TrendingUp, Users, CheckCircle, Clock, XCircle } from "lucide-react";
+import { RefreshCw, AlertCircle, CheckCircle, Clock, XCircle } from "lucide-react";
 
 const formatRupiah = (price: string | number): string => {
   const numPrice =
@@ -42,8 +41,7 @@ function HomeFranchisorPage() {
   } = useFranchisorFranchise();
 
   const {
-    data: purchasesData,
-    isLoading: isPurchasesLoading,
+    data: purchasesData, // eslint-disable-line @typescript-eslint/no-unused-vars
     isError: isPurchasesError,
     error: purchasesError,
     refetch: refetchPurchases,
@@ -57,46 +55,46 @@ function HomeFranchisorPage() {
     refetch: refetchStats,
   } = useFranchisorStats();
 
-  // Calculate comprehensive sales data
-  const salesData = useMemo(() => {
-    if (!purchasesData) return { 
-      totalSold: 0, 
-      totalRevenue: 0, 
-      pendingPurchases: 0, 
-      totalPurchases: 0,
-      conversionRate: 0 
-    };
+  // TODO: Implement sales data usage in dashboard
+  // const salesData = useMemo(() => {
+  //   if (!purchasesData) return { 
+  //     totalSold: 0, 
+  //     totalRevenue: 0, 
+  //     pendingPurchases: 0, 
+  //     totalPurchases: 0,
+  //     conversionRate: 0 
+  //   };
 
-    const paidPurchases = purchasesData.filter(
-      (purchase) => purchase.payment_status === "paid"
-    );
+  //   const paidPurchases = purchasesData.filter(
+  //     (purchase) => purchase.payment_status === "paid"
+  //   );
     
-    const pendingPurchases = purchasesData.filter(
-      (purchase) => purchase.payment_status === "pending"
-    );
+  //   const pendingPurchases = purchasesData.filter(
+  //     (purchase) => purchase.payment_status === "pending"
+  //   );
 
-    const totalSold = paidPurchases.length;
-    const totalPurchases = purchasesData.length;
-    const pendingCount = pendingPurchases.length;
-    const conversionRate = totalPurchases > 0 ? (totalSold / totalPurchases) * 100 : 0;
+  //   const totalSold = paidPurchases.length;
+  //   const totalPurchases = purchasesData.length;
+  //   const pendingCount = pendingPurchases.length;
+  //   const conversionRate = totalPurchases > 0 ? (totalSold / totalPurchases) * 100 : 0;
     
-    const totalRevenue = paidPurchases.reduce((sum, purchase) => {
-      // Assuming the franchise price from franchiseData
-      if (franchiseData && franchiseData.length > 0 && franchiseData[0].price) {
-        const price = parseFloat(franchiseData[0].price.replace(/[^\d]/g, ""));
-        return sum + price;
-      }
-      return sum;
-    }, 0);
+  //   const totalRevenue = paidPurchases.reduce((sum) => {
+  //     // Assuming the franchise price from franchiseData
+  //     if (franchiseData && franchiseData.length > 0 && franchiseData[0].price) {
+  //       const price = parseFloat(franchiseData[0].price.replace(/[^\d]/g, ""));
+  //       return sum + price;
+  //     }
+  //     return sum;
+  //   }, 0);
 
-    return { 
-      totalSold, 
-      totalRevenue, 
-      pendingPurchases: pendingCount, 
-      totalPurchases,
-      conversionRate 
-    };
-  }, [purchasesData, franchiseData]);
+  //   return { 
+  //     totalSold, 
+  //     totalRevenue, 
+  //     pendingPurchases: pendingCount, 
+  //     totalPurchases,
+  //     conversionRate 
+  //   };
+  // }, [purchasesData, franchiseData]);
 
   // Get first franchise for display
   const displayFranchise = franchiseData && franchiseData.length > 0 ? franchiseData[0] : null;

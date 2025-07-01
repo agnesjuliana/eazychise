@@ -30,16 +30,11 @@ import CloudinaryUploader, {
   CloudinaryUploadResult,
 } from "@/components/CloudinaryUploader";
 import withAuth from "@/lib/withAuth";
-import { User } from "@/type/user";
+import useAuthStore from "@/store/authStore";
 import { PurchaseFranchisePayload } from "@/type/franchise";
 import { FileUploadResult } from "@/utils/fileUtils";
 import axios from "axios";
 import { toast } from "sonner";
-
-interface RequestFundingPageProps {
-  user?: User | null;
-  params: Promise<{ franchiseId: string }>;
-}
 
 // Franchisee franchises API response interfaces
 interface FranchiseePurchase {
@@ -84,9 +79,11 @@ interface FilePaths {
   mouModal: string;
 }
 
-function RequestFundingPage({ user, params }: RequestFundingPageProps) {
+// Remove the interface and use a simple approach
+function RequestFundingPage({ params }: { params: Promise<{ franchiseId: string }> }) {
   const { franchiseId } = use(params);
   const router = useRouter();
+  const user = useAuthStore.useUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [showConditionalSteps, setShowConditionalSteps] = useState(false);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
