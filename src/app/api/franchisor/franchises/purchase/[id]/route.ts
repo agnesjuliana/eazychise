@@ -7,7 +7,10 @@ import { ConfirmationStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {

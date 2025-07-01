@@ -90,8 +90,12 @@ export async function POST(
               data: {
                 user_id: admin.id,
                 title: "Permintaan Pendanaan Baru",
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                message: `${(auth.user as any).name} telah mengirim permintaan pendanaan untuk franchise ${franchise.name}.`,
+                message: `${
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (auth.user as any).name
+                } telah mengirim permintaan pendanaan untuk franchise ${
+                  franchise.name
+                }.`,
                 type: "funding_request",
                 is_read: false,
                 sent_at: new Date(),
@@ -116,8 +120,11 @@ export async function POST(
           data: {
             user_id: franchise.franchisor_id,
             title: "Pembelian Franchise Baru",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            message: `${(auth.user as any).name} telah melakukan pembelian franchise ${franchise.name}.`,
+
+            message: `${
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (auth.user as any).name
+            } telah melakukan pembelian franchise ${franchise.name}.`,
             type: "purchase",
             is_read: false,
             sent_at: new Date(),

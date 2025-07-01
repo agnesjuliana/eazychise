@@ -80,7 +80,11 @@ interface FilePaths {
 }
 
 // Remove the interface and use a simple approach
-function RequestFundingPage({ params }: { params: Promise<{ franchiseId: string }> }) {
+function RequestFundingPage({
+  params,
+}: {
+  params: Promise<{ franchiseId: string }>;
+}) {
   const { franchiseId } = use(params);
   const router = useRouter();
   const user = useAuthStore.useUser();

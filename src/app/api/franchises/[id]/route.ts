@@ -81,7 +81,10 @@ export async function GET(
 }
 
 // PUT api/franchises/:id
-export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {

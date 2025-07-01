@@ -65,7 +65,8 @@ export async function GET() {
     // Return empty array if no purchases found instead of 404
     return NextResponse.json(
       formatResponse({
-        message: purchase.length > 0 ? "Success get purchases" : "No purchases found",
+        message:
+          purchase.length > 0 ? "Success get purchases" : "No purchases found",
         data: purchase,
       }),
       { status: 200 }

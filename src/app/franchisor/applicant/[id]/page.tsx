@@ -80,11 +80,13 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Dialog states
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [pendingAction, setPendingAction] = useState<"ACCEPTED" | "REJECTED" | null>(null);
+  const [pendingAction, setPendingAction] = useState<
+    "ACCEPTED" | "REJECTED" | null
+  >(null);
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -152,19 +154,20 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
 
       // Close confirmation dialog and show success dialog
       setShowConfirmDialog(false);
-      
+
       // Set success message
       const message =
         pendingAction === "ACCEPTED"
           ? "Franchisee berhasil disetujui! Mereka akan mendapat notifikasi dan dapat melanjutkan ke pembayaran."
           : "Aplikasi franchisee berhasil ditolak. Mereka akan mendapat notifikasi penolakan.";
-      
+
       setSuccessMessage(message);
       setShowSuccessDialog(true);
-
     } catch (error) {
       console.error("Error updating status:", error);
-      setError(error instanceof Error ? error.message : "Failed to update status");
+      setError(
+        error instanceof Error ? error.message : "Failed to update status"
+      );
       setShowConfirmDialog(false);
     } finally {
       setUpdating(false);
@@ -528,7 +531,9 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {pendingAction === "ACCEPTED" ? "Konfirmasi Persetujuan" : "Konfirmasi Penolakan"}
+              {pendingAction === "ACCEPTED"
+                ? "Konfirmasi Persetujuan"
+                : "Konfirmasi Penolakan"}
             </DialogTitle>
             <DialogDescription className="text-left">
               Apakah Anda yakin ingin{" "}
@@ -540,7 +545,8 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
               <br />
               <br />
               <span className="text-orange-600 font-medium">
-                ⚠️ Keputusan ini bersifat final dan akan langsung dinotifikasikan ke franchisee.
+                ⚠️ Keputusan ini bersifat final dan akan langsung
+                dinotifikasikan ke franchisee.
               </span>
             </DialogDescription>
           </DialogHeader>
@@ -564,7 +570,9 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
               {updating ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  {pendingAction === "ACCEPTED" ? "Menyetujui..." : "Menolak..."}
+                  {pendingAction === "ACCEPTED"
+                    ? "Menyetujui..."
+                    : "Menolak..."}
                 </div>
               ) : (
                 <div className="flex items-center">
@@ -594,7 +602,10 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={handleSuccessDialogClose} className="bg-green-600 hover:bg-green-700">
+            <Button
+              onClick={handleSuccessDialogClose}
+              className="bg-green-600 hover:bg-green-700"
+            >
               Tutup
             </Button>
           </DialogFooter>
