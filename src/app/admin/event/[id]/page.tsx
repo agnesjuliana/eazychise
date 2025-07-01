@@ -1,0 +1,350 @@
+"use client";
+
+import AdminLayout from "@/components/admin-layout";
+import CloudinaryUploader, {
+  CloudinaryUploadResult,
+} from "@/components/CloudinaryUploader";
+import HeaderPage from "@/components/header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import withAuth from "@/lib/withAuth";
+import { EventPayload } from "@/type/events";
+import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, use } from "react";
+import { toast } from "sonner";
+
+function EditEventPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<EventPayload>({
+    name: "",
+    price: "",
+    datetime: new Date(),
+    image: "",
+  });
+  const [imageUploadUrl, setImageUploadUrl] = useState<string>("");
+
+  // Fetch existing event data
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        setInitialLoading(true);
+        const response = await fetch(`/api/events/${id}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        
+        if (response.ok && data.status) {
+          const event = data.data;
+          setFormData({
+            name: event.name || "",
+            price: event.price || "",
+            datetime: event.datetime ? new Date(event.datetime) : new Date(),
+            image: event.image || "",
+          });
+          setImagePreview(event.image || null);
+          setImageUploadUrl(event.image || "");
+        } else {
+          toast.error("Gagal memuat data event");
+          router.back();
+        }
+      } catch (error) {
+        console.error("Error fetching event:", error);
+        toast.error("Gagal memuat data event");
+        router.back();
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchEventData();
+    }
+  }, [id, router]);
+
+  const handleInputChange = (
+    field: keyof EventPayload,
+    value: string | number | Date
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleCloudinaryUpload = (result: CloudinaryUploadResult) => {
+    if (result.secure_url) {
+      setImageUploadUrl(result.secure_url);
+      setImagePreview(result.secure_url);
+      setFormData((prev) => ({
+        ...prev,
+        image: result.secure_url || "",
+      }));
+      console.log("Image uploaded to Cloudinary:", result.secure_url);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setImageUploadUrl("");
+    setFormData((prev) => ({
+      ...prev,
+      image: "",
+    }));
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      toast.error("Nama event wajib diisi");
+      return false;
+    }
+    if (
+      formData.price === undefined ||
+      formData.price === null ||
+      formData.price === ""
+    ) {
+      toast.error("Harga event wajib diisi");
+      return false;
+    }
+    if (isNaN(Number(formData.price)) || Number(formData.price) < 0) {
+      toast.error("Harga harus berupa angka positif");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Use Cloudinary URL if available, otherwise keep existing image
+      const finalImagePath = imageUploadUrl || formData.image;
+
+      // Prepare data for API
+      const eventData: EventPayload = {
+        name: formData.name.trim(),
+        price: formData.price,
+        datetime: formData.datetime,
+        image: finalImagePath,
+      };
+
+      console.log("Updating event data:", {
+        eventData,
+        imageUploadUrl,
+      });
+
+      // Call API to update event
+      const response = await fetch(`/api/events/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData),
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) {
+        throw new Error(
+          data.message || data.error || "Gagal mengupdate event"
+        );
+      }
+      toast.success("Event berhasil diupdate!");
+      router.push("/admin/event");
+    } catch (error) {
+      console.error("Error updating event:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Gagal mengupdate event"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
+          <HeaderPage title="Edit Event" />
+        </div>
+        <div style={{ height: "140px" }} className="w-full bg-gray-50"></div>
+        <div className="flex flex-col gap-4 w-full px-4 pb-10 pt-10">
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mr-2" />
+            <span>Memuat data event...</span>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      {/* Fixed Header */}
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
+        <HeaderPage title="Edit Event" />
+      </div>
+      {/* Spacer untuk memberikan ruang agar konten tidak tertimpa header */}
+      <div style={{ height: "140px" }} className="w-full bg-gray-50"></div>
+      {/* Konten Utama */}
+      <div className="flex flex-col gap-4 w-full px-4 pb-10 pt-10">
+        {/* Back Button - Dipindahkan ke dalam konten utama */}
+        <div className="w-full">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="flex items-center text-gray-600 cursor-pointer"
+          >
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Kembali
+          </Button>
+        </div>
+        {/* Content */}
+        <div className="w-full">
+          <Card className="p-6 shadow-md">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Event Name */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="name"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Nama Event <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Masukkan nama event"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="w-full"
+                  disabled={loading}
+                />
+              </div>
+              {/* Event Price */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="price"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Harga Event (Rp) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="0"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  className="w-full"
+                  min="0"
+                  step="1"
+                  disabled={loading}
+                />
+                <p className="text-xs text-gray-500">
+                  Masukkan 0 jika event gratis
+                </p>
+              </div>
+              {/* Event Date & Time */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="datetime"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Tanggal & Waktu <span className="text-red-500">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="datetime"
+                    type="datetime-local"
+                    value={
+                      formData.datetime instanceof Date
+                        ? formData.datetime.toISOString().slice(0, 16)
+                        : ""
+                    }
+                    onChange={(e) =>
+                      handleInputChange("datetime", new Date(e.target.value))
+                    }
+                    className="w-full pl-10"
+                    disabled={loading}
+                  />
+                  <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+              {/* Event Image */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Gambar Event <span className="text-red-500">*</span>
+                </Label>
+                <CloudinaryUploader
+                  id="image-upload"
+                  title="Upload Gambar Event"
+                  onUploadComplete={handleCloudinaryUpload}
+                  maxSizeMB={5}
+                  acceptedTypes={["png", "jpg", "jpeg"]}
+                  currentUrl={imageUploadUrl}
+                />
+                {imagePreview && (
+                  <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                      disabled={loading}
+                    >
+                      Hapus
+                    </Button>
+                  </div>
+                )}
+              </div>
+              {/* Submit Button */}
+              <div className="pt-4">
+                <Button
+                  type="submit"
+                  className="w-full bg-[#EF5A5A] hover:bg-[#c84d4d] cursor-pointer"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Mengupdate Event...
+                    </>
+                  ) : (
+                    "Update Event"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+}
+
+export default withAuth(EditEventPage, "ADMIN");

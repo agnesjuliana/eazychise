@@ -11,11 +11,32 @@ import { Plus, Loader2, Calendar, Edit, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { EventPayload } from '@/type/events';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 function EventManagementPage() {
   const router = useRouter();
   const [events, setEvents] = useState<EventPayload[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletePopup, setDeletePopup] = useState<{
+    isOpen: boolean;
+    eventId: string | null;
+    eventName: string;
+    isDeleting: boolean;
+  }>({
+    isOpen: false,
+    eventId: null,
+    eventName: '',
+    isDeleting: false,
+  });
 
   useEffect(() => {
     fetchEvents();
@@ -75,6 +96,57 @@ function EventManagementPage() {
       currency: 'IDR',
       minimumFractionDigits: 0,
     }).format(priceNumber);
+  };
+
+  const handleDeleteClick = (event: EventPayload) => {
+    const eventId = (event as EventPayload).id ?? (event as EventPayload & { _id?: string })._id;
+    setDeletePopup({
+      isOpen: true,
+      eventId: eventId || null,
+      eventName: event.name,
+      isDeleting: false,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletePopup.eventId) return;
+
+    setDeletePopup(prev => ({ ...prev, isDeleting: true }));
+
+    try {
+      const response = await fetch(`/api/events/${deletePopup.eventId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      
+      if (response.ok && data.status) {
+        toast.success('Event berhasil dihapus!');
+        fetchEvents(); // Refresh list
+        setDeletePopup({
+          isOpen: false,
+          eventId: null,
+          eventName: '',
+          isDeleting: false,
+        });
+      } else {
+        toast.error(data.message || 'Gagal menghapus event');
+        setDeletePopup(prev => ({ ...prev, isDeleting: false }));
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast.error('Gagal menghapus event');
+      setDeletePopup(prev => ({ ...prev, isDeleting: false }));
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletePopup({
+      isOpen: false,
+      eventId: null,
+      eventName: '',
+      isDeleting: false,
+    });
   };
 
   return (
@@ -161,7 +233,7 @@ function EventManagementPage() {
                       variant="outline"
                       className="p-2 h-8 w-8"
                       onClick={() => {
-                        router.push(`/admin/event/edit/${(event as any).id || (event as any)._id}`);
+                        router.push(`/admin/event/${(event as EventPayload).id ?? (event as EventPayload & { _id?: string })._id}`);
                       }}
                     >
                       <Edit className="h-3 w-3" />
@@ -170,25 +242,7 @@ function EventManagementPage() {
                       size="sm"
                       variant="outline"
                       className="p-2 h-8 w-8 text-red-500 hover:text-red-700 hover:border-red-500"
-                      onClick={async () => {
-                        if (confirm('Apakah Anda yakin ingin menghapus event ini?')) {
-                          try {
-                            const response = await fetch(`/api/events/${(event as any).id || (event as any)._id}`, {
-                              method: 'DELETE',
-                              credentials: 'include',
-                            });
-                            const data = await response.json();
-                            if (response.ok && data.status) {
-                              toast.success('Event berhasil dihapus!');
-                              fetchEvents(); // Refresh list
-                            } else {
-                              toast.error('Gagal menghapus event');
-                            }
-                          } catch (error) {
-                            toast.error('Gagal menghapus event');
-                          }
-                        }
-                      }}
+                      onClick={() => handleDeleteClick(event)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -215,6 +269,30 @@ function EventManagementPage() {
         )}
         </div>
       </div>
+
+      {/* Delete Confirmation AlertDialog */}
+      <AlertDialog open={deletePopup.isOpen} onOpenChange={handleDeleteCancel}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus event &quot;{deletePopup.eventName}&quot;? Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletePopup.isDeleting}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deletePopup.isDeleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {deletePopup.isDeleting ? "Menghapus..." : "Hapus Event"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }
