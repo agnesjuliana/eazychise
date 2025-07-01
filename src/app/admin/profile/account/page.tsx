@@ -147,7 +147,7 @@ function AccountPage() {
   }
 
   return (
-    <AdminLayout>
+    <AdminLayout className="overflow-x-hidden">
       {/* Scrollable Header */}
       <div className="flex flex-col gap-4 bg-gray-50 w-full">
         <HeaderPage title="AKUN" />

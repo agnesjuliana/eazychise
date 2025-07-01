@@ -22,7 +22,8 @@ export async function GET(_req: Request) {
   try {
     const purchases = await prisma.franchise_purchases.findMany({
       where: {
-        user_id: auth.user.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        user_id: (auth.user as any).id,
       },
       include: {
         franchise: {
@@ -60,7 +61,8 @@ export async function GET(_req: Request) {
 
     const total = await prisma.franchise_purchases.count({
       where: {
-        user_id: auth.user.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        user_id: (auth.user as any).id,
       },
     });
 

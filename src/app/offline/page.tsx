@@ -1,6 +1,8 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
+"use client";
+
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 
 export default function OfflinePage() {
   const handleRefresh = () => {
@@ -26,7 +28,8 @@ export default function OfflinePage() {
             Tidak ada koneksi internet
           </h1>
           <p className="text-gray-600">
-            Sepertinya Anda sedang offline. Beberapa fitur mungkin tidak tersedia saat ini.
+            Sepertinya Anda sedang offline. Beberapa fitur mungkin tidak
+            tersedia saat ini.
           </p>
         </div>
 
@@ -35,30 +38,25 @@ export default function OfflinePage() {
             <div className="flex items-center justify-center mb-2">
               <Wifi className="w-5 h-5 text-blue-600 mr-2" />
               <span className="text-sm font-medium text-blue-800">
-                Status Koneksi: {navigator.onLine ? 'Online' : 'Offline'}
+                Status Koneksi: {navigator.onLine ? "Online" : "Offline"}
               </span>
             </div>
             <p className="text-xs text-blue-600">
-              {navigator.onLine 
-                ? 'Koneksi internet tersedia. Silakan coba lagi.'
-                : 'Periksa koneksi internet Anda dan coba lagi.'
-              }
+              {navigator.onLine
+                ? "Koneksi internet tersedia. Silakan coba lagi."
+                : "Periksa koneksi internet Anda dan coba lagi."}
             </p>
           </div>
 
           <div className="space-y-3">
-            <Button 
-              onClick={handleRetry} 
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={handleRetry} className="w-full" size="lg">
               <RefreshCw className="w-4 h-4 mr-2" />
               Coba Lagi
             </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => window.history.back()} 
+
+            <Button
+              variant="outline"
+              onClick={() => window.history.back()}
               className="w-full"
               size="lg"
             >

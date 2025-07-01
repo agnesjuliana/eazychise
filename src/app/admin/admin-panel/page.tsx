@@ -1,8 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { ListItemSkeleton } from "@/components/ui/skeleton";
 import { User as UserType } from "@/type/user";
 import React from "react";
-import { Loader2 } from "lucide-react";
+
 import Link from "next/link";
 import Image from "next/image";
 import AdminLayout from "@/components/admin-layout";
@@ -229,9 +230,10 @@ function AdminVerifyPage() {
       <div className="flex flex-col gap-4 w-full px-4 pb-10">
         <div className="flex flex-col gap-3 w-full ">
           {loading ? (
-            <div className="flex flex-col items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mb-2" />
-              <p className="text-gray-500">Mengambil data akun...</p>
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ListItemSkeleton key={i} />
+              ))}
             </div>
           ) : userRender.length > 0 ? (
             userRender.map((u) => (

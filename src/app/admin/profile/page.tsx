@@ -10,14 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  User,
-  FileText,
-  HelpCircle,
-  Shield,
-  LogOut,
-  ChevronRight,
-} from "lucide-react";
+import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";

@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole([
     Role.FRANCHISOR,
@@ -21,9 +21,8 @@ export async function GET(
     });
   }
 
-  const { id: purchaseId } = params;
-
   try {
+    const { id: purchaseId } = await params;
     const franchise = await prisma.franchise_purchases.findUnique({
       where: { id: purchaseId },
       include: {
@@ -93,7 +92,8 @@ export async function GET(
       );
     }
 
-    if (franchise.user_id !== auth.user.id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (franchise.user_id !== (auth.user as any).id) {
       return NextResponse.json(
         formatError({ message: "Unauthorized access to this franchise" }),
         { status: 403 }

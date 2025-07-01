@@ -10,14 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  User,
-  FileText,
-  HelpCircle,
-  Shield,
-  LogOut,
-  ChevronRight,
-} from "lucide-react";
+import { User, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
 import withAuth from "@/lib/withAuth";
 import {
   callLogoutAPI,
@@ -148,13 +141,13 @@ function ProfilePage() {
   ];
 
   return (
-    <AppLayout>
+    <AppLayout className="overflow-x-hidden">
       {/* Scrollable Header */}
-      <div className="flex flex-col gap-4 bg-gray-50 w-full">
+      <div className="flex flex-col gap-4 bg-background w-full">
         <HeaderPage title="PROFILE" />
       </div>
 
-      <div className="bg-gray-50">
+      <div className="bg-background">
         {/* Profile Content */}
         <div className="px-4 pt-4 flex flex-col items-center gap-4 w-full">
           {/* Profile Card */}
@@ -162,7 +155,7 @@ function ProfilePage() {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
                 {/* Profile Avatar */}
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
                   <Image
                     src="/image/auth/login.png"
                     alt="Profile"
@@ -172,23 +165,23 @@ function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-lg">
+                  <h3 className="font-semibold text-foreground text-lg">
                     {loading ? "Loading..." : userData.name}
                   </h3>
                   <div className="flex items-center space-x-2">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {loading ? "Loading..." : userData.role}
                     </p>
                     {!loading && userData.status && (
                       <span
                         className={`text-xs px-2 py-1 rounded-full ${
                           userData.status === "ACCEPTED"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-success/10 text-success"
                             : userData.status === "WAITING"
-                            ? "bg-orange-100 text-orange-800"
+                            ? "bg-warning/10 text-warning"
                             : userData.status === "REJECTED"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {userData.status}
@@ -207,16 +200,16 @@ function ProfilePage() {
                 <Button
                   key={index}
                   variant="ghost"
-                  className="w-full bg-white rounded-lg h-12 justify-between px-4 hover:bg-gray-50 cursor-pointer"
+                  className="w-full bg-white rounded-lg h-12 justify-between px-4 hover:bg-muted cursor-pointer"
                   onClick={() => handleMenuClick(item.href)}
                 >
                   <div className="flex items-center space-x-3">
-                    <Icon className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-900 font-medium">
+                    <Icon className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-foreground font-medium">
                       {item.label}
                     </span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </Button>
               );
             })}
@@ -244,7 +237,7 @@ function ProfilePage() {
               <Button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="bg-red-500 hover:bg-red-600 cursor-pointer"
+                className="bg-destructive hover:bg-destructive/90 cursor-pointer"
               >
                 {isLoggingOut ? "Logout..." : "Ya, Logout"}
               </Button>

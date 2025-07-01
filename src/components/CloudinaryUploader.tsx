@@ -42,7 +42,8 @@ const CloudinaryUploader = ({
 }: CloudinaryUploaderProps) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(!!currentUrl);
-  const [uploadResult, setUploadResult] = useState<CloudinaryUploadResult | null>(null);
+  const [uploadResult, setUploadResult] =
+    useState<CloudinaryUploadResult | null>(null);
   const [validationError, setValidationError] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
@@ -68,7 +69,7 @@ const CloudinaryUploader = ({
   };
 
   const isImageFile = (file: File): boolean => {
-    return file.type.startsWith('image/');
+    return file.type.startsWith("image/");
   };
 
   // File change handler with validation
@@ -110,7 +111,7 @@ const CloudinaryUploader = ({
 
       // If validation passes, store the file and create preview for images
       setSelectedFile(file);
-      
+
       if (isImageFile(file)) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -158,7 +159,7 @@ const CloudinaryUploader = ({
     } catch (error) {
       setValidationError(
         "Upload gagal: " +
-        (error instanceof Error ? error.message : "Unknown error")
+          (error instanceof Error ? error.message : "Unknown error")
       );
     } finally {
       setIsUploading(false);
@@ -173,7 +174,7 @@ const CloudinaryUploader = ({
     setUploadResult(null);
     setValidationError("");
     setPreviewUrl(currentUrl || "");
-    
+
     // Clear file input
     const fileInput = document.getElementById(id) as HTMLInputElement;
     if (fileInput) {
@@ -183,14 +184,14 @@ const CloudinaryUploader = ({
 
   return (
     <div className={className}>
-      <div className="bg-[#EF5A5A] text-white text-center p-2 rounded-t-lg font-semibold mb-1">
+      <div className="bg-primary text-primary-foreground text-center p-2 rounded-t-lg font-semibold mb-1 font-poppins">
         {title}
       </div>
-      <div className="border-2 border-dashed border-gray-300 rounded-b-lg p-6 text-center">
+      <div className="border-2 border-dashed border-border rounded-b-lg p-6 text-center">
         {/* Preview Area */}
         {(previewUrl || (isUploaded && uploadResult)) && (
           <div className="mb-4 relative">
-            {previewUrl && previewUrl.includes('image') && (
+            {previewUrl && previewUrl.includes("image") && (
               <div className="relative inline-block">
                 <Image
                   src={previewUrl}
@@ -203,16 +204,19 @@ const CloudinaryUploader = ({
                   <button
                     type="button"
                     onClick={handleClear}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
             )}
-            {(uploadResult || currentUrl) && !previewUrl.includes('image') && (
-              <div className="text-sm text-green-600 font-medium">
-                📄 {uploadResult?.originalName || selectedFileName || "File uploaded"}
+            {(uploadResult || currentUrl) && !previewUrl.includes("image") && (
+              <div className="text-sm text-success font-medium">
+                📄{" "}
+                {uploadResult?.originalName ||
+                  selectedFileName ||
+                  "File uploaded"}
               </div>
             )}
           </div>
@@ -226,18 +230,18 @@ const CloudinaryUploader = ({
           >
             <FileUp className="w-8 h-8 mb-1" />
             {selectedFileName ? (
-              <span className="text-sm font-semibold text-gray-800">
+              <span className="text-sm font-semibold text-foreground">
                 {selectedFileName}
               </span>
             ) : (
               <div>
-                <span className="text-[#EF5A5A] font-semibold">pilih</span>{" "}
+                <span className="text-primary font-semibold">pilih</span>{" "}
                 <span className="text-black font-semibold">
                   File untuk diupload
                 </span>
               </div>
             )}
-            <p className="text-sm text-[#6E7E9D]">
+            <p className="text-sm text-muted-foreground">
               mendukung format {acceptedTypes.join(", ")} (maks. {maxSizeMB}MB)
             </p>
           </label>
@@ -258,7 +262,7 @@ const CloudinaryUploader = ({
             <button
               type="button"
               onClick={handleUpload}
-              className="bg-[#EF5A5A] text-white py-2 px-4 rounded-lg font-semibold hover:bg-[#d94545] transition-colors flex items-center gap-2"
+              className="bg-primary text-primary-foreground py-2 px-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2 font-poppins"
             >
               <Upload className="w-4 h-4" />
               Upload File
@@ -266,7 +270,7 @@ const CloudinaryUploader = ({
             <button
               type="button"
               onClick={handleClear}
-              className="bg-gray-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-600 transition-colors flex items-center gap-2"
+              className="bg-secondary text-secondary-foreground py-2 px-4 rounded-lg font-semibold hover:bg-secondary/80 transition-colors flex items-center gap-2"
             >
               <X className="w-4 h-4" />
               Batal
@@ -280,7 +284,7 @@ const CloudinaryUploader = ({
             <button
               type="button"
               onClick={handleClear}
-              className="bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+              className="bg-primary text-primary-foreground py-2 px-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             >
               Ubah File
             </button>
@@ -289,7 +293,7 @@ const CloudinaryUploader = ({
 
         {/* Validation Error */}
         {validationError && (
-          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
+          <div className="mt-2 p-2 bg-destructive/10 border border-destructive/20 rounded text-destructive text-xs">
             {validationError}
           </div>
         )}
@@ -297,22 +301,24 @@ const CloudinaryUploader = ({
         {/* Loading Spinner */}
         {isUploading && (
           <div className="mt-4 flex flex-col items-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#EF5A5A]" />
-            <p className="text-xs text-gray-600 mt-2">Mengupload ke cloud...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-xs text-muted-foreground mt-2">
+              Mengupload ke cloud...
+            </p>
           </div>
         )}
 
         {/* Upload Success Message */}
         {isUploaded && !isUploading && (
           <div className="mt-4 flex flex-col items-center">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
               <Check className="w-5 h-5 text-white" />
             </div>
-            <p className="text-xs text-green-600 mt-2 font-medium">
+            <p className="text-xs text-success mt-2 font-medium">
               File berhasil diupload ke cloud!
             </p>
             {uploadResult?.url && (
-              <p className="text-xs text-gray-500 mt-1 break-all max-w-full">
+              <p className="text-xs text-muted-foreground mt-1 break-all max-w-full">
                 URL: {uploadResult.url}
               </p>
             )}

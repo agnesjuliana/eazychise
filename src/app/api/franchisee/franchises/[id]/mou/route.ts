@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireRole(["FRANCHISEE"]);
@@ -19,7 +19,7 @@ export async function PUT(
       );
     }
 
-    const { id: purchaseId } = params;
+    const { id: purchaseId } = await params;
 
     const body = await request.json();
     const { mou_franchisor, mou_modal } = body;
@@ -39,7 +39,8 @@ export async function PUT(
     const purchase = await prisma.franchise_purchases.findUnique({
       where: {
         id: purchaseId,
-        user_id: auth.user.id, // Ensure ownership
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        user_id: (auth.user as any).id, // Ensure ownership
       },
       include: {
         funding_request: true,

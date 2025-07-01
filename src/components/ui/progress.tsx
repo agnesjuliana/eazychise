@@ -37,7 +37,7 @@ function Progress({
                 <div
                   className={cn(
                     "flex items-center justify-center w-12 h-12 rounded-full text-white font-medium text-sm transition-colors",
-                    isActive ? "bg-[#EF5A5A]" : "bg-gray-300"
+                    isActive ? "bg-primary" : "bg-muted"
                   )}
                 >
                   {stepNumber}
@@ -47,7 +47,7 @@ function Progress({
                 <div
                   className={cn(
                     "flex-1 h-0.5  mx-2",
-                    isActive ? "bg-[#EF5A5A]" : "bg-gray-300"
+                    isActive ? "bg-primary" : "bg-border"
                   )}
                 />
               )}
