@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import AdminLayout from '@/components/admin-layout';
-import HeaderPage from '@/components/header';
-import withAuth from '@/lib/withAuth';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Plus, Loader2, Calendar, Edit, Trash2 } from 'lucide-react';
-import Image from 'next/image';
-import { EventPayload } from '@/type/events';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import AdminLayout from "@/components/admin-layout";
+import HeaderPage from "@/components/header";
+import withAuth from "@/lib/withAuth";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { CardSkeleton } from "@/components/ui/skeleton";
+import { Plus, Calendar, Edit, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { EventPayload } from "@/type/events";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +35,7 @@ function EventManagementPage() {
   }>({
     isOpen: false,
     eventId: null,
-    eventName: '',
+    eventName: "",
     isDeleting: false,
   });
 
@@ -55,8 +56,6 @@ function EventManagementPage() {
 
       const data = await response.json();
 
-      
-
       if (response.ok && data.status) {
         setEvents(data.data || []);
       } else {
@@ -73,33 +72,35 @@ function EventManagementPage() {
 
   const formatDate = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
-    return dateObj.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+    return dateObj.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   };
 
   const formatTime = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
-    return dateObj.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return dateObj.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatPrice = (price: string | number) => {
-    const priceNumber = typeof price === 'string' ? Number(price) : price;
-    if (priceNumber === 0) return 'Gratis';
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+    const priceNumber = typeof price === "string" ? Number(price) : price;
+    if (priceNumber === 0) return "Gratis";
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
       minimumFractionDigits: 0,
     }).format(priceNumber);
   };
 
   const handleDeleteClick = (event: EventPayload) => {
-    const eventId = (event as EventPayload).id ?? (event as EventPayload & { _id?: string })._id;
+    const eventId =
+      (event as EventPayload).id ??
+      (event as EventPayload & { _id?: string })._id;
     setDeletePopup({
       isOpen: true,
       eventId: eventId || null,
@@ -111,32 +112,32 @@ function EventManagementPage() {
   const handleDeleteConfirm = async () => {
     if (!deletePopup.eventId) return;
 
-    setDeletePopup(prev => ({ ...prev, isDeleting: true }));
+    setDeletePopup((prev) => ({ ...prev, isDeleting: true }));
 
     try {
       const response = await fetch(`/api/events/${deletePopup.eventId}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
       const data = await response.json();
-      
+
       if (response.ok && data.status) {
-        toast.success('Event berhasil dihapus!');
+        toast.success("Event berhasil dihapus!");
         fetchEvents(); // Refresh list
         setDeletePopup({
           isOpen: false,
           eventId: null,
-          eventName: '',
+          eventName: "",
           isDeleting: false,
         });
       } else {
-        toast.error(data.message || 'Gagal menghapus event');
-        setDeletePopup(prev => ({ ...prev, isDeleting: false }));
+        toast.error(data.message || "Gagal menghapus event");
+        setDeletePopup((prev) => ({ ...prev, isDeleting: false }));
       }
     } catch (error) {
-      console.error('Error deleting event:', error);
-      toast.error('Gagal menghapus event');
-      setDeletePopup(prev => ({ ...prev, isDeleting: false }));
+      console.error("Error deleting event:", error);
+      toast.error("Gagal menghapus event");
+      setDeletePopup((prev) => ({ ...prev, isDeleting: false }));
     }
   };
 
@@ -144,7 +145,7 @@ function EventManagementPage() {
     setDeletePopup({
       isOpen: false,
       eventId: null,
-      eventName: '',
+      eventName: "",
       isDeleting: false,
     });
   };
@@ -172,41 +173,49 @@ function EventManagementPage() {
           </Button>
         </div>
         <div className="flex flex-col gap-3 w-full">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mb-2" />
-            <p className="text-gray-500">Memuat data event...</p>
-          </div>
-        ) : events.length > 0 ? (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Daftar Event ({events.length})
-            </h3>
-            {events.map((event, index) => (
-              <Card key={event.id ?? index} className="p-4 shadow-sm">
-                <div className="flex items-start space-x-4">
-                  {/* Event Image */}
-                  <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
-                    <Image
-                      src={event.image}
-                      alt={event.name}
-                      width={80}
-                      height={64}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to gradient if image fails to load
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                    {/* Fallback gradient */}
-                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hidden">
-                      <span className="text-white font-bold text-lg">
-                        {event.name.charAt(0)}
-                      </span>
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <CardSkeleton key={i} />
+              ))}
+            </div>
+          ) : events.length > 0 ? (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Daftar Event ({events.length})
+              </h3>
+              {events.map((event, index) => (
+                <Card key={event.id ?? index} className="p-4 shadow-sm">
+                  <div className="flex items-start space-x-4">
+                    {/* Event Image */}
+                    <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                      <Image
+                        src={event.image}
+                        alt={event.name}
+                        width={80}
+                        height={64}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to gradient if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                          const fallback =
+                            target.nextElementSibling as HTMLElement;
+                          if (fallback) {
+                            fallback.style.display = "flex";
+                          }
+                        }}
+                      />
+                      {/* Fallback gradient */}
+                      <div
+                        className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center"
+                        style={{ display: "none" }}
+                      >
+                        <span className="text-white font-bold text-lg">
+                          {event.name.charAt(0)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
                     {/* Event Details */}
                     <div className="flex-1 min-w-0">
@@ -226,47 +235,52 @@ function EventManagementPage() {
                       </span>
                     </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-col space-y-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="p-2 h-8 w-8"
-                      onClick={() => {
-                        router.push(`/admin/event/${(event as EventPayload).id ?? (event as EventPayload & { _id?: string })._id}`);
-                      }}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="p-2 h-8 w-8 text-red-500 hover:text-red-700 hover:border-red-500"
-                      onClick={() => handleDeleteClick(event)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex flex-col space-y-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="p-2 h-8 w-8"
+                        onClick={() => {
+                          router.push(
+                            `/admin/event/${
+                              (event as EventPayload).id ??
+                              (event as EventPayload & { _id?: string })._id
+                            }`
+                          );
+                        }}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="p-2 h-8 w-8 text-red-500 hover:text-red-700 hover:border-red-500"
+                        onClick={() => handleDeleteClick(event)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center p-8 text-center">
-            <Calendar className="w-12 h-12 text-gray-400 mb-4" />
-            <p className="text-gray-500 mb-2">Belum ada event yang dibuat</p>
-            <p className="text-sm text-gray-400 mb-4">
-              Mulai dengan menambahkan event pertama Anda
-            </p>
-            <Button
-              onClick={() => router.push('/admin/event/add')}
-              className="bg-[#EF5A5A] hover:bg-[#c84d4d] cursor-pointer"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Event
-            </Button>
-          </div>
-        )}
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+              <Calendar className="w-12 h-12 text-gray-400 mb-4" />
+              <p className="text-gray-500 mb-2">Belum ada event yang dibuat</p>
+              <p className="text-sm text-gray-400 mb-4">
+                Mulai dengan menambahkan event pertama Anda
+              </p>
+              <Button
+                onClick={() => router.push("/admin/event/add")}
+                className="bg-[#EF5A5A] hover:bg-[#c84d4d] cursor-pointer"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Tambah Event
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -276,7 +290,9 @@ function EventManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus Event</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus event &quot;{deletePopup.eventName}&quot;? Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus event &quot;
+              {deletePopup.eventName}&quot;? Tindakan ini tidak dapat
+              dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

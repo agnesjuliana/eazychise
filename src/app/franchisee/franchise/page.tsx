@@ -2,6 +2,7 @@
 import AppLayout from "@/components/app-layout";
 import HeaderPage from "@/components/header";
 import { Card, CardContent } from "@/components/ui/card";
+import { FranchiseCardSkeleton } from "@/components/ui/skeleton";
 import withAuth from "@/lib/withAuth";
 import { ChevronRight, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -29,32 +30,21 @@ function OwnedFranchisePage() {
   const LoadingState = () => (
     <div className="px-4 py-6 space-y-4">
       {/* Loading skeleton for franchise count card */}
-      <Card className="animate-pulse">
+      <Card className="bg-warning text-warning-foreground">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <div className="h-4 bg-muted rounded w-24 mb-2"></div>
-              <div className="h-8 bg-muted rounded w-8"></div>
+            <div className="animate-pulse">
+              <div className="h-4 bg-white/30 rounded w-24 mb-2"></div>
+              <div className="h-8 bg-white/30 rounded w-8"></div>
             </div>
-            <div className="w-12 h-12 bg-muted rounded-full"></div>
+            <div className="w-10 h-10 bg-white/30 rounded-full animate-pulse"></div>
           </div>
         </CardContent>
       </Card>
 
       {/* Loading skeleton for franchise list */}
       {Array.from({ length: 3 }, (_, index) => (
-        <Card key={index} className="animate-pulse">
-          <CardContent className="p-4">
-            <div className="flex gap-4">
-              <div className="w-16 h-16 bg-muted rounded-lg"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-3 bg-muted rounded w-1/2"></div>
-              </div>
-              <div className="w-6 h-6 bg-muted rounded"></div>
-            </div>
-          </CardContent>
-        </Card>
+        <FranchiseCardSkeleton key={index} />
       ))}
     </div>
   );

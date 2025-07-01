@@ -1,6 +1,7 @@
 "use client";
 import AppLayout from "@/components/app-layout";
 import { Button } from "@/components/ui/button";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { ArrowLeft } from "lucide-react";
 import React, { useState, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -1099,21 +1100,23 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     }
   };
 
-  // Loading component for checking status
+  // Loading component for checking status with skeleton
   const renderLoadingScreen = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <AppLayout showBottomNav={false} className="text-black">
+      <Button
+        variant="secondary"
+        size="icon"
+        className="size-8 mt-8 mb-2"
+        onClick={() => router.back()}
+      >
+        <ArrowLeft />
+      </Button>
+      <section className="mb-12 px-4 flex min-h-screen h-auto w-full items-center justify-start flex-col">
+        <div className="w-full max-w-md">
+          <FormSkeleton />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Memeriksa Status
-        </h3>
-        <p className="text-gray-600">
-          Sedang memeriksa status permohonan pendanaan Anda...
-        </p>
-      </div>
-    </div>
+      </section>
+    </AppLayout>
   );
 
   // Show loading screen while checking status

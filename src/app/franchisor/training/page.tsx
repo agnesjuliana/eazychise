@@ -4,6 +4,7 @@ import FranchisorLayout from "@/components/franchisor-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CardSkeleton } from "@/components/ui/skeleton";
 import withAuth from "@/lib/withAuth";
 import { ListingDocument } from "@/type/tutorial";
 import { FileText, Plus, Settings } from "lucide-react";
@@ -73,8 +74,10 @@ function TutorialProduksiPage() {
       <div className="p-4 space-y-4 pb-24">
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Memuat tutorial...</p>
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
           </div>
         )}
 
