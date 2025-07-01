@@ -147,7 +147,7 @@ function HelpPage() {
             </h2>
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                   1
                 </div>
                 <div>
@@ -161,7 +161,7 @@ function HelpPage() {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                   2
                 </div>
                 <div>
@@ -175,7 +175,7 @@ function HelpPage() {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                   3
                 </div>
                 <div>
@@ -187,7 +187,7 @@ function HelpPage() {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                   4
                 </div>
                 <div>
@@ -199,7 +199,7 @@ function HelpPage() {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-[#EF5A5A] text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                   5
                 </div>
                 <div>
@@ -261,7 +261,7 @@ function HelpPage() {
           </div>
 
           {/* Still Need Help */}
-          <div className="bg-gradient-to-r from-[#EF5A5A] to-[#FF7B7B] rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-lg p-6 text-primary-foreground">
             <h2 className="text-lg font-semibold mb-2">Masih Butuh Bantuan?</h2>
             <p className="text-white/90 mb-4">
               Tim customer service kami siap membantu Anda menemukan franchise
@@ -269,7 +269,7 @@ function HelpPage() {
             </p>
             <button
               onClick={() => window.open("mailto:support@eazychise.com")}
-              className="bg-white text-[#EF5A5A] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              className="bg-primary-foreground text-primary px-4 py-2 rounded-lg font-medium hover:bg-background transition-colors"
             >
               Hubungi Support
             </button>

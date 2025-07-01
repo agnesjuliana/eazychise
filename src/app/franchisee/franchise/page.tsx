@@ -2,6 +2,7 @@
 import AppLayout from "@/components/app-layout";
 import HeaderPage from "@/components/header";
 import { Card, CardContent } from "@/components/ui/card";
+import { FranchiseCardSkeleton } from "@/components/ui/skeleton";
 import withAuth from "@/lib/withAuth";
 import { ChevronRight, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -29,41 +30,30 @@ function OwnedFranchisePage() {
   const LoadingState = () => (
     <div className="px-4 py-6 space-y-4">
       {/* Loading skeleton for franchise count card */}
-      <Card className="animate-pulse">
+      <Card className="bg-warning text-warning-foreground">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
-              <div className="h-8 bg-gray-300 rounded w-8"></div>
+            <div className="animate-pulse">
+              <div className="h-4 bg-white/30 rounded w-24 mb-2"></div>
+              <div className="h-8 bg-white/30 rounded w-8"></div>
             </div>
-            <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+            <div className="w-10 h-10 bg-white/30 rounded-full animate-pulse"></div>
           </div>
         </CardContent>
       </Card>
 
       {/* Loading skeleton for franchise list */}
       {Array.from({ length: 3 }, (_, index) => (
-        <Card key={index} className="animate-pulse">
-          <CardContent className="p-4">
-            <div className="flex gap-4">
-              <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-              </div>
-              <div className="w-6 h-6 bg-gray-300 rounded"></div>
-            </div>
-          </CardContent>
-        </Card>
+        <FranchiseCardSkeleton key={index} />
       ))}
     </div>
   );
 
   const EmptyState = () => (
     <div className="px-4 py-12 text-center">
-      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
         <svg
-          className="w-12 h-12 text-gray-400"
+          className="w-12 h-12 text-muted-foreground"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -76,10 +66,10 @@ function OwnedFranchisePage() {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
         Belum Ada Franchise
       </h3>
-      <p className="text-gray-600 text-sm">
+      <p className="text-muted-foreground text-sm">
         Anda belum memiliki franchise. Mulai jelajahi berbagai peluang franchise
         yang tersedia.
       </p>
@@ -87,7 +77,7 @@ function OwnedFranchisePage() {
   );
 
   const FranchiseCountCard = () => (
-    <Card className="bg-[#FFA952] text-white">
+    <Card className="bg-warning text-warning-foreground">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -129,10 +119,10 @@ function OwnedFranchisePage() {
 
           {/* Franchise Details */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate mb-1">
+            <h3 className="font-semibold text-foreground truncate mb-1">
               {franchise.franchise.name}
             </h3>
-            <div className="flex items-center gap-1 text-sm text-gray-600">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="w-3 h-3 flex-shrink-0" />
               <span className="truncate">{franchise.franchise.location}</span>
             </div>
@@ -140,7 +130,7 @@ function OwnedFranchisePage() {
 
           {/* Arrow */}
           <div className="flex items-center">
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </div>
         </div>
       </CardContent>
@@ -150,12 +140,12 @@ function OwnedFranchisePage() {
   return (
     <AppLayout>
       {/* Header */}
-      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-50 max-w-md mx-auto bg-gray-50 w-full">
+      <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-50 max-w-md mx-auto bg-background w-full">
         <HeaderPage title="OWNED FRANCHISE" />
       </div>
-      <div style={{ height: "162px" }} className="w-full bg-gray-50"></div>
+      <div style={{ height: "162px" }} className="w-full bg-background"></div>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         {isLoading ? (
           <LoadingState />
         ) : isError ? (

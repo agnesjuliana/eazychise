@@ -17,7 +17,8 @@ export async function GET() {
   try {
     const franchise = await prisma.franchise_listings.findMany({
       where: {
-        franchisor_id: auth.user.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        franchisor_id: (auth.user as any).id,
       },
       include: {
         purchases: {
@@ -64,7 +65,8 @@ export async function GET() {
     // Return empty array if no purchases found instead of 404
     return NextResponse.json(
       formatResponse({
-        message: purchase.length > 0 ? "Success get purchases" : "No purchases found",
+        message:
+          purchase.length > 0 ? "Success get purchases" : "No purchases found",
         data: purchase,
       }),
       { status: 200 }

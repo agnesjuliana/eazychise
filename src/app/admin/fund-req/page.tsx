@@ -2,9 +2,10 @@
 
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
-import { User as UserType } from "@/type/user";
+import { ListItemSkeleton } from "@/components/ui/skeleton";
+
 import React from "react";
-import { Loader2 } from "lucide-react";
+
 import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
 import withAuth from "@/lib/withAuth";
@@ -21,20 +22,18 @@ type FundingWithUser = {
   foto_lokasi: string;
   mou_franchisor: string;
   mou_modal: string;
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      status: string;
-    };
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    status: string;
   };
+};
 
 function AdminApprovePage() {
   const [status, setStatus] = React.useState<string>("all");
   const [loading, setLoading] = React.useState<boolean>(true);
   const [requests, setRequests] = React.useState<FundingWithUser[]>([]);
-  const [open, setOpen] = React.useState(false);
-  const [actionStatus, setActionStatus] = React.useState<"ACCEPTED" | "REJECTED" | "INTERVIEW" |"WAITING"| null>(null);
 
   React.useEffect(() => {
     const fetchRequests = async () => {
@@ -115,9 +114,10 @@ function AdminApprovePage() {
       <div className="flex flex-col gap-4 w-full px-4 pb-10">
         <div className="flex flex-col gap-3 w-full ">
           {loading ? (
-            <div className="flex flex-col items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mb-2" />
-              <p className="text-gray-500">Mengambil data akun...</p>
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ListItemSkeleton key={i} />
+              ))}
             </div>
           ) : filteredRequests.length > 0 ? (
             filteredRequests.map((req) => (

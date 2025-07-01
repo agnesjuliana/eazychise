@@ -59,3 +59,8 @@ docker/
 
 # Cloudinary cache
 .cloudinary/
+
+# PWA Service Worker files (generated during build)
+/public/sw.js
+/public/workbox-*.js
+/public/fallback-*.js

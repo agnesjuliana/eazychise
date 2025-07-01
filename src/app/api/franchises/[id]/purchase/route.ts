@@ -43,7 +43,8 @@ export async function POST(
         // Create purchase record
         const franchise_purchases = await tx.franchise_purchases.create({
           data: {
-            user_id: auth.user.id,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            user_id: (auth.user as any).id,
             franchise_id: franchiseId,
             purchase_type: body.purchase_type,
             confirmation_status: body.confirmation_status,
@@ -74,7 +75,8 @@ export async function POST(
 
           await tx.user_notifications.create({
             data: {
-              user_id: auth.user.id,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              user_id: (auth.user as any).id,
               title: "Permintaan Pendanaan Dikirim",
               message: `Permintaan pendanaan untuk franchise ${franchise.name} telah dikirim.`,
               type: "funding_request",
@@ -88,7 +90,12 @@ export async function POST(
               data: {
                 user_id: admin.id,
                 title: "Permintaan Pendanaan Baru",
-                message: `${auth.user.name} telah mengirim permintaan pendanaan untuk franchise ${franchise.name}.`,
+                message: `${
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (auth.user as any).name
+                } telah mengirim permintaan pendanaan untuk franchise ${
+                  franchise.name
+                }.`,
                 type: "funding_request",
                 is_read: false,
                 sent_at: new Date(),
@@ -99,7 +106,8 @@ export async function POST(
 
         await tx.user_notifications.create({
           data: {
-            user_id: auth.user.id,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            user_id: (auth.user as any).id,
             title: "Pembelian Franchise Berhasil",
             message: `Anda telah berhasil melakukan pembelian franchise ${franchise.name}.`,
             type: "purchase",
@@ -112,7 +120,11 @@ export async function POST(
           data: {
             user_id: franchise.franchisor_id,
             title: "Pembelian Franchise Baru",
-            message: `${auth.user.name} telah melakukan pembelian franchise ${franchise.name}.`,
+
+            message: `${
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (auth.user as any).name
+            } telah melakukan pembelian franchise ${franchise.name}.`,
             type: "purchase",
             is_read: false,
             sent_at: new Date(),

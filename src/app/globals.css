@@ -51,18 +51,33 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+
+  /* Updated primary colors to match brand color #EF5A5A */
+  --primary: #ef5a5a;
+  --primary-foreground: #ffffff;
+
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+
+  /* Updated destructive to match design system */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* Updated success colors */
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  /* Updated warning colors */
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: #ef5a5a;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -70,12 +85,12 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: #ef5a5a;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: #ef5a5a;
 }
 
 .dark {
@@ -85,18 +100,33 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+
+  /* Updated primary colors for dark mode */
+  --primary: #f87171;
+  --primary-foreground: #1f2937;
+
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+
+  /* Updated destructive for dark mode */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Updated success for dark mode */
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+
+  /* Updated warning for dark mode */
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: #f87171;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -104,12 +134,12 @@
   --chart-5: oklch(0.645 0.246 16.439);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: #f87171;
+  --sidebar-primary-foreground: #1f2937;
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: #f87171;
 }
 
 @layer base {
@@ -117,6 +147,54 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
+  }
+
+  /* Additional design system utilities */
+  .text-primary {
+    color: var(--primary);
+  }
+
+  .bg-primary {
+    background-color: var(--primary);
+  }
+
+  .border-primary {
+    border-color: var(--primary);
+  }
+
+  .text-success {
+    color: var(--success);
+  }
+
+  .bg-success {
+    background-color: var(--success);
+  }
+
+  .text-warning {
+    color: var(--warning);
+  }
+
+  .bg-warning {
+    background-color: var(--warning);
+  }
+
+  .text-destructive {
+    color: var(--destructive);
+  }
+
+  .bg-destructive {
+    background-color: var(--destructive);
+  }
+
+  /* Loading spinner consistent styling */
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-300;
+    border-top-color: var(--primary);
+  }
+
+  /* Consistent focus ring */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
   }
 }

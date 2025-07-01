@@ -1,6 +1,7 @@
 "use client";
 import AppLayout from "@/components/app-layout";
 import { Button } from "@/components/ui/button";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { ArrowLeft } from "lucide-react";
 import React, { useState, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -29,16 +30,11 @@ import CloudinaryUploader, {
   CloudinaryUploadResult,
 } from "@/components/CloudinaryUploader";
 import withAuth from "@/lib/withAuth";
-import { User } from "@/type/user";
+import useAuthStore from "@/store/authStore";
 import { PurchaseFranchisePayload } from "@/type/franchise";
 import { FileUploadResult } from "@/utils/fileUtils";
 import axios from "axios";
 import { toast } from "sonner";
-
-interface RequestFundingPageProps {
-  user?: User | null;
-  params: Promise<{ franchiseId: string }>;
-}
 
 // Franchisee franchises API response interfaces
 interface FranchiseePurchase {
@@ -83,9 +79,15 @@ interface FilePaths {
   mouModal: string;
 }
 
-function RequestFundingPage({ user, params }: RequestFundingPageProps) {
+// Remove the interface and use a simple approach
+function RequestFundingPage({
+  params,
+}: {
+  params: Promise<{ franchiseId: string }>;
+}) {
   const { franchiseId } = use(params);
   const router = useRouter();
+  const user = useAuthStore.useUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [showConditionalSteps, setShowConditionalSteps] = useState(false);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
@@ -95,6 +97,9 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
   const [existingPurchase, setExistingPurchase] =
     useState<FranchiseePurchase | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Agreement state for Step 2 - Use Case 3.1
+  const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
 
   // State to store complete funding request data for PUT operation
   const [completeFundingData, setCompleteFundingData] = useState<{
@@ -587,7 +592,14 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       console.error("Submit error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Gagal mengirim permohonan";
-      toast.error(errorMessage);
+
+      // Enhanced error handling with help button - Use Case 10.1 preparation
+      toast.error(`${errorMessage}. Silakan coba lagi atau hubungi bantuan.`, {
+        action: {
+          label: "Bantuan",
+          onClick: () => window.open("/franchisee/profile/help", "_blank"),
+        },
+      });
       return false;
     } finally {
       setIsLoading(false);
@@ -595,6 +607,16 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
   }, [formData, filePaths, franchiseId, validateCloudinaryUrl]);
 
   const handleNext = useCallback(() => {
+    // Use Case 3.1: Validate agreement before proceeding from Step 2
+    if (currentStep === 2) {
+      if (!isAgreedToTerms) {
+        toast.error(
+          "Anda harus menyetujui syarat dan ketentuan untuk melanjutkan"
+        );
+        return;
+      }
+    }
+
     if (currentStep === 3) {
       // Show submit dialog for StepThree
       setShowSubmitDialog(true);
@@ -632,7 +654,7 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
         setCurrentStep(currentStep + 1);
       }
     }
-  }, [currentStep, showConditionalSteps, router]);
+  }, [currentStep, showConditionalSteps, router, isAgreedToTerms]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 1) {
@@ -643,25 +665,51 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
   const handleSubmitConfirm = useCallback(async () => {
     setShowSubmitDialog(false);
 
-    // Validate form data
-    if (
-      !formData.namaLengkap ||
-      !formData.alamatTempat ||
-      !formData.noTelepon ||
-      !formData.npwp ||
-      !formData.alamatFranchise
-    ) {
-      toast.error("Mohon lengkapi semua field yang wajib");
+    // Use Case 5.1: Enhanced form validation with detailed error messages
+    const missingFields = [];
+    if (!formData.namaLengkap) missingFields.push("Nama Lengkap");
+    if (!formData.alamatTempat) missingFields.push("Alamat Tempat Tinggal");
+    if (!formData.noTelepon) missingFields.push("No Telepon");
+    if (!formData.npwp) missingFields.push("NPWP");
+    if (!formData.alamatFranchise)
+      missingFields.push("Alamat Lokasi Franchise");
+
+    if (missingFields.length > 0) {
+      toast.error(
+        `Mohon lengkapi semua kolom yang diperlukan: ${missingFields.join(
+          ", "
+        )}`,
+        {
+          action: {
+            label: "Bantuan",
+            onClick: () => window.open("/franchisee/profile/help", "_blank"),
+          },
+        }
+      );
       return;
     }
 
     // Validate that we have valid Cloudinary URLs for required files
-    if (
-      !validateCloudinaryUrl(filePaths.scanKTP) ||
-      !validateCloudinaryUrl(filePaths.fotoDiri) ||
-      !validateCloudinaryUrl(filePaths.fotoFranchise)
-    ) {
-      toast.error("Mohon upload semua dokumen yang diperlukan dari Cloudinary");
+    const missingFiles = [];
+    if (!validateCloudinaryUrl(filePaths.scanKTP))
+      missingFiles.push("Scan KTP");
+    if (!validateCloudinaryUrl(filePaths.fotoDiri))
+      missingFiles.push("Foto Diri");
+    if (!validateCloudinaryUrl(filePaths.fotoFranchise))
+      missingFiles.push("Foto Lokasi Franchise");
+
+    if (missingFiles.length > 0) {
+      toast.error(
+        `Mohon upload semua dokumen yang diperlukan: ${missingFiles.join(
+          ", "
+        )}`,
+        {
+          action: {
+            label: "Bantuan",
+            onClick: () => window.open("/franchisee/profile/help", "_blank"),
+          },
+        }
+      );
       return;
     }
 
@@ -1072,7 +1120,12 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       case 1:
         return <StepOne />;
       case 2:
-        return <StepTwo />;
+        return (
+          <StepTwo
+            onAgreementChange={setIsAgreedToTerms}
+            isAgreed={isAgreedToTerms}
+          />
+        );
       case 3:
         return renderStepThreeForm();
       case 4:
@@ -1099,21 +1152,23 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     }
   };
 
-  // Loading component for checking status
+  // Loading component for checking status with skeleton
   const renderLoadingScreen = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <AppLayout showBottomNav={false} className="text-black">
+      <Button
+        variant="secondary"
+        size="icon"
+        className="size-8 mt-8 mb-2"
+        onClick={() => router.back()}
+      >
+        <ArrowLeft />
+      </Button>
+      <section className="mb-12 px-4 flex min-h-screen h-auto w-full items-center justify-start flex-col">
+        <div className="w-full max-w-md">
+          <FormSkeleton />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Memeriksa Status
-        </h3>
-        <p className="text-gray-600">
-          Sedang memeriksa status permohonan pendanaan Anda...
-        </p>
-      </div>
-    </div>
+      </section>
+    </AppLayout>
   );
 
   // Show loading screen while checking status

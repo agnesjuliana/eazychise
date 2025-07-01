@@ -7,7 +7,10 @@ import { ConfirmationStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {
@@ -67,7 +70,8 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
       });
     }
 
-    if (purchase.franchise.franchisor_id !== auth.user.id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (purchase.franchise.franchisor_id !== (auth.user as any).id) {
       return NextResponse.json(
         formatError({ message: "Unauthorized access to purchase" }),
         { status: 403 }
@@ -125,7 +129,8 @@ export async function PATCH(
       );
     }
 
-    if (franchise_purchases.franchise.franchisor_id !== auth.user.id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (franchise_purchases.franchise.franchisor_id !== (auth.user as any).id) {
       return NextResponse.json(
         formatError({ message: "Unauthorized access to purchase request" }),
         { status: 403 }

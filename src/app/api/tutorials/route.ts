@@ -15,7 +15,8 @@ export async function POST(req: Request) {
     });
   }
 
-  const franchisorId = auth.user.id;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const franchisorId = (auth.user as any).id;
 
   const franchise = await prisma.franchise_listings.findFirst({
     where: {
@@ -72,7 +73,8 @@ export async function GET() {
   try {
     // Ambil franchise yang dimiliki oleh franchisor ini
     const franchise = await prisma.franchise_listings.findFirst({
-      where: { franchisor_id: auth.user.id },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      where: { franchisor_id: (auth.user as any).id },
     });
 
     if (!franchise) {

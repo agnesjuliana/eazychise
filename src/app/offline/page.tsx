@@ -1,17 +1,42 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 
 export default function OfflinePage() {
+  const [isOnline, setIsOnline] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setIsOnline(navigator.onLine);
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   const handleRefresh = () => {
-    window.location.reload();
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
   };
 
   const handleRetry = () => {
-    if (navigator.onLine) {
-      window.history.back();
-    } else {
-      handleRefresh();
+    if (typeof window !== "undefined") {
+      if (navigator.onLine) {
+        window.history.back();
+      } else {
+        handleRefresh();
+      }
     }
   };
 
@@ -26,7 +51,8 @@ export default function OfflinePage() {
             Tidak ada koneksi internet
           </h1>
           <p className="text-gray-600">
-            Sepertinya Anda sedang offline. Beberapa fitur mungkin tidak tersedia saat ini.
+            Sepertinya Anda sedang offline. Beberapa fitur mungkin tidak
+            tersedia saat ini.
           </p>
         </div>
 
@@ -35,30 +61,32 @@ export default function OfflinePage() {
             <div className="flex items-center justify-center mb-2">
               <Wifi className="w-5 h-5 text-blue-600 mr-2" />
               <span className="text-sm font-medium text-blue-800">
-                Status Koneksi: {navigator.onLine ? 'Online' : 'Offline'}
+                Status Koneksi:{" "}
+                {isClient ? (isOnline ? "Online" : "Offline") : "Checking..."}
               </span>
             </div>
             <p className="text-xs text-blue-600">
-              {navigator.onLine 
-                ? 'Koneksi internet tersedia. Silakan coba lagi.'
-                : 'Periksa koneksi internet Anda dan coba lagi.'
-              }
+              {isClient
+                ? isOnline
+                  ? "Koneksi internet tersedia. Silakan coba lagi."
+                  : "Periksa koneksi internet Anda dan coba lagi."
+                : "Memeriksa status koneksi..."}
             </p>
           </div>
 
           <div className="space-y-3">
-            <Button 
-              onClick={handleRetry} 
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={handleRetry} className="w-full" size="lg">
               <RefreshCw className="w-4 h-4 mr-2" />
               Coba Lagi
             </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => window.history.back()} 
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.history.back();
+                }
+              }}
               className="w-full"
               size="lg"
             >

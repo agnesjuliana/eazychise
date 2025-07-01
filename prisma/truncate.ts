@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 async function truncateAll() {
   await prisma.$transaction([
     prisma.category_franchise.deleteMany(),
-    prisma.saved_franchises.deleteMany(),
     prisma.listings_highlights.deleteMany(),
     prisma.listing_documents.deleteMany(),
     prisma.franchise_purchases.deleteMany(),

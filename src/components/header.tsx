@@ -3,7 +3,7 @@ import React from "react";
 
 export default function HeaderPage({ title }: { title: string }) {
   return (
-    <div className="bg-[#EF5A5A] h-[162px] w-full relative rounded-b-[10px] flex items-center justify-center">
+    <div className="bg-primary h-[162px] w-full relative rounded-b-[10px] flex items-center justify-center">
       <Image
         src="/image/cloud.png"
         alt="Cloud Element"
@@ -32,7 +32,7 @@ export default function HeaderPage({ title }: { title: string }) {
         height={41}
         className="absolute bottom-[10px] right-[40px]"
       />
-      <h2 className="text-center text-white text-[24px] font-semibold font-poppins mt-4">
+      <h2 className="text-center text-primary-foreground text-2xl font-semibold font-poppins mt-4">
         {title}
       </h2>
     </div>

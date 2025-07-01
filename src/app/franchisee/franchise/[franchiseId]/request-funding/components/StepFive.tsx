@@ -19,7 +19,7 @@ export default function StepFive() {
       <p className="mt-6 w-full text-start text-sm text-gray-700">
         Belum menerima email?
       </p>
-      <p className="text-start w-full text-sm text-[#FFA952]">
+      <p className="text-start w-full text-sm text-warning">
         Kirim ulang undangan
       </p>
     </>

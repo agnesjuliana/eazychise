@@ -12,9 +12,18 @@ import {
 
 import withAuth from "@/lib/withAuth";
 import Image from "next/image";
-import { useFranchisorFranchise, useFranchisorPurchases, useFranchisorStats } from "./_hooks/useGetFranchisorData";
-import { useMemo } from "react";
-import { RefreshCw, AlertCircle, TrendingUp, Users, CheckCircle, Clock, XCircle } from "lucide-react";
+import {
+  useFranchisorFranchise,
+  useFranchisorPurchases,
+  useFranchisorStats,
+} from "./_hooks/useGetFranchisorData";
+import {
+  RefreshCw,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  XCircle,
+} from "lucide-react";
 
 const formatRupiah = (price: string | number): string => {
   const numPrice =
@@ -42,8 +51,7 @@ function HomeFranchisorPage() {
   } = useFranchisorFranchise();
 
   const {
-    data: purchasesData,
-    isLoading: isPurchasesLoading,
+    data: purchasesData, // eslint-disable-line @typescript-eslint/no-unused-vars
     isError: isPurchasesError,
     error: purchasesError,
     refetch: refetchPurchases,
@@ -57,49 +65,50 @@ function HomeFranchisorPage() {
     refetch: refetchStats,
   } = useFranchisorStats();
 
-  // Calculate comprehensive sales data
-  const salesData = useMemo(() => {
-    if (!purchasesData) return { 
-      totalSold: 0, 
-      totalRevenue: 0, 
-      pendingPurchases: 0, 
-      totalPurchases: 0,
-      conversionRate: 0 
-    };
+  // TODO: Implement sales data usage in dashboard
+  // const salesData = useMemo(() => {
+  //   if (!purchasesData) return {
+  //     totalSold: 0,
+  //     totalRevenue: 0,
+  //     pendingPurchases: 0,
+  //     totalPurchases: 0,
+  //     conversionRate: 0
+  //   };
 
-    const paidPurchases = purchasesData.filter(
-      (purchase) => purchase.payment_status === "paid"
-    );
-    
-    const pendingPurchases = purchasesData.filter(
-      (purchase) => purchase.payment_status === "pending"
-    );
+  //   const paidPurchases = purchasesData.filter(
+  //     (purchase) => purchase.payment_status === "paid"
+  //   );
 
-    const totalSold = paidPurchases.length;
-    const totalPurchases = purchasesData.length;
-    const pendingCount = pendingPurchases.length;
-    const conversionRate = totalPurchases > 0 ? (totalSold / totalPurchases) * 100 : 0;
-    
-    const totalRevenue = paidPurchases.reduce((sum, purchase) => {
-      // Assuming the franchise price from franchiseData
-      if (franchiseData && franchiseData.length > 0 && franchiseData[0].price) {
-        const price = parseFloat(franchiseData[0].price.replace(/[^\d]/g, ""));
-        return sum + price;
-      }
-      return sum;
-    }, 0);
+  //   const pendingPurchases = purchasesData.filter(
+  //     (purchase) => purchase.payment_status === "pending"
+  //   );
 
-    return { 
-      totalSold, 
-      totalRevenue, 
-      pendingPurchases: pendingCount, 
-      totalPurchases,
-      conversionRate 
-    };
-  }, [purchasesData, franchiseData]);
+  //   const totalSold = paidPurchases.length;
+  //   const totalPurchases = purchasesData.length;
+  //   const pendingCount = pendingPurchases.length;
+  //   const conversionRate = totalPurchases > 0 ? (totalSold / totalPurchases) * 100 : 0;
+
+  //   const totalRevenue = paidPurchases.reduce((sum) => {
+  //     // Assuming the franchise price from franchiseData
+  //     if (franchiseData && franchiseData.length > 0 && franchiseData[0].price) {
+  //       const price = parseFloat(franchiseData[0].price.replace(/[^\d]/g, ""));
+  //       return sum + price;
+  //     }
+  //     return sum;
+  //   }, 0);
+
+  //   return {
+  //     totalSold,
+  //     totalRevenue,
+  //     pendingPurchases: pendingCount,
+  //     totalPurchases,
+  //     conversionRate
+  //   };
+  // }, [purchasesData, franchiseData]);
 
   // Get first franchise for display
-  const displayFranchise = franchiseData && franchiseData.length > 0 ? franchiseData[0] : null;
+  const displayFranchise =
+    franchiseData && franchiseData.length > 0 ? franchiseData[0] : null;
 
   return (
     <FranchisorLayout className="overflow-x-hidden">
@@ -119,7 +128,9 @@ function HomeFranchisorPage() {
                     ) : isStatsError ? (
                       <p className="text-3xl font-bold mt-2">Error</p>
                     ) : (
-                      <p className="text-4xl font-bold mt-2">{statsData?.accepted || 0}</p>
+                      <p className="text-4xl font-bold mt-2">
+                        {statsData?.accepted || 0}
+                      </p>
                     )}
                   </div>
                   <CheckCircle className="w-8 h-8 opacity-80" />
@@ -158,7 +169,7 @@ function HomeFranchisorPage() {
             </Button>
           )}
         </div>
-        
+
         {/* Error Alert */}
         {(isFranchiseError || isPurchasesError || isStatsError) && (
           <Card className="border-red-200 bg-red-50">
@@ -170,7 +181,9 @@ function HomeFranchisorPage() {
                     Terjadi kesalahan saat memuat data
                   </p>
                   <p className="text-red-500 text-xs mt-1">
-                    {franchiseError?.message || purchasesError?.message || statsError?.message}
+                    {franchiseError?.message ||
+                      purchasesError?.message ||
+                      statsError?.message}
                   </p>
                 </div>
                 <Button
@@ -200,7 +213,9 @@ function HomeFranchisorPage() {
                   ) : isStatsError ? (
                     <p className="text-2xl font-bold mt-1">Error</p>
                   ) : (
-                    <p className="text-3xl font-bold mt-1">{statsData?.waiting || 0}</p>
+                    <p className="text-3xl font-bold mt-1">
+                      {statsData?.waiting || 0}
+                    </p>
                   )}
                 </div>
                 <Clock className="w-5 h-5 opacity-80" />
@@ -225,7 +240,9 @@ function HomeFranchisorPage() {
                   ) : isStatsError ? (
                     <p className="text-2xl font-bold mt-1">Error</p>
                   ) : (
-                    <p className="text-3xl font-bold mt-1">{statsData?.rejected || 0}</p>
+                    <p className="text-3xl font-bold mt-1">
+                      {statsData?.rejected || 0}
+                    </p>
                   )}
                 </div>
                 <XCircle className="w-5 h-5 opacity-80" />
@@ -291,7 +308,10 @@ function HomeFranchisorPage() {
             <Card className="p-0 overflow-hidden border-gray-200">
               <div className="relative h-40 w-full">
                 <Image
-                  src={displayFranchise.image || "/image/home/template-picture-franchise-food.png"}
+                  src={
+                    displayFranchise.image ||
+                    "/image/home/template-picture-franchise-food.png"
+                  }
                   alt={`Image of ${displayFranchise.name}`}
                   fill
                   className="object-cover bg-gray-200"
@@ -308,7 +328,8 @@ function HomeFranchisorPage() {
                   Harga: {formatRupiah(displayFranchise.price)}
                 </CardDescription>
                 <CardDescription className="text-sm text-gray-600">
-                  Status: <span className="capitalize">{displayFranchise.status}</span>
+                  Status:{" "}
+                  <span className="capitalize">{displayFranchise.status}</span>
                 </CardDescription>
               </CardContent>
             </Card>

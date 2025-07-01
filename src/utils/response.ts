@@ -1,10 +1,10 @@
 type BaseResponse = {
   status: boolean;
   message: string;
-  meta?: any;
+  meta?: unknown;
 };
 
-export function formatResponse<T = any>({
+export function formatResponse<T = unknown>({
   status = true,
   message = "Success",
   data,

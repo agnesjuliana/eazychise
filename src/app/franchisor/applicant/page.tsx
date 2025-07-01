@@ -5,14 +5,7 @@ import HeaderPage from "@/components/header";
 import withAuth from "@/lib/withAuth";
 
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  ArrowRight,
-  User,
-  Clock,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
+import { User, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
@@ -122,7 +115,7 @@ function ApplicantPage() {
   };
 
   return (
-    <FranchisorLayout>
+    <FranchisorLayout className="overflow-x-hidden">
       {/* Header */}
       <div className="relative">
         <HeaderPage title="Applicant" />

@@ -3,12 +3,12 @@ import AdminLayout from "@/components/admin-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -47,8 +47,9 @@ function DetailFundingRequestPage() {
   const [funding, setFunding] = React.useState<FundingData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [open, setOpen] = React.useState(false);
-  const [actionStatus, setActionStatus] =
-    React.useState<ConfirmationStatus | null>(null);
+  const [actionStatus, setActionStatus] = React.useState<
+    "ACCEPTED" | "REJECTED" | null
+  >(null);
   const { showToast, ToastRenderer } = useToast();
 
   React.useEffect(() => {
@@ -88,95 +89,28 @@ function DetailFundingRequestPage() {
     </a>
   );
 
-  const handleAction = async (status: ConfirmationStatus) => {
+  const handleAction = async (status: "ACCEPTED" | "REJECTED") => {
     try {
-      const payload = {
-        status: status, // ✅ hanya untuk funding_request
-      };
-
       const res = await fetch(`/api/funding-request/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ status }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.status) {
         showToast("Status berhasil diperbarui", "success");
-
-        setFunding((prev) => prev && { ...prev, confirmation_status: status });
-        setOpen(false);
-
-        // ✅ Tambahkan query param agar AdminApprovePage bisa re-fetch
-        router.replace("/admin/fund-req?updated=true");
+        router.push("/admin/fund-req");
       } else {
-        showToast(data.message || "Gagal memperbarui status", "destructive");
-        console.error("Server error:", data);
+        showToast("Gagal memperbarui status", "destructive");
       }
     } catch (err) {
       showToast("Terjadi kesalahan saat memperbarui data", "destructive");
       console.error(err);
     }
-  };
-
-  // Helper function untuk menentukan status badge
-  const getStatusBadge = (status: ConfirmationStatus) => {
-    const statusConfig: Record<
-      ConfirmationStatus,
-      { label: string; color: string }
-    > = {
-      WAITING: { label: "Menunggu", color: "bg-yellow-100 text-yellow-800" },
-      INTERVIEW: { label: "Interview", color: "bg-blue-100 text-blue-800" },
-      ACCEPTED: { label: "Disetujui", color: "bg-green-100 text-green-800" },
-      REJECTED: { label: "Ditolak", color: "bg-red-100 text-red-800" },
-    };
-
-    const config = statusConfig[status];
-    return (
-      <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${config.color}`}
-      >
-        {config.label}
-      </span>
-    );
-  };
-
-  // Helper function untuk menentukan tombol yang tersedia
-  const getAvailableActions = (currentStatus: ConfirmationStatus) => {
-    const actionConfig: Record<
-      ConfirmationStatus,
-      Array<{ action: ConfirmationStatus; label: string; variant: string }>
-    > = {
-      WAITING: [
-        { action: "INTERVIEW", label: "Proses Interview", variant: "default" },
-        { action: "REJECTED", label: "Tolak", variant: "destructive" },
-      ],
-      INTERVIEW: [
-        { action: "ACCEPTED", label: "Setujui", variant: "default" },
-        { action: "REJECTED", label: "Tolak", variant: "destructive" },
-      ],
-      ACCEPTED: [],
-      REJECTED: [
-        { action: "INTERVIEW", label: "Proses Ulang", variant: "default" },
-      ],
-    };
-
-    return actionConfig[currentStatus] || [];
-  };
-
-  // Helper function untuk mendapatkan label status dalam bahasa Indonesia
-  const getStatusLabel = (status: ConfirmationStatus): string => {
-    const statusLabels: Record<ConfirmationStatus, string> = {
-      WAITING: "Menunggu",
-      INTERVIEW: "Interview",
-      ACCEPTED: "Disetujui",
-      REJECTED: "Ditolak",
-    };
-
-    return statusLabels[status];
   };
 
   return (
@@ -196,19 +130,43 @@ function DetailFundingRequestPage() {
 
         <div className="w-full px-4 mt-4 pb-10">
           {loading ? (
-            <div className="flex flex-col items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#EF5A5A] mb-2" />
-              <p className="text-gray-500">Memuat data...</p>
-            </div>
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Skeleton className="h-5 w-32" />
+                  <div className="grid grid-cols-2 gap-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-32 w-full rounded-lg" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 flex-1" />
+                </div>
+              </div>
+            </Card>
           ) : funding ? (
             <Card className="p-4 bg-gray-100 rounded-xl">
               <div className="space-y-3">
-                {/* Status Badge */}
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Detail Permohonan</h3>
-                  {getStatusBadge(funding.confirmation_status)}
-                </div>
-
                 <p>
                   <strong>Nama Lengkap</strong>
                   <br /> {funding.purchase?.user?.name}
@@ -276,44 +234,55 @@ function DetailFundingRequestPage() {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                {getAvailableActions(funding.confirmation_status).length >
-                  0 && (
+                <Dialog open={open} onOpenChange={setOpen}>
                   <div className="flex gap-4 mt-6 justify-center">
-                    {getAvailableActions(funding.confirmation_status).map(
-                      (actionConfig) => (
-                        <Button
-                          key={actionConfig.action}
-                          variant={
-                            actionConfig.variant === "destructive"
-                              ? "outline"
-                              : "default"
-                          }
-                          className={
-                            actionConfig.variant === "destructive"
-                              ? "border-red-500 text-red-500 hover:bg-red-100"
-                              : "bg-[#EF5A5A] text-white hover:bg-[#d34f4f]"
-                          }
-                          onClick={() => {
-                            setActionStatus(actionConfig.action);
-                            setOpen(true);
-                          }}
-                        >
-                          {actionConfig.label}
-                        </Button>
-                      )
-                    )}
+                    <Button
+                      variant="outline"
+                      className="border-red-500 text-red-500 hover:bg-red-100"
+                      onClick={() => {
+                        setActionStatus("REJECTED");
+                        setOpen(true);
+                      }}
+                    >
+                      Tolak
+                    </Button>
+                    <Button
+                      className="bg-[#EF5A5A] text-white hover:bg-[#d34f4f]"
+                      onClick={() => {
+                        setActionStatus("ACCEPTED");
+                        setOpen(true);
+                      }}
+                    >
+                      Setujui
+                    </Button>
                   </div>
-                )}
 
-                {/* Status sudah final */}
-                {funding.confirmation_status === "ACCEPTED" && (
-                  <div className="text-center mt-6 p-4 bg-green-50 rounded-lg">
-                    <p className="text-green-800 font-medium">
-                      ✅ Permohonan sudah disetujui dan tidak dapat diubah lagi
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Konfirmasi Aksi</DialogTitle>
+                    </DialogHeader>
+                    <p>
+                      Apakah Anda yakin ingin{" "}
+                      <strong>
+                        {actionStatus === "REJECTED" ? "menolak" : "menyetujui"}
+                      </strong>{" "}
+                      permintaan ini?
                     </p>
-                  </div>
-                )}
+                    <DialogFooter className="pt-4">
+                      <Button variant="outline" onClick={() => setOpen(false)}>
+                        Batal
+                      </Button>
+                      <Button
+                        className="bg-[#EF5A5A] text-white hover:bg-[#d34f4f]"
+                        onClick={() => {
+                          if (actionStatus) handleAction(actionStatus);
+                        }}
+                      >
+                        Ya, Lanjutkan
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </Card>
           ) : (
@@ -322,62 +291,7 @@ function DetailFundingRequestPage() {
         </div>
       </AdminLayout>
 
-      {/* Confirmation Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Konfirmasi Aksi</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p>
-              Apakah Anda yakin ingin mengubah status menjadi{" "}
-              <strong>{actionStatus && getStatusLabel(actionStatus)}</strong>?
-            </p>
-
-            {actionStatus === "INTERVIEW" && (
-              <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                <p className="text-blue-800 text-sm">
-                  📋 Status akan diubah ke tahap interview. Pastikan untuk
-                  menghubungi calon franchisee untuk proses selanjutnya.
-                </p>
-              </div>
-            )}
-
-            {actionStatus === "ACCEPTED" && (
-              <div className="mt-3 p-3 bg-green-50 rounded-lg">
-                <p className="text-green-800 text-sm">
-                  ✅ Permohonan akan disetujui dan status tidak dapat diubah
-                  lagi setelah ini.
-                </p>
-              </div>
-            )}
-
-            {actionStatus === "REJECTED" && (
-              <div className="mt-3 p-3 bg-red-50 rounded-lg">
-                <p className="text-red-800 text-sm">
-                  ❌ Permohonan akan ditolak. Pastikan keputusan ini sudah
-                  tepat.
-                </p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Batal
-            </Button>
-            <Button
-              className="bg-[#EF5A5A] text-white hover:bg-[#d34f4f]"
-              onClick={() => {
-                if (actionStatus) handleAction(actionStatus);
-              }}
-            >
-              Ya, Lanjutkan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Toast Renderer */}
+      {/* Toast Renderer Harus di luar AdminLayout */}
       <ToastRenderer />
     </>
   );

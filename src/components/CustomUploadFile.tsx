@@ -24,7 +24,9 @@ const CustomUploadFile = ({
 }: CustomUploadFileProps) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
-  const [uploadResult, setUploadResult] = useState<FileUploadResult | null>(null);
+  const [uploadResult, setUploadResult] = useState<FileUploadResult | null>(
+    null
+  );
   const [validationError, setValidationError] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
@@ -118,7 +120,7 @@ const CustomUploadFile = ({
     } catch (error) {
       setValidationError(
         "Upload gagal: " +
-        (error instanceof Error ? error.message : "Unknown error")
+          (error instanceof Error ? error.message : "Unknown error")
       );
     } finally {
       setIsUploading(false);
@@ -127,28 +129,30 @@ const CustomUploadFile = ({
 
   return (
     <div>
-      <div className="bg-[#EF5A5A] text-white text-center p-2 rounded-t-lg font-semibold mb-1">
+      <div className="bg-primary text-primary-foreground text-center p-2 rounded-t-lg font-semibold mb-1 font-poppins">
         {title}
       </div>
-      <div className="border-2 border-dashed border-gray-300 rounded-b-lg p-6 text-center">
+      <div className="border-2 border-dashed border-border rounded-b-lg p-6 text-center">
         <label
           htmlFor={id}
           className="cursor-pointer flex flex-col items-center justify-center"
         >
           <FileUp className="w-8 h-8 mb-1" />
           {fileName || selectedFileName ? (
-            <span className="text-sm font-semibold text-gray-800">
-              {isUploaded ? "File berhasil diupload" : (fileName || selectedFileName)}
+            <span className="text-sm font-semibold text-foreground">
+              {isUploaded
+                ? "File berhasil diupload"
+                : fileName || selectedFileName}
             </span>
           ) : (
             <div>
-              <span className="text-[#EF5A5A] font-semibold">pilih</span>{" "}
+              <span className="text-primary font-semibold">pilih</span>{" "}
               <span className="text-black font-semibold">
                 File untuk diupload
               </span>
             </div>
           )}
-          <p className="text-sm text-[#6E7E9D]">
+          <p className="text-sm text-muted-foreground font-poppins">
             mendukung format {acceptedTypes.join(", ")} (maks. {maxSizeMB}MB)
           </p>
         </label>
@@ -166,7 +170,7 @@ const CustomUploadFile = ({
             <button
               type="button"
               onClick={handleManualUpload}
-              className="w-full bg-[#EF5A5A] text-white py-2 px-4 rounded-lg font-semibold hover:bg-[#d94545] transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-poppins"
             >
               <Upload className="w-4 h-4" />
               Upload File
@@ -176,7 +180,7 @@ const CustomUploadFile = ({
 
         {/* Validation Error */}
         {validationError && (
-          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
+          <div className="mt-2 p-2 bg-destructive/10 border border-destructive/20 rounded text-destructive text-xs">
             {validationError}
           </div>
         )}
@@ -184,25 +188,29 @@ const CustomUploadFile = ({
         {/* Loading Spinner */}
         {isUploading && (
           <div className="mt-4 flex flex-col items-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#EF5A5A]" />
-            <p className="text-xs text-gray-600 mt-2">Mengupload file...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-xs text-muted-foreground mt-2">
+              Mengupload file...
+            </p>
           </div>
         )}
 
         {/* Upload Success Message */}
         {isUploaded && !isUploading && (
           <div className="mt-4 flex flex-col items-center">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
               <Check className="w-5 h-5 text-white" />
             </div>
-            <p className="text-xs text-green-600 mt-2 font-medium">File berhasil diupload!</p>
+            <p className="text-xs text-success mt-2 font-medium">
+              File berhasil diupload!
+            </p>
           </div>
         )}
 
         {/* Upload Result */}
         {uploadResult && uploadResult.success && (
           <div className="mt-2">
-            <p className="text-xs text-green-600 break-all">
+            <p className="text-xs text-success break-all">
               File disimpan dengan nama &quot;
               {(uploadResult.path?.split("/").pop() || fileName || "").replace(
                 /\s+/g,

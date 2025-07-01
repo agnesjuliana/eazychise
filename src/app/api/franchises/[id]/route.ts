@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireRole([
     Role.FRANCHISOR,
@@ -81,7 +81,10 @@ export async function GET(
 }
 
 // PUT api/franchises/:id
-export async function PUT(req: Request, context: { params: { id: string } }) {
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   const auth = await requireRole([Role.FRANCHISOR]);
   if ("error" in auth) {
     return NextResponse.json(formatError({ message: auth.error }), {
