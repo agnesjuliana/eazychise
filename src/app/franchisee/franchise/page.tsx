@@ -96,46 +96,94 @@ function OwnedFranchisePage() {
     </Card>
   );
 
-  const FranchiseItem = ({ franchise }: { franchise: FranchisePurchase }) => (
-    <Card
-      className="cursor-pointer hover:shadow-md transition-shadow duration-200"
-      onClick={() => handleFranchiseClick(franchise.franchise_id)}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          {/* Franchise Image */}
-          <div className="w-16 h-16 relative rounded-lg overflow-hidden flex-shrink-0">
-            <Image
-              src={franchise.franchise.image || "/image/dummy/burger_lokal.jpg"}
-              alt={franchise.franchise.name}
-              fill
-              className="object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/image/dummy/burger_lokal.jpg";
-              }}
-            />
-          </div>
+  const FranchiseItem = ({ franchise }: { franchise: FranchisePurchase }) => {
+    const isRejected = franchise.confirmation_status === "REJECTED";
+    const isActive = franchise.confirmation_status === "ACCEPTED";
+    const isPending = franchise.confirmation_status === "WAITING";
 
-          {/* Franchise Details */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground truncate mb-1">
-              {franchise.franchise.name}
-            </h3>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{franchise.franchise.location}</span>
+    const getStatusBadge = () => {
+      if (isActive) {
+        return (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Active
+          </span>
+        );
+      }
+      if (isPending) {
+        return (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+            Pending
+          </span>
+        );
+      }
+      if (isRejected) {
+        return (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            Rejected
+          </span>
+        );
+      }
+      return null;
+    };
+
+    const handleClick = () => {
+      if (!isRejected) {
+        handleFranchiseClick(franchise.franchise_id);
+      }
+    };
+
+    return (
+      <Card
+        className={`transition-all duration-200 ${
+          isRejected
+            ? "opacity-60 cursor-not-allowed"
+            : "cursor-pointer hover:shadow-md"
+        }`}
+        onClick={handleClick}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            {/* Franchise Image */}
+            <div className="w-16 h-16 relative rounded-lg overflow-hidden flex-shrink-0">
+              <Image
+                src={
+                  franchise.franchise.image || "/image/dummy/burger_lokal.jpg"
+                }
+                alt={franchise.franchise.name}
+                fill
+                className="object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/image/dummy/burger_lokal.jpg";
+                }}
+              />
             </div>
-          </div>
 
-          {/* Arrow */}
-          <div className="flex items-center">
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            {/* Franchise Details */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between mb-1">
+                <h3 className="font-semibold text-foreground truncate">
+                  {franchise.franchise.name}
+                </h3>
+                {getStatusBadge()}
+              </div>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{franchise.franchise.location}</span>
+              </div>
+            </div>
+
+            {/* Arrow - only show if not rejected */}
+            {!isRejected && (
+              <div className="flex items-center">
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </div>
+            )}
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <AppLayout>
