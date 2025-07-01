@@ -141,7 +141,7 @@ function ProfilePage() {
   ];
 
   return (
-    <AppLayout>
+    <AppLayout className="overflow-x-hidden">
       {/* Scrollable Header */}
       <div className="flex flex-col gap-4 bg-background w-full">
         <HeaderPage title="PROFILE" />

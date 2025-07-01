@@ -153,20 +153,7 @@ function EventPage() {
             <style
               dangerouslySetInnerHTML={{
                 __html: `
-              /* Event dot styling */
-              .event-dot::after {
-                content: '';
-                position: absolute;
-                bottom: 2px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 10px;
-                height: 10px;
-                background-color: hsl(var(--primary));
-                border-radius: 50%;
-              }
-              
-              /* Navigation buttons - comprehensive selectors */
+              /* Navigation buttons styling */
               .rdp .rdp-nav button,
               .rdp-nav button,
               .rdp-button_previous,
@@ -212,25 +199,7 @@ function EventPage() {
                 fill: hsl(var(--muted-foreground)) !important;
               }
               
-              /* Force any navigation related elements to be black */
-              .rdp-nav *,
-              .rdp [class*="nav"] *,
-              .rdp [class*="button_previous"] *,
-              .rdp [class*="button_next"] * {
-                color: hsl(var(--foreground)) !important;
-                fill: hsl(var(--foreground)) !important;
-              }
-              
-              /* Remove any blue color overrides */
-              .rdp button[class*="nav"],
-              .rdp button[class*="button_previous"],
-              .rdp button[class*="button_next"] {
-                color: hsl(var(--foreground)) !important;
-                background-color: transparent !important;
-                border: none !important;
-              }
-              
-              /* Remove outline from today and any selected dates */
+              /* Remove outline from buttons */
               .rdp button:focus,
               .rdp button:focus-visible,
               .rdp .rdp-day_selected,
@@ -242,55 +211,12 @@ function EventPage() {
                 border: none !important;
               }
               
-              /* Remove outline on today/selected date - more aggressive */
-              .rdp .rdp-day_selected,
-              .rdp .rdp-day_today,
-              .rdp button[aria-selected="true"],
-              .rdp button[data-selected="true"],
-              .rdp button:focus,
-              .rdp button:focus-visible,
-              .rdp [aria-selected="true"],
-              .rdp [data-selected="true"] {
-                outline: none !important;
-                box-shadow: none !important;
-                border: 2px solid transparent !important;
-                ring: none !important;
-              }
-              
-              /* Force remove any focus states and blue outlines */
-              .rdp *:focus,
-              .rdp *:focus-visible,
-              .rdp button,
-              .rdp [role="gridcell"] button,
-              .rdp [role="gridcell"] button:focus,
-              .rdp [role="gridcell"] button:focus-visible,
-              .rdp [data-selected],
-              .rdp [aria-selected],
-              .rdp .rdp-day,
-              .rdp .rdp-day:focus,
-              .rdp .rdp-day:focus-visible {
-                outline: none !important;
-                box-shadow: none !important;
-                border-color: transparent !important;
-                ring: 0 !important;
-                --tw-ring-shadow: none !important;
-                --tw-ring-offset-shadow: none !important;
-              }
-              
-              /* Remove any blue color on buttons */
-              .rdp button[role="gridcell"],
-              .rdp [role="gridcell"] button {
-                outline: none !important;
-                box-shadow: none !important;
-                border: none !important;
-              }
-              
-              /* Disable pointer events on all date buttons to make truly unclickable */
+              /* Disable pointer events on date buttons */
               .rdp .rdp-day {
                 pointer-events: none !important;
               }
               
-              /* But keep pointer events on navigation buttons */
+              /* Keep pointer events on navigation buttons */
               .rdp .rdp-nav button,
               .rdp-nav button,
               .rdp-button_previous,
@@ -316,18 +242,54 @@ function EventPage() {
                 }}
                 modifiersStyles={{
                   today: {
-                    backgroundColor: "hsl(var(--primary))",
-                    color: "hsl(var(--primary-foreground))",
+                    backgroundColor: "#f87171", // Orange background
+                    color: "white",
                     borderRadius: "50%",
                     fontWeight: "600",
                     border: "none",
                   },
                   event: {
                     position: "relative",
+                    backgroundColor: "transparent",
                   },
                 }}
                 modifiersClassNames={{
                   event: "event-dot",
+                }}
+                components={{
+                  Day: ({ day, modifiers, ...props }) => {
+                    const hasEvent = modifiers?.event;
+                    
+                    return (
+                      <td 
+                        {...props} 
+                        className={`relative ${props.className || ''}`}
+                        style={{ 
+                          ...props.style,
+                          position: 'relative',
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          height: '40px',
+                          width: '40px'
+                        }}
+                      >
+                        <div style={{ position: 'relative', display: 'inline-block' }}>
+                          {day.date.getDate()}
+                          {hasEvent && (
+                            <div 
+                              className="absolute w-1.5 h-1.5 bg-[#f87171] rounded-full"
+                              style={{
+                                bottom: '-2px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 10
+                              }}
+                            />
+                          )}
+                        </div>
+                      </td>
+                    );
+                  }
                 }}
               />
             </div>
