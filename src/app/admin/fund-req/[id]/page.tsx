@@ -3,18 +3,18 @@ import AdminLayout from "@/components/admin-layout";
 import HeaderPage from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import React from "react";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/usetoast";
+import { ArrowLeft } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import React from "react";
 
 // Type definition menggunakan ConfirmationStatus saja
 type ConfirmationStatus = "REJECTED" | "WAITING" | "ACCEPTED" | "INTERVIEW";
@@ -59,11 +59,6 @@ function DetailFundingRequestPage() {
         const data = await res.json();
 
         if (data.status) {
-          const raw = data.data; // ✅ tambahkan ini
-          const mapped: FundingData = {
-            ...raw,
-            confirmationStatus: raw.confirmation_status,
-          }; // ✅ mapping snake_case → camelCase
           setFunding(data.data);
         } else {
           console.error("Failed to fetch funding data");

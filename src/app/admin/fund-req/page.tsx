@@ -6,9 +6,9 @@ import { ListItemSkeleton } from "@/components/ui/skeleton";
 
 import React from "react";
 
-import Link from "next/link";
 import AdminLayout from "@/components/admin-layout";
 import withAuth from "@/lib/withAuth";
+import Link from "next/link";
 
 type FundingWithUser = {
   id: string;
@@ -44,15 +44,16 @@ function AdminApprovePage() {
         console.log("Fetched funding request data:", data.data);
 
         if (data.status) {
-            console.log("Raw data:", data.data);
-            const mappedData = (data.data as any[]).map((req) => ({
-                ...req,
-                confirmationStatus: req.confirmation_status || req.confirmationStatus,
-                 // fallback biar aman
-            })) as FundingWithUser[];
+          console.log("Raw data:", data.data);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mappedData = (data.data as any[]).map((req) => ({
+            ...req,
+            confirmationStatus:
+              req.confirmation_status || req.confirmationStatus,
+            // fallback biar aman
+          })) as FundingWithUser[];
 
-            setRequests(mappedData);
-
+          setRequests(mappedData);
         } else {
           console.error("Failed to fetch funding request data:", data);
         }
@@ -79,30 +80,32 @@ function AdminApprovePage() {
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
         <HeaderPage title="Approve Funding Request" />
         <div className="flex w-full items-center px-1 bg-gray-50 justify-between border-t border-gray-200 pt-2">
-          {["all", "WAITING", "INTERVIEW", "ACCEPTED", "REJECTED"].map((val) => (
-            <Button
-              key={val}
-              onClick={() => setStatus(val)}
-              variant="ghost"
-              size="sm"
-              disabled={status === val}
-              className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
-                status === val
-                  ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
-                  : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
-              }`}
-            >
-              {val === "all"
-                ? "All"
-                : val === "WAITING"
-                ? "Pending"
-                : val === "INTERVIEW"
-                ? "Interview"
-                : val === "ACCEPTED"
-                ? "Approved"
-                : "Rejected"}
-            </Button>
-          ))}
+          {["all", "WAITING", "INTERVIEW", "ACCEPTED", "REJECTED"].map(
+            (val) => (
+              <Button
+                key={val}
+                onClick={() => setStatus(val)}
+                variant="ghost"
+                size="sm"
+                disabled={status === val}
+                className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
+                  status === val
+                    ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
+                    : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
+                }`}
+              >
+                {val === "all"
+                  ? "All"
+                  : val === "WAITING"
+                  ? "Pending"
+                  : val === "INTERVIEW"
+                  ? "Interview"
+                  : val === "ACCEPTED"
+                  ? "Approved"
+                  : "Rejected"}
+              </Button>
+            )
+          )}
         </div>
       </div>
 
@@ -129,16 +132,16 @@ function AdminApprovePage() {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-lg font-semibold">{req.user.name}</h3>
                     <span
-                        className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                            req.confirmationStatus === "WAITING"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : req.confirmationStatus === "INTERVIEW"
-                            ? "bg-blue-100 text-blue-800"
-                            : req.confirmationStatus === "ACCEPTED"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                        >
+                      className={`px-2 py-1 text-xs rounded-full font-semibold ${
+                        req.confirmationStatus === "WAITING"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : req.confirmationStatus === "INTERVIEW"
+                          ? "bg-blue-100 text-blue-800"
+                          : req.confirmationStatus === "ACCEPTED"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {req.confirmationStatus === "WAITING"
                         ? "Pending"
                         : req.confirmationStatus === "INTERVIEW"
