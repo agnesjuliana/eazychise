@@ -2,7 +2,7 @@
 // This file handles user session management and role-based access control
 // src/lib/auth.ts
 import { cookies } from "next/headers";
-import { PrismaClient } from "@prisma/client";
+import { $Enums, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -38,9 +38,18 @@ export async function getSessionUser() {
 export type Roles = "ADMIN" | "FRANCHISOR" | "FRANCHISEE";
 
 // Access control by role (single or array)
-export async function requireRole(
-  allowedRoles: Roles[] | Roles
-): Promise<{ user: unknown } | { error: string; status: number }> {
+export async function requireRole(allowedRoles: Roles[] | Roles): Promise<
+  | {
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        role: $Enums.Roles;
+        status: $Enums.Status;
+      };
+    }
+  | { error: string; status: number }
+> {
   const user = await getSessionUser();
 
   if (!user) {

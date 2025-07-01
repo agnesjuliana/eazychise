@@ -47,6 +47,7 @@ export async function PUT(
         franchise: {
           select: {
             id: true,
+            franchisor_id: true,
             name: true,
           },
         },
@@ -85,13 +86,44 @@ export async function PUT(
       );
     }
 
-    // Update only MoU documents
-    const updatedFundingRequest = await prisma.funding_request.update({
-      where: { id: purchase.funding_request.id },
-      data: {
-        mou_franchisor,
-        mou_modal,
+    const admins = await prisma.users.findMany({
+      where: {
+        role: "ADMIN",
       },
+    });
+
+    const updatedFundingRequest = await prisma.$transaction(async (tx) => {
+      const updatedFundingRequest = await tx.funding_request.update({
+        where: { id: purchase.funding_request?.id },
+        data: {
+          mou_franchisor,
+          mou_modal,
+        },
+      });
+
+      await tx.user_notifications.createMany({
+        data: admins.map((admin) => ({
+          user_id: admin.id,
+          title: "New MoU Document Uploaded",
+          message: `${auth.user.name} telah upload dokumen MoU untuk pembelian Franchise ${purchase.franchise.name}.`,
+          type: "funding_request",
+          is_read: false,
+          sent_at: new Date(),
+        })),
+      });
+
+      await tx.user_notifications.create({
+        data: {
+          user_id: purchase.franchise.franchisor_id,
+          title: "New MoU Document Uploaded",
+          message: `${auth.user.name} telah upload dokumen MoU.`,
+          type: "funding_request",
+          is_read: false,
+          sent_at: new Date(),
+        },
+      });
+
+      return updatedFundingRequest;
     });
 
     // Also update the main purchase confirmation_status to WAITING
