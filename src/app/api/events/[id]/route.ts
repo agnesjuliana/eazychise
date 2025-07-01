@@ -7,6 +7,41 @@ import { formatResponse, formatError } from "@/utils/response";
 
 const prisma = new PrismaClient();
 
+export async function GET(
+  _: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await requireRole(Role.ADMIN);
+
+    if ("error" in auth) {
+      return NextResponse.json(formatError({ message: auth.error }), {
+        status: auth.status,
+      });
+    }
+
+    const { id } = await params;
+
+    const event = await prisma.events.findUnique({ where: { id } });
+    if (!event) {
+      return NextResponse.json(formatError({ message: "Event not found" }), {
+        status: 404,
+      });
+    }
+
+    return NextResponse.json(
+      formatResponse({
+        data: event,
+        message: "Successfully fetched event",
+      }),
+      { status: 200 }
+    );
+  } catch (err: unknown) {
+    console.error("Error fetching event:", err);
+    return NextResponse.json({ error: "Terjadi kesalahan" }, { status: 500 });
+  }
+}
+
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
