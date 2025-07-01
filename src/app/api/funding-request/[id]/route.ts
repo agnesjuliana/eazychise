@@ -99,6 +99,13 @@ export async function PATCH(
     const { id } = await params;
     const funding_request = await prisma.funding_request.findUnique({
       where: { id },
+      include: {
+        purchase: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
 
     if (!funding_request) {
@@ -130,6 +137,17 @@ export async function PATCH(
     }
 
     const { updated } = await prisma.$transaction(async (tx) => {
+      if (status == "REJECTED") {
+        await tx.franchise_purchases.update({
+          where: {
+            id: funding_request.purchase_id,
+          },
+          data: {
+            confirmation_status: "REJECTED",
+          },
+        });
+      }
+
       const updated = await tx.funding_request.update({
         where: { id: funding_request.id },
         data: {
