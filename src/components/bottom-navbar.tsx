@@ -62,7 +62,7 @@ export default function BottomNavbar({
 
   return (
     <div
-      className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 shadow-lg z-50 ${className}`}
+      className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-border shadow-lg z-50 ${className}`}
     >
       <div className="flex items-center justify-around h-16 px-4">
         {navItems.map((item) => {
@@ -81,22 +81,24 @@ export default function BottomNavbar({
               key={item.href}
               href={item.href}
               onClick={handleClick}
-              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 transition-all duration-200 group rounded-lg active:scale-95 active:bg-red-200 ${
-                isActive ? "text-red-500" : "text-gray-500 hover:text-red-500 "
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 transition-all duration-200 group rounded-lg active:scale-95 active:bg-primary/20 ${
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-primary "
               }`}
             >
               <Icon
                 className={`w-6 h-6 mb-1 transition-colors duration-200 ${
                   isActive
-                    ? "text-red-500"
-                    : "text-gray-500 group-hover:text-red-500"
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-primary"
                 }`}
               />
               <span
-                className={`text-xs font-medium truncate transition-colors duration-200 ${
+                className={`text-xs font-medium truncate transition-colors duration-200 font-poppins ${
                   isActive
-                    ? "text-red-500"
-                    : "text-gray-500 group-hover:text-red-500"
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-primary"
                 }`}
               >
                 {item.label}

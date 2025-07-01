@@ -4,7 +4,7 @@ import { Role, Status } from "@/type/user";
 import { useRouter, usePathname } from "next/navigation";
 import React, { useEffect, useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading";
 import useAuthStore from "@/store/authStore";
 import { User } from "@/type/user";
 
@@ -220,7 +220,7 @@ export default function withAuth<T extends object>(
     if (!hasChecked && !user && !isAuthenticated) {
       return (
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
+          <LoadingSpinner size="xl" />
         </div>
       );
     }
@@ -230,7 +230,7 @@ export default function withAuth<T extends object>(
       // Always render a consistent loading state that matches what the client will show initially
       return (
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
+          <LoadingSpinner size="xl" />
         </div>
       );
     }
@@ -371,7 +371,7 @@ export default function withAuth<T extends object>(
         // Show minimal loading during redirect
         return (
           <div className="flex min-h-screen items-center justify-center">
-            <Loader2 className="h-10 w-10 animate-spin text-[#EF5A5A]" />
+            <LoadingSpinner size="xl" />
           </div>
         );
       }

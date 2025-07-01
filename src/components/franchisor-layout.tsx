@@ -16,7 +16,9 @@ export default function AppLayout({
   showBottomNav = true,
 }: AppLayoutProps) {
   return (
-    <div className={`min-h-screen bg-gray-50 flex justify-center ${className}`}>
+    <div
+      className={`min-h-screen bg-background flex justify-center ${className}`}
+    >
       <div className="w-full max-w-md relative">
         {/* Main content area */}
         <main className={`${showBottomNav ? "pb-16" : ""}`}>{children}</main>
