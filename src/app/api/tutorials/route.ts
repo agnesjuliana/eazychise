@@ -97,6 +97,9 @@ export async function GET() {
         path: true,
         type: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return NextResponse.json(

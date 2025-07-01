@@ -80,6 +80,9 @@ export async function GET(req: Request) {
         profileImage: request.purchase.user.profile_image,
         role: request.purchase.user.role,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     }));
 
     return NextResponse.json(

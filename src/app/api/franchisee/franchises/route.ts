@@ -55,7 +55,7 @@ export async function GET(_req: Request) {
       skip: skip,
       take: limit,
       orderBy: {
-        paid_at: "desc",
+        createdAt: "desc",
       },
     });
 

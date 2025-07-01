@@ -21,6 +21,9 @@ export async function GET() {
       where: {
         user_id: user.id,
       },
+      orderBy: {
+        sent_at: "desc",
+      },
     });
 
     const resp = notification.map((notification) => ({

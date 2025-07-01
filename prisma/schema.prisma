@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
@@ -51,8 +51,8 @@ model users {
   profile_image String?
   role          Roles
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime? @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 
   franchises          franchise_listings[]
   franchise_purchases franchise_purchases[]
@@ -61,13 +61,14 @@ model users {
 }
 
 model franchise_purchases {
-  id                  String             @id @default(uuid()) @db.Uuid
-  user_id             String             @db.Uuid
-  franchise_id        String             @db.Uuid
+  id                  String        @id @default(uuid()) @db.Uuid
+  user_id             String        @db.Uuid
+  franchise_id        String        @db.Uuid
   purchase_type       PurchaseType
   confirmation_status Status
   payment_status      PaymentStatus
   paid_at             DateTime?
+  createdAt           DateTime      @default(now())
 
   user            users              @relation(fields: [user_id], references: [id])
   franchise       franchise_listings @relation(fields: [franchise_id], references: [id])
@@ -75,18 +76,19 @@ model franchise_purchases {
 }
 
 model funding_request {
-  id                String @id @default(uuid()) @db.Uuid
-  purchase_id       String @unique @db.Uuid
+  id                  String             @id @default(uuid()) @db.Uuid
+  purchase_id         String             @unique @db.Uuid
   confirmation_status ConfirmationStatus
-  address           String
-  phone_number      String
-  npwp              String
-  franchise_address String
-  ktp               String
-  foto_diri         String
-  foto_lokasi       String
-  mou_franchisor    String
-  mou_modal         String
+  address             String
+  phone_number        String
+  npwp                String
+  franchise_address   String
+  ktp                 String
+  foto_diri           String
+  foto_lokasi         String
+  mou_franchisor      String
+  mou_modal           String
+  createdAt           DateTime           @default(now())
 
   purchase franchise_purchases @relation(fields: [purchase_id], references: [id])
 }
@@ -101,8 +103,8 @@ model franchisor_profiles {
 }
 
 model franchise_listings {
-  id                  String  @id @default(uuid()) @db.Uuid
-  franchisor_id       String  @db.Uuid
+  id                  String   @id @default(uuid()) @db.Uuid
+  franchisor_id       String   @db.Uuid
   name                String
   price               Decimal
   image               String
@@ -114,6 +116,7 @@ model franchise_listings {
   sales_location      String
   equipment           String
   materials           String
+  createdAt           DateTime @default(now())
 
   franchisor           users                 @relation(fields: [franchisor_id], references: [id])
   purchases            franchise_purchases[]
@@ -128,6 +131,7 @@ model listing_documents {
   type         DocumentType
   name         String
   path         String
+  createdAt    DateTime     @default(now())
 
   franchise franchise_listings @relation(fields: [id_franchise], references: [id])
 }
@@ -145,20 +149,22 @@ model user_notifications {
 }
 
 model listings_highlights {
-  id           String @id @default(uuid()) @db.Uuid
-  id_franchise String @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
+  id_franchise String   @db.Uuid
   title        String
   content      String
+  createdAt    DateTime @default(now())
 
   franchise franchise_listings @relation(fields: [id_franchise], references: [id])
 }
 
 model events {
-  id       String   @id @default(uuid()) @db.Uuid
-  name     String
-  price    Decimal
-  datetime DateTime
-  image    String
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  price     Decimal
+  datetime  DateTime
+  image     String
+  createdAt DateTime @default(now())
 }
 
 model category {

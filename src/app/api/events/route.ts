@@ -9,7 +9,11 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const events = await prisma.events.findMany();
+    const events = await prisma.events.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
     const resp = events.map((event) => ({
       id: event.id,

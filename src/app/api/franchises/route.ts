@@ -116,6 +116,9 @@ export async function GET(_req: Request) {
       },
       skip: skip,
       take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const total = await prisma.franchise_listings.count({});
