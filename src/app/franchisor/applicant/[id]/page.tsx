@@ -241,7 +241,7 @@ function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   }
 
   return (
-    <FranchisorLayout>
+    <FranchisorLayout className="overflow-x-hidden">
       {/* Header */}
       <div className="relative">
         <HeaderPage title="Detail Applicant" />

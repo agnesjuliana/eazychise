@@ -115,7 +115,7 @@ function ApplicantPage() {
   };
 
   return (
-    <FranchisorLayout>
+    <FranchisorLayout className="overflow-x-hidden">
       {/* Header */}
       <div className="relative">
         <HeaderPage title="Applicant" />
