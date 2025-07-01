@@ -47,10 +47,10 @@ function DetailFundingRequestPage() {
   const [funding, setFunding] = React.useState<FundingData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [open, setOpen] = React.useState(false);
-  const [actionStatus, setActionStatus] = React.useState<ConfirmationStatus | null>(null);
+  const [actionStatus, setActionStatus] =
+    React.useState<ConfirmationStatus | null>(null);
   const { showToast, ToastRenderer } = useToast();
 
-  
   React.useEffect(() => {
     const fetchFunding = async () => {
       try {
@@ -59,11 +59,11 @@ function DetailFundingRequestPage() {
 
         if (data.status) {
           const raw = data.data; // ✅ tambahkan ini
-            const mapped: FundingData = {
-             ...raw,
+          const mapped: FundingData = {
+            ...raw,
             confirmationStatus: raw.confirmation_status,
-            }; // ✅ mapping snake_case → camelCase
-           setFunding(data.data);
+          }; // ✅ mapping snake_case → camelCase
+          setFunding(data.data);
         } else {
           console.error("Failed to fetch funding data");
         }
@@ -89,52 +89,56 @@ function DetailFundingRequestPage() {
   );
 
   const handleAction = async (status: ConfirmationStatus) => {
-  try {
-    const payload = {
-      confirmation_status: status, // ✅ hanya untuk funding_request
-    };
+    try {
+      const payload = {
+        status: status, // ✅ hanya untuk funding_request
+      };
 
-    const res = await fetch(`/api/funding-request/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+      const res = await fetch(`/api/funding-request/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok && data.status) {
-      showToast("Status berhasil diperbarui", "success");
+      if (res.ok && data.status) {
+        showToast("Status berhasil diperbarui", "success");
 
-      setFunding((prev) => prev && { ...prev, confirmation_status: status });
-      setOpen(false);
+        setFunding((prev) => prev && { ...prev, confirmation_status: status });
+        setOpen(false);
 
-      // ✅ Tambahkan query param agar AdminApprovePage bisa re-fetch
-      router.replace("/admin/fund-req?updated=true");
-    } else {
-      showToast(data.message || "Gagal memperbarui status", "destructive");
-      console.error("Server error:", data);
+        // ✅ Tambahkan query param agar AdminApprovePage bisa re-fetch
+        router.replace("/admin/fund-req?updated=true");
+      } else {
+        showToast(data.message || "Gagal memperbarui status", "destructive");
+        console.error("Server error:", data);
+      }
+    } catch (err) {
+      showToast("Terjadi kesalahan saat memperbarui data", "destructive");
+      console.error(err);
     }
-  } catch (err) {
-    showToast("Terjadi kesalahan saat memperbarui data", "destructive");
-    console.error(err);
-  }
-};
-
+  };
 
   // Helper function untuk menentukan status badge
   const getStatusBadge = (status: ConfirmationStatus) => {
-    const statusConfig: Record<ConfirmationStatus, { label: string; color: string }> = {
+    const statusConfig: Record<
+      ConfirmationStatus,
+      { label: string; color: string }
+    > = {
       WAITING: { label: "Menunggu", color: "bg-yellow-100 text-yellow-800" },
       INTERVIEW: { label: "Interview", color: "bg-blue-100 text-blue-800" },
       ACCEPTED: { label: "Disetujui", color: "bg-green-100 text-green-800" },
-      REJECTED: { label: "Ditolak", color: "bg-red-100 text-red-800" }
+      REJECTED: { label: "Ditolak", color: "bg-red-100 text-red-800" },
     };
 
     const config = statusConfig[status];
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-medium ${config.color}`}
+      >
         {config.label}
       </span>
     );
@@ -142,19 +146,22 @@ function DetailFundingRequestPage() {
 
   // Helper function untuk menentukan tombol yang tersedia
   const getAvailableActions = (currentStatus: ConfirmationStatus) => {
-    const actionConfig: Record<ConfirmationStatus, Array<{ action: ConfirmationStatus; label: string; variant: string }>> = {
+    const actionConfig: Record<
+      ConfirmationStatus,
+      Array<{ action: ConfirmationStatus; label: string; variant: string }>
+    > = {
       WAITING: [
         { action: "INTERVIEW", label: "Proses Interview", variant: "default" },
-        { action: "REJECTED", label: "Tolak", variant: "destructive" }
+        { action: "REJECTED", label: "Tolak", variant: "destructive" },
       ],
       INTERVIEW: [
         { action: "ACCEPTED", label: "Setujui", variant: "default" },
-        { action: "REJECTED", label: "Tolak", variant: "destructive" }
+        { action: "REJECTED", label: "Tolak", variant: "destructive" },
       ],
       ACCEPTED: [],
       REJECTED: [
-        { action: "INTERVIEW", label: "Proses Ulang", variant: "default" }
-      ]
+        { action: "INTERVIEW", label: "Proses Ulang", variant: "default" },
+      ],
     };
 
     return actionConfig[currentStatus] || [];
@@ -164,11 +171,11 @@ function DetailFundingRequestPage() {
   const getStatusLabel = (status: ConfirmationStatus): string => {
     const statusLabels: Record<ConfirmationStatus, string> = {
       WAITING: "Menunggu",
-      INTERVIEW: "Interview", 
+      INTERVIEW: "Interview",
       ACCEPTED: "Disetujui",
-      REJECTED: "Ditolak"
+      REJECTED: "Ditolak",
     };
-    
+
     return statusLabels[status];
   };
 
@@ -229,47 +236,73 @@ function DetailFundingRequestPage() {
 
                 <div className="space-y-6 pt-6">
                   <div className="space-y-2">
-                    <p className="font-semibold text-gray-800">Scan KTP Franchisee</p>
+                    <p className="font-semibold text-gray-800">
+                      Scan KTP Franchisee
+                    </p>
                     {downloadLink(funding.ktp, "Unduh Scan KTP")}
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-gray-800">Foto Diri Franchisee</p>
-                    {downloadLink(funding.foto_diri, "Unduh Foto Diri Franchisee")}
+                    <p className="font-semibold text-gray-800">
+                      Foto Diri Franchisee
+                    </p>
+                    {downloadLink(
+                      funding.foto_diri,
+                      "Unduh Foto Diri Franchisee"
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-gray-800">Foto Lokasi Franchise</p>
-                    {downloadLink(funding.foto_lokasi, "Unduh Foto Lokasi Franchise")}
+                    <p className="font-semibold text-gray-800">
+                      Foto Lokasi Franchise
+                    </p>
+                    {downloadLink(
+                      funding.foto_lokasi,
+                      "Unduh Foto Lokasi Franchise"
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-gray-800">Dokumen MoU Franchisor</p>
-                    {downloadLink(funding.mou_franchisor, "Unduh Dokumen MoU Franchisor")}
+                    <p className="font-semibold text-gray-800">
+                      Dokumen MoU Franchisor
+                    </p>
+                    {downloadLink(
+                      funding.mou_franchisor,
+                      "Unduh Dokumen MoU Franchisor"
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-gray-800">Dokumen MoU Modal</p>
+                    <p className="font-semibold text-gray-800">
+                      Dokumen MoU Modal
+                    </p>
                     {downloadLink(funding.mou_modal, "Unduh Dokumen MoU Modal")}
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                {getAvailableActions(funding.confirmation_status).length > 0 && (
+                {getAvailableActions(funding.confirmation_status).length >
+                  0 && (
                   <div className="flex gap-4 mt-6 justify-center">
-                    {getAvailableActions(funding.confirmation_status).map((actionConfig) => (
-                      <Button
-                        key={actionConfig.action}
-                        variant={actionConfig.variant === "destructive" ? "outline" : "default"}
-                        className={
-                          actionConfig.variant === "destructive"
-                            ? "border-red-500 text-red-500 hover:bg-red-100"
-                            : "bg-[#EF5A5A] text-white hover:bg-[#d34f4f]"
-                        }
-                        onClick={() => {
-                          setActionStatus(actionConfig.action);
-                          setOpen(true);
-                        }}
-                      >
-                        {actionConfig.label}
-                      </Button>
-                    ))}
+                    {getAvailableActions(funding.confirmation_status).map(
+                      (actionConfig) => (
+                        <Button
+                          key={actionConfig.action}
+                          variant={
+                            actionConfig.variant === "destructive"
+                              ? "outline"
+                              : "default"
+                          }
+                          className={
+                            actionConfig.variant === "destructive"
+                              ? "border-red-500 text-red-500 hover:bg-red-100"
+                              : "bg-[#EF5A5A] text-white hover:bg-[#d34f4f]"
+                          }
+                          onClick={() => {
+                            setActionStatus(actionConfig.action);
+                            setOpen(true);
+                          }}
+                        >
+                          {actionConfig.label}
+                        </Button>
+                      )
+                    )}
                   </div>
                 )}
 
@@ -298,32 +331,32 @@ function DetailFundingRequestPage() {
           <div className="py-4">
             <p>
               Apakah Anda yakin ingin mengubah status menjadi{" "}
-              <strong>
-                {actionStatus && getStatusLabel(actionStatus)}
-              </strong>
-              ?
+              <strong>{actionStatus && getStatusLabel(actionStatus)}</strong>?
             </p>
-            
+
             {actionStatus === "INTERVIEW" && (
               <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                 <p className="text-blue-800 text-sm">
-                  📋 Status akan diubah ke tahap interview. Pastikan untuk menghubungi calon franchisee untuk proses selanjutnya.
+                  📋 Status akan diubah ke tahap interview. Pastikan untuk
+                  menghubungi calon franchisee untuk proses selanjutnya.
                 </p>
               </div>
             )}
-            
+
             {actionStatus === "ACCEPTED" && (
               <div className="mt-3 p-3 bg-green-50 rounded-lg">
                 <p className="text-green-800 text-sm">
-                  ✅ Permohonan akan disetujui dan status tidak dapat diubah lagi setelah ini.
+                  ✅ Permohonan akan disetujui dan status tidak dapat diubah
+                  lagi setelah ini.
                 </p>
               </div>
             )}
-            
+
             {actionStatus === "REJECTED" && (
               <div className="mt-3 p-3 bg-red-50 rounded-lg">
                 <p className="text-red-800 text-sm">
-                  ❌ Permohonan akan ditolak. Pastikan keputusan ini sudah tepat.
+                  ❌ Permohonan akan ditolak. Pastikan keputusan ini sudah
+                  tepat.
                 </p>
               </div>
             )}
