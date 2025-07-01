@@ -97,6 +97,9 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
     useState<FranchiseePurchase | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Agreement state for Step 2 - Use Case 3.1
+  const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
+
   // State to store complete funding request data for PUT operation
   const [completeFundingData, setCompleteFundingData] = useState<{
     address: string;
@@ -588,7 +591,14 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       console.error("Submit error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Gagal mengirim permohonan";
-      toast.error(errorMessage);
+
+      // Enhanced error handling with help button - Use Case 10.1 preparation
+      toast.error(`${errorMessage}. Silakan coba lagi atau hubungi bantuan.`, {
+        action: {
+          label: "Bantuan",
+          onClick: () => window.open("/franchisee/profile/help", "_blank"),
+        },
+      });
       return false;
     } finally {
       setIsLoading(false);
@@ -596,6 +606,16 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
   }, [formData, filePaths, franchiseId, validateCloudinaryUrl]);
 
   const handleNext = useCallback(() => {
+    // Use Case 3.1: Validate agreement before proceeding from Step 2
+    if (currentStep === 2) {
+      if (!isAgreedToTerms) {
+        toast.error(
+          "Anda harus menyetujui syarat dan ketentuan untuk melanjutkan"
+        );
+        return;
+      }
+    }
+
     if (currentStep === 3) {
       // Show submit dialog for StepThree
       setShowSubmitDialog(true);
@@ -633,7 +653,7 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
         setCurrentStep(currentStep + 1);
       }
     }
-  }, [currentStep, showConditionalSteps, router]);
+  }, [currentStep, showConditionalSteps, router, isAgreedToTerms]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 1) {
@@ -644,25 +664,51 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
   const handleSubmitConfirm = useCallback(async () => {
     setShowSubmitDialog(false);
 
-    // Validate form data
-    if (
-      !formData.namaLengkap ||
-      !formData.alamatTempat ||
-      !formData.noTelepon ||
-      !formData.npwp ||
-      !formData.alamatFranchise
-    ) {
-      toast.error("Mohon lengkapi semua field yang wajib");
+    // Use Case 5.1: Enhanced form validation with detailed error messages
+    const missingFields = [];
+    if (!formData.namaLengkap) missingFields.push("Nama Lengkap");
+    if (!formData.alamatTempat) missingFields.push("Alamat Tempat Tinggal");
+    if (!formData.noTelepon) missingFields.push("No Telepon");
+    if (!formData.npwp) missingFields.push("NPWP");
+    if (!formData.alamatFranchise)
+      missingFields.push("Alamat Lokasi Franchise");
+
+    if (missingFields.length > 0) {
+      toast.error(
+        `Mohon lengkapi semua kolom yang diperlukan: ${missingFields.join(
+          ", "
+        )}`,
+        {
+          action: {
+            label: "Bantuan",
+            onClick: () => window.open("/franchisee/profile/help", "_blank"),
+          },
+        }
+      );
       return;
     }
 
     // Validate that we have valid Cloudinary URLs for required files
-    if (
-      !validateCloudinaryUrl(filePaths.scanKTP) ||
-      !validateCloudinaryUrl(filePaths.fotoDiri) ||
-      !validateCloudinaryUrl(filePaths.fotoFranchise)
-    ) {
-      toast.error("Mohon upload semua dokumen yang diperlukan dari Cloudinary");
+    const missingFiles = [];
+    if (!validateCloudinaryUrl(filePaths.scanKTP))
+      missingFiles.push("Scan KTP");
+    if (!validateCloudinaryUrl(filePaths.fotoDiri))
+      missingFiles.push("Foto Diri");
+    if (!validateCloudinaryUrl(filePaths.fotoFranchise))
+      missingFiles.push("Foto Lokasi Franchise");
+
+    if (missingFiles.length > 0) {
+      toast.error(
+        `Mohon upload semua dokumen yang diperlukan: ${missingFiles.join(
+          ", "
+        )}`,
+        {
+          action: {
+            label: "Bantuan",
+            onClick: () => window.open("/franchisee/profile/help", "_blank"),
+          },
+        }
+      );
       return;
     }
 
@@ -1073,7 +1119,12 @@ function RequestFundingPage({ user, params }: RequestFundingPageProps) {
       case 1:
         return <StepOne />;
       case 2:
-        return <StepTwo />;
+        return (
+          <StepTwo
+            onAgreementChange={setIsAgreedToTerms}
+            isAgreed={isAgreedToTerms}
+          />
+        );
       case 3:
         return renderStepThreeForm();
       case 4:
