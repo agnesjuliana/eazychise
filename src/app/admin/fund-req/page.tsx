@@ -80,32 +80,30 @@ function AdminApprovePage() {
       <div className="flex flex-col gap-4 fixed top-0 left-0 right-0 z-10 max-w-md mx-auto bg-gray-50 w-full">
         <HeaderPage title="Approve Funding Request" />
         <div className="flex w-full items-center px-1 bg-gray-50 justify-between border-t border-gray-200 pt-2">
-          {["all", "WAITING", "INTERVIEW", "ACCEPTED", "REJECTED"].map(
-            (val) => (
-              <Button
-                key={val}
-                onClick={() => setStatus(val)}
-                variant="ghost"
-                size="sm"
-                disabled={status === val}
-                className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
-                  status === val
-                    ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
-                    : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
-                }`}
-              >
-                {val === "all"
-                  ? "All"
-                  : val === "WAITING"
-                  ? "Pending"
-                  : val === "INTERVIEW"
-                  ? "Interview"
-                  : val === "ACCEPTED"
-                  ? "Approved"
-                  : "Rejected"}
-              </Button>
-            )
-          )}
+          {["all", "WAITING", "ACCEPTED", "REJECTED"].map((val) => (
+            <Button
+              key={val}
+              onClick={() => setStatus(val)}
+              variant="ghost"
+              size="sm"
+              disabled={status === val}
+              className={`relative px-2 disabled:opacity-100 cursor-pointer rounded-none border-0 shadow-none text-xs ${
+                status === val
+                  ? "text-[#EF5A5A] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#EF5A5A]"
+                  : "text-gray-600 hover:bg-transparent hover:text-[#EF5A5A]"
+              }`}
+            >
+              {val === "all"
+                ? "All"
+                : val === "WAITING"
+                ? "Pending"
+                : val === "INTERVIEW"
+                ? "Interview"
+                : val === "ACCEPTED"
+                ? "Approved"
+                : "Rejected"}
+            </Button>
+          ))}
         </div>
       </div>
 
